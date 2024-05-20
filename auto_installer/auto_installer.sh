@@ -13,8 +13,11 @@ echo "Setting up Python virtual environment..."
 python3 -m venv myenv
 source myenv/bin/activate
 
+echo "Installing wheel package..."
+pip install wheel
+
 echo "Installing required Python libraries..."
-pip install RPi.GPIO Flask adafruit-blinka adafruit-circuitpython-ads1x15 adafruit-circuitpython-ili9341 adafruit-circuitpython-touchscreen
+pip install --use-pep517 RPi.GPIO Flask adafruit-blinka adafruit-circuitpython-ads1x15 adafruit-circuitpython-ili9341 adafruit-circuitpython-touchscreen
 
 echo "Creating project directory..."
 mkdir -p ~/rpi_control
