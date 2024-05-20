@@ -153,8 +153,15 @@ cat << 'EOF' > templates/index.html
 </html>
 EOF
 
+# Check if the Nginx default configuration file exists before attempting to remove it
+if [ -f /etc/nginx/sites-enabled/default ]; then
+    echo "Removing Nginx default configuration..."
+    sudo rm /etc/nginx/sites-enabled/default
+else
+    echo "Nginx default configuration not found, skipping removal."
+fi
+
 echo "Configuring Nginx..."
-sudo rm /etc/nginx/sites-enabled/default
 sudo tee /etc/nginx/sites-available/flask_app << 'EOF'
 server {
     listen 80;
