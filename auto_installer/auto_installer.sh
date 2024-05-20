@@ -6,17 +6,20 @@ echo "Updating system..."
 sudo apt-get update -y
 sudo apt-get upgrade -y
 
-echo "Installing necessary packages..."
+echo "Installing necessary system packages..."
 sudo apt-get install -y python3-pip python3-venv nginx git
 
-echo "Setting up Python virtual environment..."
-python3 -m venv myenv
-source myenv/bin/activate
+echo "Creating Python virtual environment..."
+python3 -m venv ~/myenv
 
-echo "Installing wheel package..."
+echo "Activating virtual environment..."
+source ~/myenv/bin/activate
+
+echo "Upgrading pip and installing wheel package in the virtual environment..."
+pip install --upgrade pip
 pip install wheel
 
-echo "Installing required Python libraries..."
+echo "Installing required Python libraries with --use-pep517 option in the virtual environment..."
 pip install --use-pep517 RPi.GPIO Flask adafruit-blinka adafruit-circuitpython-ads1x15 adafruit-circuitpython-ili9341 adafruit-circuitpython-touchscreen
 
 echo "Creating project directory..."
@@ -172,5 +175,5 @@ sudo ln -s /etc/nginx/sites-available/flask_app /etc/nginx/sites-enabled
 echo "Restarting Nginx..."
 sudo systemctl restart nginx
 
-echo "Starting Flask app..."
-FLASK_APP=app.py flask run --host=0.0.0.0 &
+echo "Starting Flask app in the background..."
+nohup ~/myenv/bin/python ~/rpi_control/app.py &
