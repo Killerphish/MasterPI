@@ -24,15 +24,15 @@ check_root() {
         fi
     fi
 }
+
+# Function to update and upgrade packages
 update_and_upgrade() {
-    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Running Apt Update... (This could take several minutes)        **"
     echo "**                                                                     **"
     echo "*************************************************************************"
     run_command "apt update" true
-    
 
     echo "*************************************************************************"
     echo "**                                                                     **"
@@ -40,12 +40,10 @@ update_and_upgrade() {
     echo "**                                                                     **"
     echo "*************************************************************************"
     run_command "apt upgrade -y" true
-    
 }
 
 # Function to install dependencies
 install_dependencies() {
-    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Installing Dependencies... (This could take several minutes)   **"
@@ -56,7 +54,6 @@ install_dependencies() {
 
 # Function to clone the repository
 clone_repo() {
-    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Cloning MasterPi from GitHub...                                **"
@@ -67,7 +64,6 @@ clone_repo() {
 
 # Function to set up the Python virtual environment and install modules
 setup_venv() {
-    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Setting up Python VENV and Installing Modules...               **"
@@ -82,6 +78,7 @@ setup_venv() {
 
     echo " - Setting up VENV"
     run_command "python3 -m venv --system-site-packages /usr/local/bin/masterpi"
+
     source /usr/local/bin/masterpi/bin/activate || . /usr/local/bin/masterpi/bin/activate
 
     echo " - Installing module dependencies... "
@@ -105,43 +102,36 @@ setup_venv() {
         "adafruit-circuitpython-ili9341"
         "adafruit-circuitpython-touchscreen"
         "adafruit-circuitpython-ads1x15"
+        "eventlet"
     )
 
     for package in "${dependencies[@]}"; do
         run_command "pip install $package" true
     done
-
-    if [ "${PYTHON_VERSION%%.*}" -lt 3 ] || [ "${PYTHON_VERSION%%.*}" -eq 3 ] && [ "${PYTHON_VERSION##*.}" -lt 11 ]; then
-        echo "System is running a python version lower than 3.11, installing eventlet==0.30.2"
-        run_command "pip install eventlet==0.30.2" true
-    else
-        echo "System is running a python version 3.11 or greater, installing latest eventlet"
-        run_command "pip install eventlet" true
-    fi
 }
 
 # Function to configure Raspberry Pi settings
 configure_raspberry_pi() {
-    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Configuring Raspberry Pi settings...                           **"
     echo "**                                                                     **"
     echo "*************************************************************************"
 
-    run_command "raspi-config nonint do_spi 0" true
-    run_command "raspi-config nonint do_i2c 0" true
-
-    config_path="/boot/firmware/config.txt"
-    if [ ! -f "$config_path" ]; then
+    if [ -f "/boot/firmware/config.txt" ]; then
+        config_path="/boot/firmware/config.txt"
+    elif [ -f "/boot/config.txt" ]; then
         config_path="/boot/config.txt"
+    else
+        echo "Raspberry Pi config file not found."
+        return
     fi
+
     echo "dtoverlay=pwm,gpiopin=13,func=4" | run_command "tee -a $config_path" true
 }
 
 # Function to set /tmp to RAM based storage
 set_tmp_to_ram() {
-    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Setting /tmp to RAM based storage in /etc/fstab                **"
@@ -183,3 +173,7 @@ echo "$nginx_config" | run_command "sudo tee /etc/nginx/sites-available/flask_ap
 check_root
 set_tmp_to_ram
 update_and_upgrade
+install_dependencies
+clone_repo
+setup_venv
+configure_raspberry_pi
