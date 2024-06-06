@@ -24,25 +24,6 @@ check_root() {
         fi
     fi
 }
-
-# Function to check if a command is available
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-# Function to install APT if not installed
-install_apt() {
-    if ! command_exists apt; then
-        echo "Installing APT..."
-        run_command "apt-get update -y"
-        run_command "apt-get install -y apt"
-    fi
-}
-
-# Check if APT is installed
-install_apt
-
-# Function to update and upgrade packages
 update_and_upgrade() {
     
     echo "*************************************************************************"
