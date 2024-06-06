@@ -149,4 +149,39 @@ set_tmp_to_ram() {
     echo "**      Setting /tmp to RAM based storage in /etc/fstab                **"
     echo "**                                                                     **"
     echo "*************************************************************************"
-    echo "tmpfs /tmp  tmpfs defaults,noatime 0 0" | run_command "tee -a /etc
+    echo "tmpfs /tmp  tmpfs defaults,noatime 0 0" | run_command "tee -a /etc/fstab" true
+}
+
+# Check if the Nginx default configuration file exists before attempting to remove it
+if [ -f '/etc/nginx/sites-enabled/default' ]; then
+    echo "Removing Nginx default configuration..."
+    sudo rm '/etc/nginx/sites-enabled/default'
+else
+    echo "Nginx default configuration not found, skipping removal."
+fi
+
+echo "Configuring Nginx..."
+# Content to write to the file
+nginx_config=$(cat << 'EOF'
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+)
+
+# Write the content to the file
+echo "$nginx_config" | run_command "sudo tee /etc/nginx/sites-available/flask_app" true
+
+# Run the setup functions
+check_root
+set_tmp_to_ram
+update_and_upgrade
