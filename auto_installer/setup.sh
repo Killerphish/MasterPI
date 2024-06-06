@@ -1,45 +1,18 @@
 #!/bin/bash
-
-# Function to run commands with sudo if required
-run_command() {
-    if [ "$use_sudo" = true ]; then
-        sudo "$1"
-    else
-        "$1"
-    fi
-}
-
-# Function to check if root
-check_root() {
-    if [ "$(id -u)" -eq 0 ]; then
-        echo "You are root."
-    else
-        echo "SUDO will be used for the install."
-        # Check if sudo is installed
-        if command -v sudo >/dev/null 2>&1; then
-            SUDO="sudo"
-        else
-            echo "Please install sudo."
-            exit 1
-        fi
-    fi
-}
-
-# Function to update and upgrade packages
 update_and_upgrade() {
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Running Apt Update... (This could take several minutes)        **"
     echo "**                                                                     **"
     echo "*************************************************************************"
-    run_command "apt update" true
+    sudo apt update
 
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Running Apt Upgrade... (This could take several minutes)       **"
     echo "**                                                                     **"
     echo "*************************************************************************"
-    run_command "apt upgrade -y" true
+    sudo apt upgrade -y
 }
 
 # Function to install dependencies
@@ -49,11 +22,11 @@ install_dependencies() {
     echo "**      Installing Dependencies... (This could take several minutes)   **"
     echo "**                                                                     **"
     echo "*************************************************************************"
-    run_command "apt install python3-dev python3-pip python3-venv python3-rpi.gpio python3-scipy python3-wheel nginx git supervisor ttf-mscorefonts-installer redis-server libatlas-base-dev libopenjp2-7 -y" true
+    sudo apt install python3-dev python3-pip python3-venv python3-rpi.gpio python3-scipy python3-wheel nginx git supervisor ttf-mscorefonts-installer redis-server libatlas-base-dev libopenjp2-7 -y
 }
     # Create directory if it doesn't exist
     if [ ! -d "/usr/local/bin/masterpi" ]; then
-        run_command "mkdir -p /usr/local/bin/masterpi" true
+       sudo mkdir -p /usr/local/bin/masterpi
     fi
 
 # Function to clone the repository
@@ -63,7 +36,7 @@ clone_repo() {
     echo "**      Cloning MasterPi from GitHub...                                **"
     echo "**                                                                     **"
     echo "*************************************************************************"
-    run_command "git clone --depth 1 https://github.com/Killerphish/MasterPI /usr/local/bin/masterpi" true
+     sudo git clone --depth 1 https://github.com/Killerphish/MasterPI /usr/local/bin/masterpi
 }
 
 # Function to set up the Python virtual environment and install modules
@@ -74,14 +47,14 @@ setup_venv() {
     echo "**            (This could take several minutes)                        **"
     echo "**                                                                     **"
     echo "*************************************************************************"
-    run_command "groupadd masterpi" true
-    run_command "usermod -a -G masterpi $USER" true
-    run_command "usermod -a -G masterpi root" true
-    run_command "chown -R $USER:masterpi /usr/local/bin/masterpi" true
-    run_command "chmod -R 775 /usr/local/bin/masterpi/" true
+     groupadd masterpi 
+     usermod -a -G masterpi $USER
+     usermod -a -G masterpi root
+     chown -R $USER:masterpi /usr/local/bin/masterpi
+     chmod -R 775 /usr/local/bin/masterpi/ 
 
     echo " - Setting up VENV"
-    run_command "python3 -m venv --system-site-packages /usr/local/bin/masterpi"
+     sudo python3 -m venv --system-site-packages /usr/local/bin/masterpi
 
     source /usr/local/bin/masterpi/bin/activate || . /usr/local/bin/masterpi/bin/activate
 
@@ -110,7 +83,7 @@ setup_venv() {
     )
 
     for package in "${dependencies[@]}"; do
-        run_command "pip install $package" true
+         sudo pip install $package
     done
 }
 
@@ -131,7 +104,7 @@ configure_raspberry_pi() {
         return
     fi
 
-    echo "dtoverlay=pwm,gpiopin=13,func=4" | run_command "tee -a $config_path" true
+    echo "dtoverlay=pwm,gpiopin=13,func=4" |  "tee -a $config_path" 
 }
 
 # Function to set /tmp to RAM based storage
@@ -141,7 +114,7 @@ set_tmp_to_ram() {
     echo "**      Setting /tmp to RAM based storage in /etc/fstab                **"
     echo "**                                                                     **"
     echo "*************************************************************************"
-    run_command "echo 'tmpfs /tmp  tmpfs defaults,noatime 0 0' | tee -a /etc/fstab" true
+    echo 'tmpfs /tmp  tmpfs defaults,noatime 0 0' | tee -a /etc/fstab
 }
 
 # Check if the Nginx default configuration file exists before attempting to remove it
@@ -171,7 +144,7 @@ EOF
 )
 
 # Write the content to the file
-echo "$nginx_config" | run_command "sudo tee /etc/nginx/sites-available/flask_app" true
+echo "$nginx_config" |  sudo tee /etc/nginx/sites-available/flask_app
 
 # Run the setup functions
 check_root
