@@ -27,14 +27,14 @@ check_root() {
 
 # Function to update and upgrade packages
 update_and_upgrade() {
-    clear
+    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Running Apt Update... (This could take several minutes)        **"
     echo "**                                                                     **"
     echo "*************************************************************************"
     run_command "apt update" true
-    clear
+    
 
     echo "*************************************************************************"
     echo "**                                                                     **"
@@ -42,12 +42,12 @@ update_and_upgrade() {
     echo "**                                                                     **"
     echo "*************************************************************************"
     run_command "apt upgrade -y" true
-    clear
+    
 }
 
 # Function to install dependencies
 install_dependencies() {
-    clear
+    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Installing Dependencies... (This could take several minutes)   **"
@@ -58,7 +58,7 @@ install_dependencies() {
 
 # Function to clone the repository
 clone_repo() {
-    clear
+    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Cloning MasterPi from GitHub...                                **"
@@ -69,7 +69,7 @@ clone_repo() {
 
 # Function to set up the Python virtual environment and install modules
 setup_venv() {
-    clear
+    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Setting up Python VENV and Installing Modules...               **"
@@ -124,7 +124,7 @@ setup_venv() {
 
 # Function to configure Raspberry Pi settings
 configure_raspberry_pi() {
-    clear
+    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Configuring Raspberry Pi settings...                           **"
@@ -143,7 +143,7 @@ configure_raspberry_pi() {
 
 # Function to set /tmp to RAM based storage
 set_tmp_to_ram() {
-    clear
+    
     echo "*************************************************************************"
     echo "**                                                                     **"
     echo "**      Setting /tmp to RAM based storage in /etc/fstab                **"
