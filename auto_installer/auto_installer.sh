@@ -17,7 +17,7 @@ source ~/myenv/bin/activate
 
 echo "Upgrading pip and installing wheel package in the virtual environment..."
 pip install --upgrade pip
-pip install wheel
+sudo apt install python3-wheel
 
 echo "Installing required Python libraries with --use-pep517 option in the virtual environment..."
 pip install --use-pep517 RPi.GPIO Flask adafruit-blinka adafruit-circuitpython-ads1x15 adafruit-circuitpython-ili9341 adafruit-circuitpython-touchscreen
