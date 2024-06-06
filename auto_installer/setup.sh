@@ -149,7 +149,7 @@ set_tmp_to_ram() {
     echo "**      Setting /tmp to RAM based storage in /etc/fstab                **"
     echo "**                                                                     **"
     echo "*************************************************************************"
-echo "tmpfs /tmp  tmpfs defaults,noatime 0 0" | run_command "tee -a /etc/fstab" true
+    run_command "echo 'tmpfs /tmp  tmpfs defaults,noatime 0 0' | tee -a /etc/fstab" true
 }
 
 # Check if the Nginx default configuration file exists before attempting to remove it
