@@ -51,6 +51,10 @@ install_dependencies() {
     echo "*************************************************************************"
     run_command "apt install python3-dev python3-pip python3-venv python3-rpi.gpio python3-scipy python3-wheel nginx git supervisor ttf-mscorefonts-installer redis-server libatlas-base-dev libopenjp2-7 -y" true
 }
+    # Create directory if it doesn't exist
+    if [ ! -d "/usr/local/bin/masterpi" ]; then
+        run_command "mkdir -p /usr/local/bin/masterpi" true
+    fi
 
 # Function to clone the repository
 clone_repo() {
