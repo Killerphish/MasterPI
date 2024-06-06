@@ -46,4 +46,4 @@ if __name__ == "__main__":
     temp_thread.start()
 
     # Start the Flask web server
-    app.run(host='0.0.0.0
+    app.run(host='127.0.0.1')

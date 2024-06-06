@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Temperature Control</title>
+</head>
+<body>
+    <h1>Temperature Control Dashboard</h1>
+    <h2>Current Temperatures</h2>
+    <ul>
+        {% for temp in temperatures %}
+            <li>Probe {{ loop.index }}: {{ temp }} °F</li>
+        {% endfor %}
+    </ul>
+    <h2>Control Fan</h2>
+    <form action="/set_fan" method="post">
+        <button name="state" value="on">Turn On</button>
+        <button name="state" value="off">Turn Off</button>
+    </form>
+    <h2>Control Dampers</h2>
+    <form action="/set_damper1" method="post">
+        <button name="state" value="open">Open Damper 1</button>
+        <button name="state" value="close">Close Damper 1</button>
+    </form>
+    <form action="/set_damper2" method="post">
+        <button name="state" value="open">Open Damper 2</button>
+        <button name="state" value="close">Close Damper 2</button>
+    </form>
+</body>
+</html>

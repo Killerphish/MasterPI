@@ -1,30 +1,3 @@
-#Not in use... more of a dump all of old code for now
-
-echo "Upgrading pip and installing wheel package in the virtual environment..."
-pip install --upgrade pip
-sudo apt install python3-wheel
-
-echo "Installing required Python libraries with --use-pep517 option in the virtual environment..."
-pip install --use-pep517 RPi.GPIO Flask adafruit-blinka adafruit-circuitpython-ads1x15 adafruit-circuitpython-ili9341 adafruit-circuitpython-touchscreen
-
-echo "Creating project directory..."
-mkdir -p ~/rpi_control
-cd ~/rpi_control
-
-echo "Creating Flask app..."
-cat << 'EOF' > app.py
-from flask import Flask, render_template, request, redirect, url_for
-import threading
-import RPi.GPIO as GPIO
-import time
-import board
-import busio
-import adafruit_ads1x15.ads1115 as ADS
-from adafruit_ads1x15.analog_in import AnalogIn
-import adafruit_ili9341
-import adafruit_touchscreen
-from PIL import Image, ImageDraw, ImageFont
-
 app = Flask(__name__)
 
 # GPIO pin setup for relays
@@ -100,16 +73,4 @@ def set_damper2():
     return redirect(url_for('index'))
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
-
-
-
-EOF
-
-sudo ln -s /etc/nginx/sites-available/flask_app /etc/nginx/sites-enabled
-
-echo "Restarting Nginx..."
-sudo systemctl restart nginx
-
-echo "Starting Flask app in the background..."
-nohup ~/myenv/bin/python ~/rpi_control/app.py &
+    app.run(host='127.0.0.1', port=5000)
