@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import threading
+import RPi.GPIO as GPIO
+
 
 app = Flask(__name__)
 
