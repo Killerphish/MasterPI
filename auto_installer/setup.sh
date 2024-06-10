@@ -145,6 +145,15 @@ set_tmp_to_ram() {
     echo "tmpfs /tmp  tmpfs defaults,noatime 0 0" | run_command "tee -a /etc/fstab"
 }
 
+# Run the setup functions
+check_root
+set_tmp_to_ram
+update_and_upgrade
+install_dependencies
+clone_repo
+setup_venv
+configure_raspberry_pi
+
 # Check if the Nginx default configuration file exists before attempting to remove it
 if [ -f '/etc/nginx/sites-enabled/default' ]; then
     echo "Removing Nginx default configuration..."
@@ -179,12 +188,3 @@ run_command "ln -s /etc/nginx/sites-available/flask_app /etc/nginx/sites-enabled
 
 # Restart Nginx to apply changes
 run_command "systemctl restart nginx"
-
-# Run the setup functions
-check_root
-set_tmp_to_ram
-update_and_upgrade
-install_dependencies
-clone_repo
-setup_venv
-configure_raspberry_pi
