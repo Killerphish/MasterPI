@@ -1,5 +1,4 @@
-install:
-curl https://raw.githubusercontent.com/Killerphish/MasterPI/main/auto_installer/setup.sh | bash
+Disclaimer: I am not a developer by any stretch, so forgive my ignorance when it comes to the structure. 
 
 # MasterPI
  RPi controller for Masterbuilt smokers
