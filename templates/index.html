@@ -1,30 +1,53 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Temperature Control</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Temperature Control Dashboard</title>
 </head>
 <body>
     <h1>Temperature Control Dashboard</h1>
-    <h2>Current Temperatures</h2>
-    <ul>
-        {% for temp in temperatures %}
-            <li>Probe {{ loop.index }}: {{ temp }} °F</li>
-        {% endfor %}
-    </ul>
-    <h2>Control Fan</h2>
-    <form action="/set_fan" method="post">
-        <button name="state" value="on">Turn On</button>
-        <button name="state" value="off">Turn Off</button>
-    </form>
-    <h2>Control Dampers</h2>
-    <form action="/set_damper1" method="post">
-        <button name="state" value="open">Open Damper 1</button>
-        <button name="state" value="close">Close Damper 1</button>
-    </form>
-    <form action="/set_damper2" method="post">
-        <button name="state" value="open">Open Damper 2</button>
-        <button name="state" value="close">Close Damper 2</button>
-    </form>
+    <p>Current Temperature: <span id="temperature"></span> °F</p>
+    <p>Target Temperature: <input type="number" id="target_temp" min="0" max="700" value="{{ target_temp }}"> °F</p>
+    <button onclick="setTargetTemp()">Set Target Temperature</button>
+    <p>Fan Override: <input type="checkbox" id="override" {% if override %}checked{% endif %}></p>
+    <button onclick="setOverride()">Set Override</button>
+
+    <script>
+        function setTargetTemp() {
+            fetch('/set_target_temp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'target_temp=' + document.getElementById('target_temp').value
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    alert('Target temperature set successfully');
+                }
+            });
+        }
+
+        function setOverride() {
+            fetch('/set_override', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'override=' + document.getElementById('override').checked
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    alert('Override set successfully');
+                }
+            });
+        }
+
+        function updateStatus() {
+            fetch('/get_status').then(response => response.json()).then(data => {
+                document.getElementById('temperature').innerText = data.temperature.toFixed(2);
+                document.getElementById('target_temp').value = data.target_temp;
+                document.getElementById('override').checked = data.override;
+            });
+        }
+
+        setInterval(updateStatus, 2000);
+        updateStatus();
+    </script>
 </body>
 </html>
