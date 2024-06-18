@@ -1,8 +1,7 @@
-install:
-curl https://raw.githubusercontent.com/Killerphish/MasterPI/main/auto_installer/setup.sh | bash
+Disclaimer: I am not a developer by any stretch, so forgive my ignorance when it comes to the structure. 
 
 # MasterPI
- RPi controller for Masterbuilt smokers
+ RPi controller for Masterbuilt gravity fed smokers
 
  This is a work in progress and inspired by Nebhead's PiFire build for pellet smokers: https://github.com/nebhead/PiFire 
  
