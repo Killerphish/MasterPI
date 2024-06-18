@@ -3,17 +3,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Temperature Control Dashboard</title>
+    <title>MBSmokePi Dashboard</title>
+    <style>
+        #overrideButton {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Temperature Control Dashboard</h1>
+    <h1>Masterbuilt SmokePi</h1>
     <p>Current Temperature: <span id="temperature"></span> °F</p>
     <p>Target Temperature: <input type="number" id="target_temp" min="0" max="700" value="{{ target_temp }}"> °F</p>
     <button onclick="setTargetTemp()">Set Target Temperature</button>
-    <p>Fan Override: <input type="checkbox" id="override" {% if override %}checked{% endif %}></p>
-    <button onclick="setOverride()">Set Override</button>
+    <p>Fan Override: <button id="overrideButton" onclick="toggleOverride()">Override OFF</button></p>
 
     <script>
+        var fanOverride = false;
+
         function setTargetTemp() {
             fetch('/set_target_temp', {
                 method: 'POST',
@@ -26,13 +33,16 @@
             });
         }
 
-        function setOverride() {
+        function toggleOverride() {
+            fanOverride = !fanOverride;
             fetch('/set_override', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'override=' + document.getElementById('override').checked
+                body: 'override=' + fanOverride
             }).then(response => response.json()).then(data => {
                 if (data.success) {
+                    var button = document.getElementById('overrideButton');
+                    button.innerText = fanOverride ? 'Override ON' : 'Override OFF';
                     alert('Override set successfully');
                 }
             });
@@ -42,7 +52,9 @@
             fetch('/get_status').then(response => response.json()).then(data => {
                 document.getElementById('temperature').innerText = data.temperature.toFixed(2);
                 document.getElementById('target_temp').value = data.target_temp;
-                document.getElementById('override').checked = data.override;
+                fanOverride = data.override;
+                var button = document.getElementById('overrideButton');
+                button.innerText = fanOverride ? 'Override ON' : 'Override OFF';
             });
         }
 
