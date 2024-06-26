@@ -36,4 +36,24 @@ def create_app():
         conn.close()
         return jsonify(data=data)
 
+    @app.route('/save_settings', methods=['POST'])
+    def save_settings():
+        device_name = request.form['device_name']
+        temp_offset = request.form['temp_offset']
+        temp_unit = request.form['temp_unit']
+        # Save these settings to a database or file
+        # Example: save to SQLite
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('UPDATE settings SET device_name = ?, temp_offset = ?, temp_unit = ?',
+                  (device_name, temp_offset, temp_unit))
+        conn.commit()
+        conn.close()
+        return jsonify(success=True)
+
+    @app.route('/pid_autotune', methods=['POST'])
+    def pid_autotune():
+        # Start PID autotune process
+        return jsonify(success=True)
+
     return app
