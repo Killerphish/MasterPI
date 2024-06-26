@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Temperature Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1 id="device_name">Temperature Dashboard</h1>
+    <div>
+        <label for="target_temp">Target Temperature: </label>
+        <input type="number" id="target_temp" name="target_temp" min="0" max="700">
+        <button id="update_target">Set</button>
+    </div>
+    <div>
+        <h2>Current Temperature: <span id="current_temp">--</span>°C</h2>
+    </div>
+    <button id="emergency_stop">Emergency Stop</button>
+
+    <div>
+        <canvas id="tempChart"></canvas>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
