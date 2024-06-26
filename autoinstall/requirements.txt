@@ -1,0 +1,8 @@
+Flask
+Adafruit-Blinka
+Adafruit-PlatformDetect
+Adafruit-PureIO
+adafruit-circuitpython-max31865
+simple-pid
+numpy
+matplotlib
