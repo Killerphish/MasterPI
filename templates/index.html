@@ -3,25 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <title>Temperature Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1 id="device_name">Temperature Dashboard</h1>
-    <div>
-        <label for="target_temp">Target Temperature: </label>
-        <input type="number" id="target_temp" name="target_temp" min="0" max="700">
-        <button id="update_target">Set</button>
-    </div>
-    <div>
-        <h2>Current Temperature: <span id="current_temp">--</span>°C</h2>
-    </div>
-    <button id="emergency_stop">Emergency Stop</button>
+    <h1>Temperature Dashboard</h1>
+    <p>Current Temperature: <span id="current-temp">Loading...</span></p>
+    <p>Target Temperature: <input type="number" id="target-temp" min="0" max="700"> <button onclick="updateTargetTemp()">Set</button></p>
+    <button onclick="emergencyShutdown()">Emergency Shutdown</button>
+    <canvas id="temperature-chart" width="400" height="200"></canvas>
 
-    <div>
-        <canvas id="tempChart"></canvas>
-    </div>
+    <script>
+        const ctx = document.getElementById('temperature-chart').getContext('2d');
+        const temperatureChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: [],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'minute'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        function updateTargetTemp() {
+            const targetTemp = document.getElementById('target-temp').value;
+            fetch('/update_target_temperature', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ target_temp: targetTemp }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function emergencyShutdown() {
+            fetch('/emergency_shutdown', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function fetchTemperature() {
+            fetch('/get_temperature')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('current-temp').textContent = data.temperature + ' °C';
+
+                // Add data to the chart
+                const now = new Date();
+                temperatureChart.data.labels.push(now);
+                temperatureChart.data.datasets[0].data.push(data.temperature);
+                temperatureChart.update();
+
+                // Remove data older than 60 minutes
+                while (temperatureChart.data.labels.length > 60) {
+                    temperatureChart.data.labels.shift();
+                    temperatureChart.data.datasets[0].data.shift();
+                }
+            });
+        }
+
+        setInterval(fetchTemperature, 5000);
+    </script>
 </body>
 </html>
