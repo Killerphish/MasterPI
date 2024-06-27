@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 import board
+import digitalio
 import os
 import logging
 from logging.handlers import RotatingFileHandler
