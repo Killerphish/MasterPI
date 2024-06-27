@@ -44,9 +44,9 @@ def emergency_shutdown():
 @app.route('/update_pid', methods=['POST'])
 def update_pid():
     data = request.get_json()
-    Kp = data.get('Kp', 1.0)
-    Ki = data.get('Ki', 0.1)
-    Kd = data.get('Kd', 0.01)
+    Kp = data.get('kp', 1.0)
+    Ki = data.get('ki', 0.1)
+    Kd = data.get('kd', 0.01)
     pid.set_parameters(Kp, Ki, Kd)
     return jsonify({'status': 'success', 'Kp': Kp, 'Ki': Ki, 'Kd': Kd})
 
