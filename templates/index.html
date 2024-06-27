@@ -107,27 +107,29 @@
         }
 
         function fetchTemperature() {
-            fetch('/get_temperature')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
-                // Add data to the chart
-                const now = new Date();
-                temperatureChart.data.labels.push(now);
-                temperatureChart.data.datasets[0].data.push(data.temperature);
-                temperatureChart.update();
+    fetch('/get_temperature')
+    .then(response => response.json())
+    .then(data => {
+        console.log('Temperature data received:', data);
+        document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
 
-                // Remove data older than 60 minutes
-                while (temperatureChart.data.labels.length > 60) {
-                    temperatureChart.data.labels.shift();
-                    temperatureChart.data.datasets[0].data.shift();
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching temperature:', error);
-                // Optionally handle error or update UI to indicate error
-            });
+        // Add data to the chart
+        const now = new Date();
+        temperatureChart.data.labels.push(now);
+        temperatureChart.data.datasets[0].data.push(data.temperature);
+        temperatureChart.update();
+
+        // Remove data older than 60 minutes
+        while (temperatureChart.data.labels.length > 60) {
+            temperatureChart.data.labels.shift();
+            temperatureChart.data.datasets[0].data.shift();
         }
+    })
+    .catch(error => {
+        console.error('Error fetching temperature:', error);
+        // Optionally handle error or update UI to indicate error
+    });
+}
 
         fetchTemperature();
         setInterval(fetchTemperature, 3000); // Update temperature every 3 seconds
