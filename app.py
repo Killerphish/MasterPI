@@ -22,7 +22,7 @@ def settings():
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
-    temperature = temp_sensor.read_temperature()
+    temperature = sensor.read_temperature()
     return jsonify({'temperature': temperature})
 
 @app.route('/update_target_temperature', methods=['POST'])
