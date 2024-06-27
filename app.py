@@ -26,6 +26,11 @@ def get_temperature():
     temperature = temp_sensor.read_temperature()
     return jsonify({'temperature': temperature})
 
+@app.route('/manifest.json')
+def manifest():
+    # Specify the directory where manifest.json is located
+    return send_from_directory(os.path.join(app.root_path), 'manifest.json')
+
 @app.route('/update_target_temperature', methods=['POST'])
 def update_target_temperature():
     data = request.get_json()
@@ -37,7 +42,7 @@ def update_target_temperature():
 def emergency_shutdown():
     # Logic to turn off the fan
     # For example, setting the fan GPIO pin to LOW
-    fan_pin = digitalio.DigitalInOut(board.D23)  # Replace with your fan GPIO pin
+    fan_pin = digitalio.DigitalInOut(board.D27)  #Fan GPIO pin
     fan_pin.direction = digitalio.Direction.OUTPUT
     fan_pin.value = False  # Turn off the fan
     return jsonify({'status': 'success'})
