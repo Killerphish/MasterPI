@@ -6,6 +6,17 @@ import time
 
 app = Flask(__name__)
 
+# Setup logging
+if not os.path.exists('logs'):
+    os.mkdir('logs')
+file_handler = RotatingFileHandler('logs/app.log', maxBytes=10240, backupCount=10)
+file_handler.setFormatter(logging.Formatter(
+    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+file_handler.setLevel(logging.INFO)
+app.logger.addHandler(file_handler)
+app.logger.setLevel(logging.INFO)
+app.logger.info('Application startup')
+
 # Initialize temperature sensor (using GPIO18 for CS pin)
 cs_pin = board.D18
 temp_sensor = TemperatureSensor(cs_pin)
@@ -31,17 +42,17 @@ def manifest():
     try:
         # Specify the directory where manifest.json is located
         manifest_dir = os.path.abspath(os.path.dirname(__file__))
-        logging.debug(f"Manifest directory: {manifest_dir}")
+        app.logger.debug(f"Manifest directory: {manifest_dir}")
         
         # Check if the file exists
         manifest_path = os.path.join(manifest_dir, 'manifest.json')
         if not os.path.exists(manifest_path):
-            logging.error(f"Manifest file not found at path: {manifest_path}")
+            app.logger.error(f"Manifest file not found at path: {manifest_path}")
             return "Manifest file not found", 404
         
         return send_from_directory(manifest_dir, 'manifest.json')
     except Exception as e:
-        logging.error(f"Error serving manifest.json: {e}", exc_info=True)
+        app.logger.error(f"Error serving manifest.json: {e}", exc_info=True)
         return str(e), 500
     
 @app.route('/update_target_temperature', methods=['POST'])
