@@ -5,7 +5,7 @@ import adafruit_max31865
 
 # Define the SPI bus and CS pin
 spi = board.SPI()
-cs = digitalio.DigitalInOut(board.D8)  # Chip select of the MAX31865 board.
+cs = digitalio.DigitalInOut(board.D18)  # Chip select of the MAX31865 board.
 
 # Create a sensor object
 sensor = adafruit_max31865.MAX31865(spi, cs)
