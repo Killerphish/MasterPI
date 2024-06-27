@@ -10,7 +10,7 @@ cs_pin = board.D18
 temp_sensor = TemperatureSensor(cs_pin)
 
 # Initialize PID controller
-pid = PIDController(Kp=1.0, Ki=0.1, Kd=0.01, setpoint=100.0)
+pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=100.0)
 
 @app.route('/')
 def index():
