@@ -36,7 +36,7 @@ def index():
 def settings():
     return render_template('settings.html')
 
-@app.route('/get_temperature', methods=['GET'])
+@app.route('/get_temperature')
 def get_temperature():
     temperature = temp_sensor.read_temperature()
     return jsonify({'temperature': temperature})
