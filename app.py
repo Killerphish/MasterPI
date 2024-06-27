@@ -28,9 +28,22 @@ def get_temperature():
 
 @app.route('/manifest.json')
 def manifest():
-    # Specify the directory where manifest.json is located
-    return send_from_directory(os.path.abspath(os.path.dirname(__file__)), 'manifest.json')
-
+    try:
+        # Specify the directory where manifest.json is located
+        manifest_dir = os.path.abspath(os.path.dirname(__file__))
+        logging.debug(f"Manifest directory: {manifest_dir}")
+        
+        # Check if the file exists
+        manifest_path = os.path.join(manifest_dir, 'manifest.json')
+        if not os.path.exists(manifest_path):
+            logging.error(f"Manifest file not found at path: {manifest_path}")
+            return "Manifest file not found", 404
+        
+        return send_from_directory(manifest_dir, 'manifest.json')
+    except Exception as e:
+        logging.error(f"Error serving manifest.json: {e}", exc_info=True)
+        return str(e), 500
+    
 @app.route('/update_target_temperature', methods=['POST'])
 def update_target_temperature():
     data = request.get_json()
