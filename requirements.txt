@@ -3,6 +3,7 @@ Adafruit-Blinka
 Adafruit-PlatformDetect
 Adafruit-PureIO
 adafruit-circuitpython-max31865
+adafruit-circuitpython-busdevice
 simple-pid
 numpy
 matplotlib
