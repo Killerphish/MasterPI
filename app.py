@@ -29,7 +29,7 @@ def get_temperature():
 @app.route('/manifest.json')
 def manifest():
     # Specify the directory where manifest.json is located
-    return send_from_directory(os.path.join(app.root_path), 'manifest.json')
+    return send_from_directory(os.path.abspath(os.path.dirname(__file__)), 'manifest.json')
 
 @app.route('/update_target_temperature', methods=['POST'])
 def update_target_temperature():
