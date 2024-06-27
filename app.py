@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
+import board
 
 app = Flask(__name__)
 
