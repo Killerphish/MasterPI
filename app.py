@@ -31,7 +31,7 @@ pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=100.0)
 def index():
     return render_template('index.html')
 
-@app.route('/settings')
+@app.route('/settings.html')
 def settings():
     return render_template('settings.html')
 
