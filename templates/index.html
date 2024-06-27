@@ -110,8 +110,7 @@
             fetch('/get_temperature')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('current-temp').textContent = data.temperature + ' °C';
-
+                document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
                 // Add data to the chart
                 const now = new Date();
                 temperatureChart.data.labels.push(now);
