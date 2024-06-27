@@ -31,7 +31,7 @@
 <body>
 <div class="navbar">
     <a href="#home">Home</a> <!-- Replace #home with your index.html page if needed -->
-    <a href="/templates/settings.html">Settings</a>
+    <a href="settings.html">Settings</a>
 </div>
 <div class="content">
     <h1>Welcome to the Temperature Control Dashboard</h1>
@@ -119,9 +119,13 @@
                     temperatureChart.data.labels.shift();
                     temperatureChart.data.datasets[0].data.shift();
                 }
+            })
+        .catch(error => {
+            console.error('Error fetching temperature:', error);
+            // Optionally handle error or update UI to indicate error
             });
         }
-
+        fetchTemperature();
         setInterval(fetchTemperature, 5000);
     </script>
 </body>
