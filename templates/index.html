@@ -6,6 +6,10 @@
     <title>Temperature Control Dashboard</title>
     <!-- Link to Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@2.1.1/build/global/luxon.min.js"></script>
+    <script>
+        Chart.register({ datetime: { adapters: { luxon: { DateTime: luxon.DateTime } } } });
+    </script>
     <!-- Optional: CSS styles for navigation bar -->
     <style>
         .navbar {
