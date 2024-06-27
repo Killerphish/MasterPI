@@ -57,4 +57,4 @@ def update_pid():
     return jsonify({'status': 'success', 'Kp': Kp, 'Ki': Ki, 'Kd': Kd})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80)
