@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 import board
+import time
 
 app = Flask(__name__)
 
@@ -22,7 +23,7 @@ def settings():
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
-    temperature = sensor.read_temperature()
+    temperature = temp_sensor.read_temperature()
     return jsonify({'temperature': temperature})
 
 @app.route('/update_target_temperature', methods=['POST'])
