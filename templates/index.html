@@ -106,35 +106,28 @@
             });
         }
 
- function fetchTemperature() {
-    fetch('/get_temperature')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Temperature data received:', data);
-        document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
+        function fetchTemperature() {
+            fetch('/get_temperature')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
+                // Add data to the chart
+                const now = new Date();
+                temperatureChart.data.labels.push(now);
+                temperatureChart.data.datasets[0].data.push(data.temperature);
+                temperatureChart.update();
 
-        // Add data to the chart
-        const now = new Date();
-        temperatureChart.data.labels.push(now);
-        temperatureChart.data.datasets[0].data.push(data.temperature);
-        temperatureChart.update();
-
-        // Remove data older than 60 minutes
-        while (temperatureChart.data.labels.length > 60) {
-            temperatureChart.data.labels.shift();
-            temperatureChart.data.datasets[0].data.shift();
+                // Remove data older than 60 minutes
+                while (temperatureChart.data.labels.length > 60) {
+                    temperatureChart.data.labels.shift();
+                    temperatureChart.data.datasets[0].data.shift();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching temperature:', error);
+                // Optionally handle error or update UI to indicate error
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error fetching temperature:', error);
-        // Optionally handle error or update UI to indicate error
-    });
-}
 
         fetchTemperature();
         setInterval(fetchTemperature, 3000); // Update temperature every 3 seconds

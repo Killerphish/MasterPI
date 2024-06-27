@@ -22,8 +22,7 @@ app.logger.setLevel(logging.INFO)
 app.logger.info('Application startup')
 
 # Initialize temperature sensor (using GPIO18 for CS pin)
-cs_pin = board.D18
-temp_sensor = TemperatureSensor(cs_pin)
+sensor = TemperatureSensor(board.D18)
 
 # Initialize PID controller
 pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=100.0)
@@ -38,7 +37,7 @@ def settings():
 
 @app.route('/get_temperature')
 def get_temperature():
-    temperature = temp_sensor.read_temperature()
+    temperature = sensor.read_temperature()
     return jsonify({'temperature': temperature})
 
 @app.route('/manifest.json')
