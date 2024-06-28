@@ -74,6 +74,11 @@ def emergency_shutdown():
     fan_pin.value = False  # Turn off the fan
     return jsonify({'status': 'success'})
 
+@app.route('/get_status')
+def get_status():
+    temperature = sensor.read_temperature()
+    return jsonify({'temperature': temperature, 'fan_on': fan_on})
+
 @app.route('/update_pid', methods=['POST'])
 def update_pid():
     data = request.get_json()
