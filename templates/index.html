@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temperature Control Dashboard</title>
     <link rel="manifest" href="/manifest.json">
-    <!-- Link to Chart.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@2.1.1/build/global/luxon.min.js"></script>
-    <script>
-        Chart.register({ datetime: { adapters: { luxon: { DateTime: luxon.DateTime } } } });
-    </script>
     <!-- Optional: CSS styles for navigation bar -->
     <style>
         .navbar {
@@ -33,7 +27,7 @@
 </head>
 <body>
     <div class="navbar">
-        <a href="#home">Home</a> <!-- Replace #home with your index.html page if needed -->
+        <a href="index.html">Home</a>
         <a href="settings.html">Settings</a>
     </div>
     <div class="content">
@@ -41,36 +35,8 @@
         <p>Current Temperature: <span id="current-temp">Loading...</span></p>
         <p>Target Temperature: <input type="number" id="target-temp" min="0" max="700"> <button onclick="updateTargetTemp()">Set</button></p>
         <button onclick="emergencyShutdown()">Emergency Shutdown</button>
-        <canvas id="temperature-chart" width="600" height="400"></canvas>
     </div>
     <script>
-        const ctx = document.getElementById('temperature-chart').getContext('2d');
-        const temperatureChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Temperature (°C)',
-                    data: [],
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'minute'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
         function updateTargetTemp() {
             const targetTemp = document.getElementById('target-temp').value;
             fetch('/update_target_temperature', {
@@ -111,17 +77,6 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
-                // Add data to the chart
-                const now = new Date();
-                temperatureChart.data.labels.push(now);
-                temperatureChart.data.datasets[0].data.push(data.temperature);
-                temperatureChart.update();
-
-                // Remove data older than 60 minutes
-                while (temperatureChart.data.labels.length > 60) {
-                    temperatureChart.data.labels.shift();
-                    temperatureChart.data.datasets[0].data.shift();
-                }
             })
             .catch(error => {
                 console.error('Error fetching temperature:', error);
