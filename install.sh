@@ -48,7 +48,7 @@ pip install .
 pip install -r requirements.txt
 
 # Run Flask application
-python /$HOME/MasterPI/app.py &
+python app.py &
 
 # Deactivate the virtual environment
 deactivate
