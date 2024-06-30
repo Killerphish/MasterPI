@@ -88,5 +88,24 @@ def update_pid():
     pid.set_parameters(Kp, Ki, Kd)
     return jsonify({'status': 'success', 'Kp': Kp, 'Ki': Ki, 'Kd': Kd})
 
+@app.route('/save_settings', methods=['POST'])
+def save_settings():
+    form_data = request.form
+    device_name = form_data.get('device_name')
+    temp_offset = form_data.get('temp_offset')
+    temp_unit = form_data.get('temp_unit')
+    
+    # Save settings to the database
+    success = save_settings_to_db(device_name, temp_offset, temp_unit)
+    
+    return jsonify({'success': True})
+
+@app.route('/pid_autotune', methods=['POST'])
+def pid_autotune():
+    # Start PID autotune process
+    # Example: start_pid_autotune()
+    
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

@@ -21,7 +21,7 @@ After=network.target
 User=$USER
 WorkingDirectory=$PROJECT_DIR
 ExecStart=$EXEC_START
-Restart=always
+Restart=no # Change to always if you want it to run even if you stop the service.
 
 [Install]
 WantedBy=multi-user.target
