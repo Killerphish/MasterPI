@@ -21,6 +21,10 @@ class FanController:
 
     def is_fan_on(self):
         return self.fan.value > 0  # Check if fan is on based on PWM output
+    
+    def turn_on_fan(self):
+        self.fan_pin.value = True
+        self.fan_on = True
 
     def turn_off_fan(self):
         self.fan.value = 0
