@@ -11,6 +11,7 @@ from logging.handlers import RotatingFileHandler
 import time
 
 app = Flask(__name__)
+app.config['DEBUG'] = True
 
 # Setup logging
 if not os.path.exists('logs'):
