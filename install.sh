@@ -3,16 +3,17 @@
 # Remote repository URL and branch name
 REMOTE_REPO="https://github.com/Killerphish/MasterPI.git"
 BRANCH="main"  # Replace with your branch name if different
+PROJECT_DIR="/home/smoke/MasterPi"  # Adjust this to your actual project directory
 
 # Function to set up autorun
 setup_autorun() {
     read -p "Do you want to set up the application to autorun at system startup? (y/n): " autorun_choice
     if [ "$autorun_choice" == "y" ]; then
         # Execute autorun.sh script directly
-        ./tools/autorun.sh
+        "$PROJECT_DIR/tools/autorun.sh"
         echo "Autorun set up successfully."
     else
-        echo "Autorun is disabled."
+        echo "Autorun not configured."
     fi
 }
 
@@ -21,10 +22,10 @@ setup_auto_update() {
     read -p "Do you want to set up automatic updates for the application? (y/n): " auto_update_choice
     if [ "$auto_update_choice" == "y" ]; then
         # Set up auto-update using cron
-        (crontab -l 2>/dev/null; echo "0 */6 * * * cd $(pwd) && ./tools/auto_update.sh") | crontab -
+        (crontab -l 2>/dev/null; echo "0 */6 * * * cd $PROJECT_DIR && $PROJECT_DIR/tools/auto_update.sh") | crontab -
         echo "Auto-update set up successfully."
     else
-        echo "Auto-update is disabled."
+        echo "Auto-update not configured."
     fi
 }
 
@@ -32,18 +33,24 @@ setup_auto_update() {
 sudo apt-get update
 sudo apt-get upgrade -y
 
-# Install Git
+# Install Git (if not already installed)
 sudo apt-get install -y git
 
+# Create project directory if it doesn't exist
+mkdir -p "$PROJECT_DIR"
+
 # Navigate to the project directory
-cd "$HOME/MasterPi" || exit
+cd "$PROJECT_DIR" || exit
 
-# Set the remote repository and branch
-git remote set-url origin "$REMOTE_REPO"
-git checkout "$BRANCH"
-
-# Pull the latest changes from the specified branch
-git pull origin "$BRANCH"
+# Check if the project directory is empty
+if [ -z "$(ls -A $PROJECT_DIR)" ]; then
+    # Clone the remote repository
+    git clone "$REMOTE_REPO" .
+else
+    # Pull the latest changes from the specified branch
+    git fetch origin "$BRANCH"
+    git reset --hard "origin/$BRANCH"
+fi
 
 # Install Python and pip
 sudo apt-get install -y python3 python3-pip
