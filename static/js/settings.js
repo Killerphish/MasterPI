@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             if (data.success) {
                 alert('Settings saved successfully!');
+                const deviceName = formData.get('device_name');
+                // Update device name in index.html h1 element
+                document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
             } else {
                 alert('Failed to save settings.');
             }
@@ -35,6 +38,38 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
+    document.getElementById('temp_unit').addEventListener('change', function(event) {
+        // Fetch temperature data in the selected unit and update display
+        fetchTemperatureData();
+    });
+
+    function fetchTemperatureData() {
+        fetch('/temp_data')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!Array.isArray(data)) {
+                    throw new Error('Data format is incorrect');
+                }
+
+                let temperatures = data.map(d => d[1]);
+                const tempUnit = document.getElementById('temp_unit').value;
+
+                if (tempUnit === 'F') {
+                    temperatures = temperatures.map(celsiusToFahrenheit);
+                }
+
+                updateTemperatureDisplay(temperatures);
+            })
+            .catch(error => {
+                console.error('Error fetching temperature data:', error);
+            });
+    }
+
     function checkAutotuneStatus() {
         fetch('/autotune_status')
             .then(response => {
@@ -45,11 +80,9 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(data => {
                 if (data.success) {
-                    // Display autotune results to the user
                     const results = data.results;
                     alert(`PID Autotune completed successfully:\nKp: ${results.Kp}, Ki: ${results.Ki}, Kd: ${results.Kd}`);
                 } else {
-                    // Autotune failed or in progress, continue checking
                     setTimeout(checkAutotuneStatus, 3000); // Check again after 3 seconds
                 }
             })
@@ -73,6 +106,15 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => {
                 console.error('Error fetching status:', error);
             });
+    }
+
+    function celsiusToFahrenheit(celsius) {
+        return (celsius * 9/5) + 32;
+    }
+
+    function updateTemperatureDisplay(temperatures) {
+        // Implement your logic to update temperature display
+        // For example, update a DOM element with id 'current-temp'
     }
 
     fetchStatus();
