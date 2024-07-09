@@ -145,7 +145,7 @@ def pid_autotune():
     else:
         return jsonify({'success': False}), 500
     
-    @app.route('/autotune_status')
+@app.route('/autotune_status')
 def autotune_status():
     # Check autotune status and retrieve results
     if autotune_in_progress():
