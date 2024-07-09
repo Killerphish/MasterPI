@@ -4,6 +4,8 @@ Adafruit-PlatformDetect
 Adafruit-PureIO
 adafruit-circuitpython-max31865
 adafruit-circuitpython-busdevice
+board
+digitalio
 simple-pid
 numpy
 matplotlib

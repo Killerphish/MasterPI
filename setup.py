@@ -13,10 +13,11 @@ setup(
         'simple-pid',
         'numpy',
         'matplotlib',
+        'board'
     ],
     entry_points={
         'console_scripts': [
-            'start-masterpi=app:main',  # Assuming app.py contains a main function to start the app
+            'start-masterpi=app:main',  # start the MasterPi app
         ],
     },
 )

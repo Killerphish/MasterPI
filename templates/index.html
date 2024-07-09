@@ -5,25 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temperature Control Dashboard</title>
     <link rel="manifest" href="/manifest.json">
-    <!-- Optional: CSS styles for navigation bar -->
-    <style>
-        .navbar {
-            overflow: hidden;
-            background-color: #333;
-        }
-        .navbar a {
-            float: left;
-            display: block;
-            color: #f2f2f2;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
-        .navbar a:hover {
-            background-color: #ddd;
-            color: black;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="navbar">
@@ -31,7 +13,7 @@
         <a href="settings.html">Settings</a>
     </div>
     <div class="content">
-        <h1>Welcome to the Temperature Control Dashboard</h1>
+        <h1>MasterPi Smoker</h1>
         <p>Current Temperature: <span id="current-temp">Loading...</span></p>
         <p>Fan Status: <span id="fan-status">Loading...</span></p>
         <p>Target Temperature: <input type="number" id="target-temp" min="0" max="700"> <button onclick="updateTargetTemp()">Set</button></p>

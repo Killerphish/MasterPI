@@ -37,7 +37,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 tempChart.update();
             });
     }
-
-    setInterval(fetchTemperatureData, 60000); // Fetch data every minute
     fetchTemperatureData(); // Initial fetch
+    setInterval(fetchTemperatureData, 5000); // Fetch data every 5 seconds
 });

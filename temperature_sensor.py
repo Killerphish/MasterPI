@@ -1,7 +1,6 @@
 import board
 import digitalio
 import adafruit_max31865
-import time
 
 class TemperatureSensor:
     def __init__(self, cs_pin):

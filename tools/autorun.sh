@@ -1,6 +1,5 @@
 #!/bin/bash
 #This script will setup the autorun at restart
-# Define variables
 SERVICE_NAME="flaskapp"
 USER=$(whoami)
 PROJECT_DIR="$HOME/MasterPI"
@@ -36,7 +35,7 @@ EOL
   # Start the service now
   sudo systemctl start $SERVICE_NAME
 
-  echo "Flask application set to auto-run at start."
+  echo "MasterPi has been set to auto-run at start."
 else
   echo "Service file already exists at $SERVICE_FILE"
 fi

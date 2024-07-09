@@ -19,4 +19,4 @@ git pull origin main
 echo "Restarting the Flask application..."
 sudo systemctl start $SERVICE_NAME
 
-echo "Update and restart completed."
+echo "MasterPi has been successfully updated."
