@@ -62,7 +62,7 @@ def manifest():
         app.logger.error(f"Error serving manifest.json: {e}", exc_info=True)
         return str(e), 500
     
-@@app.route('/update_target_temperature', methods=['POST'])
+@app.route('/update_target_temperature', methods=['POST'])
 def update_target_temperature():
     global fan_controller  # Access the global variable
 
