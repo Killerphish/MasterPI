@@ -1,8 +1,11 @@
 #!/bin/bash
 
+#Log current user
+CURRENT_USER =$(logname)
+
 # Define the path to your project directory and service name
-PROJECT_DIR="$HOME/MasterPI"
-SERVICE_NAME="flaskapp"
+PROJECT_DIR="/home/$CURRENT_USER/MasterPi"
+SERVICE_NAME="masterpi"
 
 # Navigate to the project directory
 cd $PROJECT_DIR || exit
