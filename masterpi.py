@@ -26,7 +26,7 @@ app.logger.info('Application startup')
 sensor = TemperatureSensor(board.D18)
 
 # Initialize PID controller
-pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=100.0)
+pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=30.0)
 
 # Initialize FanController
 fan_controller = FanController(fan_pin=27, target_temperature=50.0)  # Adjust this based on actual GPIO pin
@@ -136,14 +136,16 @@ def save_settings():
 
 @app.route('/pid_autotune', methods=['POST'])
 def pid_autotune():
-    # Implement PID autotune logic here
-    # Example: Start autotune process
-    success = start_pid_autotune()  # Define this function based on your autotune method
+    try:
+        # Start PID autotune process
+        success = start_pid_autotune()  # Call your defined function here
 
-    if success:
-        return jsonify({'success': True}), 200
-    else:
-        return jsonify({'success': False}), 500
+        if success:
+            return jsonify({'success': True}), 200
+        else:
+            return jsonify({'success': False}), 500
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
     
 @app.route('/autotune_status')
 def autotune_status():
