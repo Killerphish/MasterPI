@@ -46,16 +46,28 @@ def get_temperature_data():
 
 def save_settings_to_db(device_name, temp_offset, temp_unit):
     try:
-        conn = sqlite3.connect('settings.db')
-        cursor = conn.cursor()
+        conn1 = sqlite3.connect('database.db')  # Connect to database.db
+        cursor1 = conn1.cursor()
         
-        cursor.execute('''
+        cursor1.execute('''
             INSERT INTO settings (device_name, temp_offset, temp_unit)
             VALUES (?, ?, ?)
         ''', (device_name, temp_offset, temp_unit))
         
-        conn.commit()
-        conn.close()
+        conn1.commit()
+        conn1.close()
+        
+        conn2 = sqlite3.connect('settings.db')  # Connect to settings.db
+        cursor2 = conn2.cursor()
+        
+        cursor2.execute('''
+            INSERT INTO settings (device_name, temp_offset, temp_unit)
+            VALUES (?, ?, ?)
+        ''', (device_name, temp_offset, temp_unit))
+        
+        conn2.commit()
+        conn2.close()
+        
         return True
     except Exception as e:
         print(f"Error saving settings: {e}")
