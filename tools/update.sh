@@ -16,7 +16,7 @@ sudo systemctl stop $SERVICE_NAME
 
 # Pull the latest changes from GitHub
 echo "Pulling the latest changes from GitHub..."
-git pull origin main
+sudo -u $CURRENT_USER git pull origin main
 
 # Restart the Flask application using systemd
 echo "Restarting the Flask application..."
