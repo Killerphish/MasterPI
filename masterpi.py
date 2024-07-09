@@ -67,24 +67,29 @@ def update_target_temperature():
     data = request.get_json()
     target_temp = data.get('target_temp', 0)
     
-    # Update PID controller setpoint
-    pid.setpoint = target_temp
+    try:
+        # Update PID controller setpoint
+        pid.setpoint = float(target_temp)  # Ensure target_temp is converted to float
+        
+        # Example: Read current temperature from sensor
+        current_temperature = sensor.read_temperature()
+        
+        # Compute new fan speed based on updated setpoint and current temperature
+        fan_speed = pid.compute(current_temperature)
+        
+        # Logic to control the fan based on fan_speed
+        if fan_speed > 0:
+            # Turn on the fan
+            fan_controller.turn_on_fan()
+        else:
+            # Turn off the fan
+            fan_controller.turn_off_fan()
+        
+        return jsonify({'status': 'success', 'target_temp': target_temp})
     
-    # Example: Read current temperature from sensor
-    current_temperature = sensor.read_temperature()
-    
-    # Compute new fan speed based on updated setpoint and current temperature
-    fan_speed = pid.compute(current_temperature)
-    
-    # Logic to control the fan based on fan_speed
-    if fan_speed > 0:
-        # Turn on the fan
-        fan_controller.turn_on_fan()
-    else:
-        # Turn off the fan
-        fan_controller.turn_off_fan()
-    
-    return jsonify({'status': 'success', 'target_temp': target_temp})
+    except Exception as e:
+        app.logger.error(f"Error updating target temperature: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/emergency_shutdown', methods=['POST'])
 def emergency_shutdown():

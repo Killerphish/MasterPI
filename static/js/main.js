@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    // Function to fetch temperature data and update the chart
     function fetchTemperatureData() {
         fetch('/temp_data')
             .then(response => {
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
+    // Function to fetch current temperature status and fan status
     function fetchStatus() {
         fetch('/get_status')
             .then(response => {
@@ -67,7 +69,30 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error fetching status:', error);
             });
     }
+    function updateTargetTemp() {
+        const targetTemp = document.getElementById('target-temp').value;  // Get the value from input field
+        fetch('/update_target_temperature', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ target_temp: targetTemp }),  // Send as JSON data
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
 
+    // Initial fetches and intervals for fetching data
     fetchTemperatureData(); // Initial fetch
     setInterval(fetchTemperatureData, 5000); // Fetch data every 5 seconds
 
