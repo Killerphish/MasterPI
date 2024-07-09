@@ -11,6 +11,12 @@ def init_db():
         )
     ''')
     
+    conn.commit()
+    conn.close()
+
+    conn = sqlite3.connect('settings.db')
+    c = conn.cursor()
+    
     c.execute('''
         CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
