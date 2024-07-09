@@ -25,9 +25,17 @@ cd $PROJECT_DIR || exit
 echo "Stopping the Flask application..."
 sudo systemctl stop $SERVICE_NAME
 
+# Stash any local changes
+echo "Stashing local changes..."
+sudo -u $ACTUAL_USER git stash
+
 # Pull the latest changes from GitHub
 echo "Pulling the latest changes from GitHub..."
 sudo -u $CURRENT_USER git pull origin main
+
+# Reapply stashed changes
+echo "Reapplying stashed changes..."
+sudo -u $ACTUAL_USER git stash pop
 
 # Restart the Flask application using systemd
 echo "Restarting the Flask application..."
