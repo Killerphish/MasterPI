@@ -29,7 +29,7 @@ sensor = TemperatureSensor(board.D18)
 pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=100.0)
 
 # Initialize FanController
-fan_controller = FanController(target_temperature=25)  # Example initial target temperature
+fan_controller = FanController(fan_pin=27)  # Adjust this based on actual GPIO pin
 
 @app.route('/')
 def index():
@@ -66,7 +66,24 @@ def manifest():
 def update_target_temperature():
     data = request.get_json()
     target_temp = data.get('target_temp', 0)
+    
+    # Update PID controller setpoint
     pid.setpoint = target_temp
+    
+    # Example: Read current temperature from sensor
+    current_temperature = sensor.read_temperature()
+    
+    # Compute new fan speed based on updated setpoint and current temperature
+    fan_speed = pid.compute(current_temperature)
+    
+    # Logic to control the fan based on fan_speed
+    if fan_speed > 0:
+        # Turn on the fan
+        fan_controller.turn_on_fan()
+    else:
+        # Turn off the fan
+        fan_controller.turn_off_fan()
+    
     return jsonify({'status': 'success', 'target_temp': target_temp})
 
 @app.route('/emergency_shutdown', methods=['POST'])
