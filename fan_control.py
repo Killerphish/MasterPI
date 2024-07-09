@@ -1,4 +1,4 @@
-import PID
+from simple_pid import PID
 
 class FanController:
     def __init__(self, target_temperature):
