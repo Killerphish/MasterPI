@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
+from fan_control import FanController
 import board
 import digitalio
 import os
