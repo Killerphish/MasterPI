@@ -69,7 +69,7 @@ def update_target_temperature():
     
     try:
         # Update PID controller setpoint
-        pid.setpoint = float(target_temp)  # Ensure target_temp is converted to float
+        target_temp = float(data.get('target_temp', 0))
         
         # Example: Read current temperature from sensor
         current_temperature = sensor.read_temperature()
@@ -136,10 +136,23 @@ def save_settings():
 
 @app.route('/pid_autotune', methods=['POST'])
 def pid_autotune():
-    # Start PID autotune process
-    # Example: start_pid_autotune()
+    # Implement PID autotune logic here
+    # Example: Start autotune process
+    success = start_pid_autotune()  # Define this function based on your autotune method
+
+    if success:
+        return jsonify({'success': True}), 200
+    else:
+        return jsonify({'success': False}), 500
     
-    return jsonify({'success': True})
+    @app.route('/autotune_status')
+def autotune_status():
+    # Check autotune status and retrieve results
+    if autotune_in_progress():
+        return jsonify({'success': False})
+    else:
+        autotune_results = get_autotune_results()  # Implement this function to retrieve results
+        return jsonify({'success': True, 'results': autotune_results})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
