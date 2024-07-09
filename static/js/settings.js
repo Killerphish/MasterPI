@@ -113,10 +113,13 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function updateTemperatureDisplay(temperatures) {
-        // Implement your logic to update temperature display
-        // For example, update a DOM element with id 'current-temp'
+        const tempDisplay = document.getElementById('current-temp');
+        if (temperatures.length > 0) {
+            tempDisplay.textContent = temperatures.join(', ');  // Update based on your display logic
+        } else {
+            tempDisplay.textContent = 'No data available';
+        }
     }
-
     fetchStatus();
     setInterval(fetchStatus, 3000); // Update status every 3 seconds
 });
