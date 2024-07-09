@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-</head>
-<body>
-    <div class="navbar">
-        <a href="./#home">Home</a>
-        <a href="settings.html">Settings</a>
-    </div>
 <head>
     <meta charset="UTF-8">
     <title>Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <div class="navbar">
+        <a href="./#home">Home</a>
+        <a href="settings.html">Settings</a>
+    </div>
     <h1>Settings</h1>
     <form id="settingsForm">
         <div>
             <label for="device_name">Device Name:</label>
             <input type="text" id="device_name" name="device_name" placeholder="Device Name">
+        </div>
+        <div>
+            <label for="devicename2">Device Name 2:</label>
+            <input type="text" id="devicename2" name="devicename2" placeholder="Device Name 2">
         </div>
         <div>
             <label for="pid_autotune">PID Autotune:</label>
