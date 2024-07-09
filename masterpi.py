@@ -29,7 +29,7 @@ sensor = TemperatureSensor(board.D18)
 pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=100.0)
 
 # Initialize FanController
-fan_controller = FanController(fan_pin=27, target_temperature=50.0)  # Adjust this based on actual GPIO pin
+fan_controller = FanController(fan_pin=27)  # Adjust this based on actual GPIO pin
 
 @app.route('/')
 def index():
