@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         const formData = new FormData(form);
 
+    // Log device_name from formData
+    console.log('Device Name from Form Data:', formData.get('device_name'));
+
         fetch('/save_settings', {
             method: 'POST',
             body: formData
