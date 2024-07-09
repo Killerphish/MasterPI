@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
-from fan_control import FanController
+from fan_control import FanController  # Import FanController class
 import board
 import digitalio
 import os
@@ -27,6 +27,9 @@ sensor = TemperatureSensor(board.D18)
 
 # Initialize PID controller
 pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=100.0)
+
+# Initialize FanController
+fan_controller = FanController(target_temperature=25)  # Example initial target temperature
 
 @app.route('/')
 def index():
@@ -77,8 +80,16 @@ def emergency_shutdown():
 
 @app.route('/get_status')
 def get_status():
-    temperature = sensor.read_temperature()
-    return jsonify({'temperature': temperature, 'fan_on': fan_on})
+    current_temperature = sensor.read_temperature()  # Example: Read current temperature from sensor
+    fan_speed = fan_controller.update(current_temperature)  # Update fan control based on temperature
+    fan_on = fan_controller.is_fan_on()  # Check fan state
+
+    return jsonify({
+        'temperature': current_temperature,
+        'fan_on': fan_on,
+        'fan_speed': fan_speed  # Optionally return fan speed for visualization
+    })
+
 
 @app.route('/update_pid', methods=['POST'])
 def update_pid():
