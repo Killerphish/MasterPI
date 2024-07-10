@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     function fetchTemperatureData() {
-        fetch('/temp_data')
+        fetch('/get_temperature')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok ' + response.statusText);
