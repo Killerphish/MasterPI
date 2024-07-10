@@ -10,6 +10,7 @@
         <a href="./#home">Home</a>
         <a href="settings.html">Settings</a>
     </div>
+    <h1 id="deviceName">MasterPi Smoker</h1>
     <h1 id="devicename2">Default Device Name 2</h1>
     <h1>Settings</h1>
     <form id="settingsForm">
@@ -40,6 +41,11 @@
             <button type="submit">Save Settings</button>
         </div>
     </form>
+
+    <!-- Ensure these elements are present -->
+    <div id="current-temp">Current temperature will be displayed here.</div>
+    <div id="fan-status">Fan status will be displayed here.</div>
+
     <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 </body>
 </html>

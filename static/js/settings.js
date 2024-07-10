@@ -22,9 +22,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 const deviceName = formData.get('device_name');
                 const deviceName2 = formData.get('devicename2');
 
-                // Update device name in index.html h1 element (if needed)
+                // Update device name in settings.html h1 element (if needed)
                 document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
-                // Update devicename2 in index.html (assuming there's an element with id 'devicename2')
+                // Update devicename2 in settings.html (assuming there's an element with id 'devicename2')
                 document.getElementById('devicename2').textContent = deviceName2 ? deviceName2 : "Default Device Name 2";
             } else {
                 alert('Failed to save settings.');
@@ -136,7 +136,6 @@ document.addEventListener("DOMContentLoaded", function() {
             tempDisplay.textContent = 'No data available';
         }
     }
-
     fetchStatus();
     setInterval(fetchStatus, 3000); // Update status every 3 seconds
 });
