@@ -18,6 +18,8 @@
         <p>Fan Status: <span id="fan-status">Loading...</span></p>
         <p>Target Temperature: <input type="number" id="target-temp" min="0" max="700"> <button onclick="updateTargetTemp()">Set</button></p>
         <button onclick="emergencyShutdown()">Emergency Shutdown</button>
+        <div id="current-temp"></div>
+        <div id="fan-status"></div>
     </div>
     <script>
         function updateTargetTemp() {
@@ -70,5 +72,6 @@
         fetchStatus();
         setInterval(fetchStatus, 3000); // Update status every 3 seconds
     </script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 </body>
 </html>
