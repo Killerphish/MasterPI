@@ -1,4 +1,4 @@
-console.log('Script loaded')
+console.log('Script loaded');
 
 document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById('settingsForm');
@@ -21,7 +21,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 const deviceName = formData.get('device_name');
 
                 // Update device name in index.html h1 element (if needed)
-                document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
+                if (document.getElementById('deviceName')) {
+                    document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
+                }
             } else {
                 alert('Failed to save settings.');
             }
@@ -109,8 +111,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();
             })
             .then(data => {
-                document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
-                document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
+                if (document.getElementById('current-temp')) {
+                    document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
+                }
+                if (document.getElementById('fan-status')) {
+                    document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
+                }
             })
             .catch(error => {
                 console.error('Error fetching status:', error);
@@ -123,10 +129,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function updateTemperatureDisplay(temperatures) {
         const tempDisplay = document.getElementById('current-temp');
-        if (temperatures.length > 0) {
-            tempDisplay.textContent = temperatures.join(', ');  // Update based on your display logic
-        } else {
-            tempDisplay.textContent = 'No data available';
+        if (tempDisplay) {
+            if (temperatures.length > 0) {
+                tempDisplay.textContent = temperatures.join(', ');  // Update based on your display logic
+            } else {
+                tempDisplay.textContent = 'No data available';
+            }
         }
     }
     fetchStatus();
