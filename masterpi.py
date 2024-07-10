@@ -124,6 +124,11 @@ def update_pid():
     pid.set_parameters(Kp, Ki, Kd)
     return jsonify({'status': 'success', 'Kp': Kp, 'Ki': Ki, 'Kd': Kd})
 
+@app.route('/get_settings', methods=['GET'])
+def get_settings():
+    settings = get_settings_from_db()
+    return jsonify(settings)
+
 @app.route('/save_settings', methods=['POST'])
 def save_settings():
     form_data = request.form

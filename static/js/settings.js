@@ -7,9 +7,8 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         const formData = new FormData(form);
 
-        // Log device_name and devicename2 from formData
+        // Log device_name from formData
         console.log('Device Name from Form Data:', formData.get('device_name'));
-        console.log('Device Name 2 from Form Data:', formData.get('devicename2'));
 
         fetch('/save_settings', {
             method: 'POST',
@@ -20,12 +19,11 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.success) {
                 alert('Settings saved successfully!');
                 const deviceName = formData.get('device_name');
-                const deviceName2 = formData.get('devicename2');
 
-                // Update device name in settings.html h1 element (if needed)
-                document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
-                // Update devicename2 in settings.html (assuming there's an element with id 'devicename2')
-                document.getElementById('devicename2').textContent = deviceName2 ? deviceName2 : "Default Device Name 2";
+                // Update device name in index.html h1 element (if needed)
+                if (document.getElementById('deviceName')) {
+                    document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
+                }
             } else {
                 alert('Failed to save settings.');
             }
@@ -48,9 +46,6 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 alert('Failed to start PID Autotune.');
             }
-        })
-        .catch(error => {
-            console.error('Error starting PID Autotune:', error);
         });
     });
 
@@ -116,8 +111,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();
             })
             .then(data => {
-                document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
-                document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
+                if (document.getElementById('current-temp')) {
+                    document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
+                }
+                if (document.getElementById('fan-status')) {
+                    document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
+                }
             })
             .catch(error => {
                 console.error('Error fetching status:', error);
@@ -130,10 +129,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function updateTemperatureDisplay(temperatures) {
         const tempDisplay = document.getElementById('current-temp');
-        if (temperatures.length > 0) {
-            tempDisplay.textContent = temperatures.join(', ');  // Update based on your display logic
-        } else {
-            tempDisplay.textContent = 'No data available';
+        if (tempDisplay) {
+            if (temperatures.length > 0) {
+                tempDisplay.textContent = temperatures.join(', ');  // Update based on your display logic
+            } else {
+                tempDisplay.textContent = 'No data available';
+            }
         }
     }
     fetchStatus();
