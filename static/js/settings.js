@@ -112,7 +112,12 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(data => {
                 if (document.getElementById('current-temp')) {
-                    document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
+                    const tempUnit = document.getElementById('temp_unit').value;
+                    let temperature = data.temperature;
+                    if (tempUnit === 'F') {
+                        temperature = celsiusToFahrenheit(temperature);
+                    }
+                    document.getElementById('current-temp').textContent = temperature.toFixed(2) + ` °${tempUnit}`;
                 }
                 if (document.getElementById('fan-status')) {
                     document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
@@ -131,12 +136,35 @@ document.addEventListener("DOMContentLoaded", function() {
         const tempDisplay = document.getElementById('current-temp');
         if (tempDisplay) {
             if (temperatures.length > 0) {
-                tempDisplay.textContent = temperatures[0].toFixed(2) + ' °C';  // Display the first temperature value
+                tempDisplay.textContent = temperatures.join(', ');  // Update based on your display logic
             } else {
                 tempDisplay.textContent = 'No data available';
             }
         }
     }
+
+    function fetchSettings() {
+        fetch('/get_settings')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(settings => {
+                if (document.getElementById('device_name')) {
+                    document.getElementById('device_name').value = settings.device_name;
+                }
+                if (document.getElementById('temp_unit')) {
+                    document.getElementById('temp_unit').value = settings.temp_unit;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching settings:', error);
+            });
+    }
+
+    fetchSettings();
     fetchStatus();
     setInterval(fetchStatus, 3000); // Update status every 3 seconds
 });
