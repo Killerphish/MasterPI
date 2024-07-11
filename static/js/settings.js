@@ -63,18 +63,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();
             })
             .then(data => {
-                if (!Array.isArray(data)) {
+                if (!data.temperature) {
                     throw new Error('Data format is incorrect');
                 }
-
-                let temperatures = data.map(d => d[1]);
+    
+                let temperature = data.temperature;
                 const tempUnit = document.getElementById('temp_unit').value;
-
+    
                 if (tempUnit === 'F') {
-                    temperatures = temperatures.map(celsiusToFahrenheit);
+                    temperature = celsiusToFahrenheit(temperature);
                 }
-
-                updateTemperatureDisplay(temperatures);
+    
+                updateTemperatureDisplay([temperature]); // Pass as an array with one element
             })
             .catch(error => {
                 console.error('Error fetching temperature data:', error);
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const tempDisplay = document.getElementById('current-temp');
         if (tempDisplay) {
             if (temperatures.length > 0) {
-                tempDisplay.textContent = temperatures.join(', ');  // Update based on your display logic
+                tempDisplay.textContent = temperatures[0].toFixed(2) + ' °C';  // Display the first temperature value
             } else {
                 tempDisplay.textContent = 'No data available';
             }

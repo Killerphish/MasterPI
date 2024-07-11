@@ -41,10 +41,13 @@ def index():
 def settings():
     return render_template('settings.html')
 
-@app.route('/get_temperature')
+@app.route('/get_temperature', methods=['GET'])
 def get_temperature():
-    temperature = sensor.read_temperature()
-    return jsonify({'temperature': temperature})
+    try:
+        temperature = sensor.read_temperature()
+        return jsonify({'temperature': temperature})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/manifest.json')
 def manifest():
