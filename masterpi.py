@@ -6,6 +6,7 @@ from database import save_settings_to_db, get_settings_from_db
 import board
 import digitalio
 import os
+from meater import MeaterApi  # Import the Meater API
 import logging
 from logging.handlers import RotatingFileHandler
 import time
@@ -32,6 +33,9 @@ pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=30.0)
 
 # Initialize FanController
 fan_controller = FanController(fan_pin=27, target_temperature=50.0)  # Adjust this based on actual GPIO pin
+
+# Initialize Meater API
+meater_api = MeaterApi(api_key='YOUR_MEATER_API_KEY')
 
 @app.route('/')
 def index():
