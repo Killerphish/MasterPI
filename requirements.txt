@@ -9,3 +9,5 @@ digitalio
 simple-pid
 numpy
 matplotlib
+meater-python
+sqlite3
