@@ -80,6 +80,27 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error fetching temperature data:', error);
             });
     }
+    
+    function fetchMeaterTemperature() {
+    fetch('/get_meater_temperature')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                console.error('Error fetching Meater temperature:', data.error);
+            } else {
+                const temperature = data.temperature;
+                document.getElementById('meater-temp').textContent = temperature.toFixed(2) + ' °C';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching Meater temperature:', error);
+        });
+}
 
     function checkAutotuneStatus() {
         fetch('/autotune_status')
@@ -166,5 +187,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     fetchSettings();
     fetchStatus();
+    fetchMeaterTemperature();
     setInterval(fetchStatus, 3000); // Update status every 3 seconds
 });
