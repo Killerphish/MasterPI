@@ -34,9 +34,6 @@ pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=30.0)
 # Initialize FanController
 fan_controller = FanController(fan_pin=27, target_temperature=50.0)  # Adjust this based on actual GPIO pin
 
-# Initialize Meater API
-meater_api = MeaterApi(api_key='YOUR_MEATER_API_KEY')
-
 @app.route('/')
 def index():
     return render_template('index.html')
