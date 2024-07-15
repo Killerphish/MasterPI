@@ -261,7 +261,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     function fetchMeaterStatus() {
         fetch('/get_meater_status')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
             .then(data => {
                 const meaterStatusElement = document.getElementById('meaterStatus');
                 if (data.connected) {
