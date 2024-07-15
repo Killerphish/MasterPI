@@ -70,9 +70,13 @@ def get_meater_temperature():
                 probe = probes[0]  # Assuming you are using the first probe
                 temperature = probe.temperature.internal
                 return jsonify({'temperature': temperature})
+        app.logger.error('No Meater device or probe found')
         return jsonify({'error': 'No Meater device or probe found'}), 404
+    except aiohttp.ClientError as e:
+        app.logger.error(f"Network error fetching Meater temperature: {e}")
+        return jsonify({'error': 'Network error'}), 500
     except Exception as e:
-        app.logger.error(f"Error fetching Meater temperature: {e}")
+        app.logger.error(f"Error fetching Meater temperature: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 # Endpoint to get Meater devices

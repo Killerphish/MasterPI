@@ -34,7 +34,12 @@ document.addEventListener("DOMContentLoaded", function() {
     if (closeModalButton) {
         closeModalButton.addEventListener('click', function() {
             hideModal(meaterModal, meaterStatus);
-            closeModalButton.style.display = 'none'; // Hide close button
+            const closeModalButtonElement = document.getElementById('closeModalButton');
+            if (closeModalButtonElement) {
+                closeModalButtonElement.style.display = 'none'; // Hide close button
+            } else {
+                console.error('Element with id "closeModalButton" not found.');
+            }
         });
     }
 
@@ -49,13 +54,24 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (data && data.success) {
                         updateStatus(meaterStatus, 'Meater API Key requested successfully!', 'green');
                     } else {
+                        updateStatus(meaterStatus, 'Failed to request Meater API Key.', 'red');
                         throw new Error('API response does not contain success property');
                     }
-                    closeModalButton.style.display = 'block'; // Show close button
+                    const closeModalButtonElement = document.getElementById('closeModalButton');
+                    if (closeModalButtonElement) {
+                        closeModalButtonElement.style.display = 'block'; // Show close button
+                    } else {
+                        console.error('Element with id "closeModalButton" not found.');
+                    }
                 })
                 .catch(error => {
                     handleFetchError(error, meaterStatus, 'Error requesting Meater API Key.');
-                    closeModalButton.style.display = 'block'; // Show close button
+                    const closeModalButtonElement = document.getElementById('closeModalButton');
+                    if (closeModalButtonElement) {
+                        closeModalButtonElement.style.display = 'block'; // Show close button
+                    } else {
+                        console.error('Element with id "closeModalButton" not found.');
+                    }
                 });
         });
     }
@@ -257,19 +273,27 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(data => {
                 const meaterStatusElement = document.getElementById('meaterStatus');
-                if (data.connected) {
-                    meaterStatusElement.textContent = 'Meater is connected';
-                    meaterStatusElement.style.color = 'green';
+                if (meaterStatusElement) {
+                    if (data.connected) {
+                        meaterStatusElement.textContent = 'Meater is connected';
+                        meaterStatusElement.style.color = 'green';
+                    } else {
+                        meaterStatusElement.textContent = 'Meater is not connected';
+                        meaterStatusElement.style.color = 'red';
+                    }
                 } else {
-                    meaterStatusElement.textContent = 'Meater is not connected';
-                    meaterStatusElement.style.color = 'red';
+                    console.error('Element with id "meaterStatus" not found.');
                 }
             })
             .catch(error => {
                 console.error('Error fetching Meater status:', error);
                 const meaterStatusElement = document.getElementById('meaterStatus');
-                meaterStatusElement.textContent = 'Error fetching Meater status';
-                meaterStatusElement.style.color = 'red';
+                if (meaterStatusElement) {
+                    meaterStatusElement.textContent = 'Error fetching Meater status';
+                    meaterStatusElement.style.color = 'red';
+                } else {
+                    console.error('Element with id "meaterStatus" not found.');
+                }
             });
     }
 
