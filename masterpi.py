@@ -66,6 +66,51 @@ def get_meater_temperature():
         app.logger.error(f"Error fetching Meater temperature: {e}")
         return jsonify({'error': str(e)}), 500
 
+# Endpoint to get Meater devices
+@app.route('/meater/devices', methods=['GET'])
+def get_meater_devices():
+    # Check if the token is stored in the session
+    if 'meater_token' not in session:
+        return jsonify({'error': 'Meater integration not enabled or token missing'}), 401
+
+    token = session['meater_token']
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+    response = requests.get('https://public-api.cloud.meater.com/v1/devices', headers=headers)
+    
+    if response.status_code != 200:
+        return jsonify({'error': 'Failed to fetch Meater devices'}), response.status_code
+
+    devices = response.json().get('data', {}).get('devices', [])
+    return jsonify({'devices': devices})
+
+# Endpoint to enable Meater integration
+@app.route('/meater/enable', methods=['POST'])
+def enable_meater_integration():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and password are required'}), 400
+
+    # Make a request to the Meater login endpoint to get the token
+    response = requests.post('https://public-api.cloud.meater.com/v1/login', json={
+        'email': email,
+        'password': password
+    })
+
+    if response.status_code != 200:
+        return jsonify({'error': 'Failed to login to Meater'}), response.status_code
+
+    token = response.json().get('data', {}).get('token')
+    if not token:
+        return jsonify({'error': 'Token not received from Meater'}), 500
+
+    # Store the token in the session
+    session['meater_token'] = token
+    return jsonify({'success': True})
 
 @app.route('/manifest.json')
 def manifest():
