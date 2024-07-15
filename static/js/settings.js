@@ -279,6 +279,35 @@ document.addEventListener("DOMContentLoaded", function() {
                 meaterStatusElement.style.color = 'red';
             });
     }
+
+    // Function to fetch and update temperature
+    function updateTemperature() {
+        fetch('/api/current-temperature')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('current-temp').innerText = `Current temperature: ${data.temperature}°`;
+            })
+            .catch(error => console.error('Error fetching temperature:', error));
+    }
+
+    // Function to fetch and update fan status
+    function updateFanStatus() {
+        fetch('/api/fan-status')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('fan-status').innerText = `Fan status: ${data.status}`;
+            })
+            .catch(error => console.error('Error fetching fan status:', error));
+    }
+
+    // Initial update
+    updateTemperature();
+    updateFanStatus();
+
+    // Set intervals to update periodically
+    setInterval(updateTemperature, 5000); // Update every 5 seconds
+    setInterval(updateFanStatus, 5000); // Update every 5 seconds
+
     fetchMeaterStatus();
     fetchSettings();
     fetchStatus();
