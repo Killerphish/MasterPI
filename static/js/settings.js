@@ -34,13 +34,10 @@ document.addEventListener("DOMContentLoaded", function() {
     if (closeModalButton) {
         closeModalButton.addEventListener('click', function() {
             hideModal(meaterModal, meaterStatus);
-            const closeModalButtonElement = document.getElementById('closeModalButton');
-            if (closeModalButtonElement) {
-                closeModalButtonElement.style.display = 'none'; // Hide close button
-            } else {
-                console.error('Element with id "closeModalButton" not found.');
-            }
+            closeModalButton.style.display = 'none'; // Hide close button
         });
+    } else {
+        console.error('Element with id "closeModalButton" not found.');
     }
 
     if (meaterForm) {
@@ -57,20 +54,14 @@ document.addEventListener("DOMContentLoaded", function() {
                         updateStatus(meaterStatus, 'Failed to request Meater API Key.', 'red');
                         throw new Error('API response does not contain success property');
                     }
-                    const closeModalButtonElement = document.getElementById('closeModalButton');
-                    if (closeModalButtonElement) {
-                        closeModalButtonElement.style.display = 'block'; // Show close button
-                    } else {
-                        console.error('Element with id "closeModalButton" not found.');
+                    if (closeModalButton) {
+                        closeModalButton.style.display = 'block'; // Show close button
                     }
                 })
                 .catch(error => {
                     handleFetchError(error, meaterStatus, 'Error requesting Meater API Key.');
-                    const closeModalButtonElement = document.getElementById('closeModalButton');
-                    if (closeModalButtonElement) {
-                        closeModalButtonElement.style.display = 'block'; // Show close button
-                    } else {
-                        console.error('Element with id "closeModalButton" not found.');
+                    if (closeModalButton) {
+                        closeModalButton.style.display = 'block'; // Show close button
                     }
                 });
         });
