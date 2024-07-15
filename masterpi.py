@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, session
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController  # Import FanController class
@@ -11,10 +11,10 @@ import logging
 from logging.handlers import RotatingFileHandler
 import time
 import requests
-from flask import session
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
+app.secret_key = 'your_secret_key'  # Add a secret key for session management
 
 # Setup logging
 if not os.path.exists('logs'):
@@ -35,6 +35,9 @@ pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=30.0)
 
 # Initialize FanController
 fan_controller = FanController(fan_pin=27, target_temperature=50.0)  # Adjust this based on actual GPIO pin
+
+# Initialize Meater API
+meater_api = MeaterApi()
 
 @app.route('/')
 def index():
