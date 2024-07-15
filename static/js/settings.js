@@ -243,7 +243,27 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error fetching settings:', error);
             });
     }
-
+    function fetchMeaterStatus() {
+        fetch('/get_meater_status')
+            .then(response => response.json())
+            .then(data => {
+                const meaterStatusElement = document.getElementById('meaterStatus');
+                if (data.connected) {
+                    meaterStatusElement.textContent = 'Meater is connected';
+                    meaterStatusElement.style.color = 'green';
+                } else {
+                    meaterStatusElement.textContent = 'Meater is not connected';
+                    meaterStatusElement.style.color = 'red';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching Meater status:', error);
+                const meaterStatusElement = document.getElementById('meaterStatus');
+                meaterStatusElement.textContent = 'Error fetching Meater status';
+                meaterStatusElement.style.color = 'red';
+            });
+    }
+    fetchMeaterStatus();
     fetchSettings();
     fetchStatus();
     fetchMeaterTemperature();

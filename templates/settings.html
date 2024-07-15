@@ -33,6 +33,7 @@
                 <option value="F">Fahrenheit</option>
             </select>
         </div>
+        <div id="meaterStatus">Meater connection status will be displayed here.</div>
         <div>
             <h2>Meater Temperature: <span id="meater-temp">Loading...</span></h2>
         </div>
@@ -67,19 +68,6 @@
     <div id="fan-status">Fan status will be displayed here.</div>
 
     <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('/get_settings')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('device_name').value = data.device_name;
-                    document.getElementById('temp_offset').value = data.temp_offset;
-                    document.getElementById('temp_unit').value = data.temp_unit;
-                })
-                .catch(error => {
-                    console.error('Error fetching settings:', error);
-                });
-        });
-    </script>
+
 </body>
 </html>
