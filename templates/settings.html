@@ -33,14 +33,35 @@
             </select>
         </div>
         <div>
-        <h2>Meater Temperature: <span id="meater-temp">Loading...</span></h2>
+            <h2>Meater Temperature: <span id="meater-temp">Loading...</span></h2>
         </div>
         <div>
             <button type="submit">Save Settings</button>
         </div>
     </form>
 
-    <!-- Ensure these elements are present -->
+    <button id="enableMeaterIntegration" type="button">Enable Meater Integration</button>
+
+    <!-- Meater Integration Modal -->
+    <div id="meaterModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Enable Meater Integration</h2>
+            <form id="meaterForm">
+                <div>
+                    <label for="meater_email">Meater Cloud Email:</label>
+                    <input type="email" id="meater_email" name="meater_email" placeholder="Meater Cloud Email">
+                </div>
+                <div>
+                    <label for="meater_password">Meater Cloud Password:</label>
+                    <input type="password" id="meater_password" name="meater_password" placeholder="Meater Cloud Password">
+                </div>
+                <button type="submit">Save</button>
+            </form>
+            <div id="meaterStatus"></div>
+        </div>
+    </div>
+
     <div id="current-temp">Current temperature will be displayed here.</div>
     <div id="fan-status">Fan status will be displayed here.</div>
 

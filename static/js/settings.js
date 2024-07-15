@@ -2,13 +2,74 @@ console.log('Script loaded');
 
 document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById('settingsForm');
+    const enableMeaterIntegrationButton = document.getElementById('enableMeaterIntegration');
+    const meaterModal = document.getElementById('meaterModal');
+    const closeModal = document.getElementsByClassName('close')[0];
+    const meaterForm = document.getElementById('meaterForm');
+    const meaterStatus = document.getElementById('meaterStatus');
+    const closeModalButton = document.getElementById('closeModalButton');
+
+    // Open the modal
+    enableMeaterIntegrationButton.addEventListener('click', function() {
+        meaterModal.style.display = "block";
+    });
+
+    // Close the modal
+    closeModal.addEventListener('click', function() {
+        meaterModal.style.display = "none";
+        meaterStatus.textContent = ''; // Clear status on close
+    });
+
+    // Close the modal when clicking outside of it
+    window.addEventListener('click', function(event) {
+        if (event.target == meaterModal) {
+            meaterModal.style.display = "none";
+            meaterStatus.textContent = ''; // Clear status on close
+        }
+    });
+
+    closeModalButton.addEventListener('click', function() {
+        meaterModal.style.display = "none";
+        meaterStatus.textContent = ''; // Clear status on close
+        closeModalButton.style.display = 'none'; // Hide close button
+    });
+
+    meaterForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const email = document.getElementById('meater_email').value;
+        const password = document.getElementById('meater_password').value;
+
+        fetch('/request_meater_api_key', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                meaterStatus.textContent = 'Meater API Key requested successfully!';
+                meaterStatus.style.color = 'green';
+            } else {
+                meaterStatus.textContent = 'Failed to request Meater API Key: ' + data.message;
+                meaterStatus.style.color = 'red';
+            }
+            meaterStatus.style.display = 'block';
+            closeModalButton.style.display = 'block'; // Show close button
+        })
+        .catch(error => {
+            console.error('Error requesting Meater API Key:', error);
+            meaterStatus.textContent = 'Error requesting Meater API Key.';
+            meaterStatus.style.color = 'red';
+            meaterStatus.style.display = 'block';
+            closeModalButton.style.display = 'block'; // Show close button
+        });
+    });
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
         const formData = new FormData(form);
-
-        // Log device_name from formData
-        console.log('Device Name from Form Data:', formData.get('device_name'));
 
         fetch('/save_settings', {
             method: 'POST',
@@ -19,8 +80,6 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.success) {
                 alert('Settings saved successfully!');
                 const deviceName = formData.get('device_name');
-
-                // Update device name in index.html h1 element (if needed)
                 if (document.getElementById('deviceName')) {
                     document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
                 }
@@ -66,41 +125,41 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (!data.temperature) {
                     throw new Error('Data format is incorrect');
                 }
-    
+
                 let temperature = data.temperature;
                 const tempUnit = document.getElementById('temp_unit').value;
-    
+
                 if (tempUnit === 'F') {
                     temperature = celsiusToFahrenheit(temperature);
                 }
-    
+
                 updateTemperatureDisplay([temperature]); // Pass as an array with one element
             })
             .catch(error => {
                 console.error('Error fetching temperature data:', error);
             });
     }
-    
+
     function fetchMeaterTemperature() {
-    fetch('/get_meater_temperature')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.error) {
-                console.error('Error fetching Meater temperature:', data.error);
-            } else {
-                const temperature = data.temperature;
-                document.getElementById('meater-temp').textContent = temperature.toFixed(2) + ' °C';
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching Meater temperature:', error);
-        });
-}
+        fetch('/get_meater_temperature')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error('Error fetching Meater temperature:', data.error);
+                } else {
+                    const temperature = data.temperature;
+                    document.getElementById('meater-temp').textContent = temperature.toFixed(2) + ' °C';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching Meater temperature:', error);
+            });
+    }
 
     function checkAutotuneStatus() {
         fetch('/autotune_status')

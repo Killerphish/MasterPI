@@ -11,3 +11,4 @@ numpy
 matplotlib
 meater-python
 sqlite3
+requests
