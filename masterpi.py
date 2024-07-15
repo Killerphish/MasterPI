@@ -11,6 +11,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import time
 import requests
+import aiohttp  # Import aiohttp
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -36,8 +37,11 @@ pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=30.0)
 # Initialize FanController
 fan_controller = FanController(fan_pin=27, target_temperature=50.0)  # Adjust this based on actual GPIO pin
 
-# Initialize Meater API
-meater_api = MeaterApi()
+# Initialize aiohttp session
+aiohttp_session = aiohttp.ClientSession()
+
+# Initialize Meater API with aiohttp session
+meater_api = MeaterApi(aiohttp_session)
 
 @app.route('/')
 def index():
@@ -244,4 +248,7 @@ def get_meater_status():
     return jsonify(status)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    try:
+        app.run(host='0.0.0.0', port=5000)
+    finally:
+        aiohttp_session.close()  # Ensure the aiohttp session is closed properly
