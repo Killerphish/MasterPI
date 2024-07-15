@@ -10,15 +10,19 @@ document.addEventListener("DOMContentLoaded", function() {
     const closeModalButton = document.getElementById('closeModalButton');
 
     // Open the modal
-    enableMeaterIntegrationButton.addEventListener('click', function() {
-        meaterModal.style.display = "block";
-    });
+    if (enableMeaterIntegrationButton) {
+        enableMeaterIntegrationButton.addEventListener('click', function() {
+            meaterModal.style.display = "block";
+        });
+    }
 
     // Close the modal
-    closeModal.addEventListener('click', function() {
-        meaterModal.style.display = "none";
-        meaterStatus.textContent = ''; // Clear status on close
-    });
+    if (closeModal) {
+        closeModal.addEventListener('click', function() {
+            meaterModal.style.display = "none";
+            meaterStatus.textContent = ''; // Clear status on close
+        });
+    }
 
     // Close the modal when clicking outside of it
     window.addEventListener('click', function(event) {
@@ -28,90 +32,102 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    closeModalButton.addEventListener('click', function() {
-        meaterModal.style.display = "none";
-        meaterStatus.textContent = ''; // Clear status on close
-        closeModalButton.style.display = 'none'; // Hide close button
-    });
-
-    meaterForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const email = document.getElementById('meater_email').value;
-        const password = document.getElementById('meater_password').value;
-
-        fetch('/request_meater_api_key', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                meaterStatus.textContent = 'Meater API Key requested successfully!';
-                meaterStatus.style.color = 'green';
-            } else {
-                meaterStatus.textContent = 'Failed to request Meater API Key: ' + data.message;
-                meaterStatus.style.color = 'red';
-            }
-            meaterStatus.style.display = 'block';
-            closeModalButton.style.display = 'block'; // Show close button
-        })
-        .catch(error => {
-            console.error('Error requesting Meater API Key:', error);
-            meaterStatus.textContent = 'Error requesting Meater API Key.';
-            meaterStatus.style.color = 'red';
-            meaterStatus.style.display = 'block';
-            closeModalButton.style.display = 'block'; // Show close button
+    if (closeModalButton) {
+        closeModalButton.addEventListener('click', function() {
+            meaterModal.style.display = "none";
+            meaterStatus.textContent = ''; // Clear status on close
+            closeModalButton.style.display = 'none'; // Hide close button
         });
-    });
+    }
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(form);
+    if (meaterForm) {
+        meaterForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('meater_email').value;
+            const password = document.getElementById('meater_password').value;
 
-        fetch('/save_settings', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Settings saved successfully!');
-                const deviceName = formData.get('device_name');
-                if (document.getElementById('deviceName')) {
-                    document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
+            fetch('/request_meater_api_key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    meaterStatus.textContent = 'Meater API Key requested successfully!';
+                    meaterStatus.style.color = 'green';
+                } else {
+                    meaterStatus.textContent = 'Failed to request Meater API Key: ' + data.message;
+                    meaterStatus.style.color = 'red';
                 }
-            } else {
-                alert('Failed to save settings.');
-            }
-        })
-        .catch(error => {
-            console.error('Error saving settings:', error);
+                meaterStatus.style.display = 'block';
+                closeModalButton.style.display = 'block'; // Show close button
+            })
+            .catch(error => {
+                console.error('Error requesting Meater API Key:', error);
+                meaterStatus.textContent = 'Error requesting Meater API Key.';
+                meaterStatus.style.color = 'red';
+                meaterStatus.style.display = 'block';
+                closeModalButton.style.display = 'block'; // Show close button
+            });
         });
-    });
+    }
 
-    document.getElementById('pid_autotune').addEventListener('click', function(event) {
-        event.preventDefault();
-        fetch('/pid_autotune', {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('PID Autotune started! Waiting for completion...');
-                checkAutotuneStatus();  // Call function to check autotune status
-            } else {
-                alert('Failed to start PID Autotune.');
-            }
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+
+            fetch('/save_settings', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Settings saved successfully!');
+                    const deviceName = formData.get('device_name');
+                    if (document.getElementById('deviceName')) {
+                        document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
+                    }
+                } else {
+                    alert('Failed to save settings.');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving settings:', error);
+            });
         });
-    });
+    }
 
-    document.getElementById('temp_unit').addEventListener('change', function(event) {
-        // Fetch temperature data in the selected unit and update display
-        fetchTemperatureData();
-    });
+    const pidAutotuneButton = document.getElementById('pid_autotune');
+    if (pidAutotuneButton) {
+        pidAutotuneButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            fetch('/pid_autotune', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('PID Autotune started! Waiting for completion...');
+                    checkAutotuneStatus();  // Call function to check autotune status
+                } else {
+                    alert('Failed to start PID Autotune.');
+                }
+            });
+        });
+    }
+
+    const tempUnitSelect = document.getElementById('temp_unit');
+    if (tempUnitSelect) {
+        tempUnitSelect.addEventListener('change', function(event) {
+            // Fetch temperature data in the selected unit and update display
+            fetchTemperatureData();
+        });
+    }
 
     function fetchTemperatureData() {
         fetch('/get_temperature')
