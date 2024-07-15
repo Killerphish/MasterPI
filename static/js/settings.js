@@ -46,10 +46,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
             requestMeaterApiKey(email, password)
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         updateStatus(meaterStatus, 'Meater API Key requested successfully!', 'green');
                     } else {
-                        updateStatus(meaterStatus, 'Failed to request Meater API Key: ' + data.message, 'red');
+                        throw new Error('API response does not contain success property');
                     }
                     closeModalButton.style.display = 'block'; // Show close button
                 })
@@ -303,7 +303,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             const data = await response.json();
-            return data.token;
+            return data;
         } catch (error) {
             console.error('Error requesting Meater API Key:', error);
             throw error;
