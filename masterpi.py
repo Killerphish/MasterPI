@@ -10,6 +10,8 @@ from meater import MeaterApi  # Import the Meater API
 import logging
 from logging.handlers import RotatingFileHandler
 import time
+import requests
+from flask import session
 
 app = Flask(__name__)
 app.config['DEBUG'] = True

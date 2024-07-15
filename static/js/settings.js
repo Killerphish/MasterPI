@@ -44,33 +44,19 @@ document.addEventListener("DOMContentLoaded", function() {
             const email = document.getElementById('meater_email').value;
             const password = document.getElementById('meater_password').value;
 
-            fetch('/request_meater_api_key', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json().catch(() => {
-                    throw new Error('Invalid JSON response');
+            requestMeaterApiKey(email, password)
+                .then(data => {
+                    if (data.success) {
+                        updateStatus(meaterStatus, 'Meater API Key requested successfully!', 'green');
+                    } else {
+                        updateStatus(meaterStatus, 'Failed to request Meater API Key: ' + data.message, 'red');
+                    }
+                    closeModalButton.style.display = 'block'; // Show close button
+                })
+                .catch(error => {
+                    handleFetchError(error, meaterStatus, 'Error requesting Meater API Key.');
+                    closeModalButton.style.display = 'block'; // Show close button
                 });
-            })
-            .then(data => {
-                if (data.success) {
-                    updateStatus(meaterStatus, 'Meater API Key requested successfully!', 'green');
-                } else {
-                    updateStatus(meaterStatus, 'Failed to request Meater API Key: ' + data.message, 'red');
-                }
-                closeModalButton.style.display = 'block'; // Show close button
-            })
-            .catch(error => {
-                handleFetchError(error, meaterStatus, 'Error requesting Meater API Key.');
-                closeModalButton.style.display = 'block'; // Show close button
-            });
         });
     }
 
@@ -300,6 +286,28 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error fetching fan status:', error);
                 document.getElementById('fan-status').innerText = 'Error fetching fan status';
             });
+    }
+
+    async function requestMeaterApiKey(email, password) {
+        try {
+            const response = await fetch('https://public-api.cloud.meater.com/v1/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Network response was not ok ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return data.token;
+        } catch (error) {
+            console.error('Error requesting Meater API Key:', error);
+            throw error;
+        }
     }
 
     fetchMeaterStatus();
