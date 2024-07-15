@@ -1,4 +1,5 @@
-console.log('Script loaded');
+import { showModal, hideModal } from './modal.js';
+import { updateStatus, handleFetchError } from './status.js';
 
 document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById('settingsForm');
@@ -12,30 +13,27 @@ document.addEventListener("DOMContentLoaded", function() {
     // Open the modal
     if (enableMeaterIntegrationButton) {
         enableMeaterIntegrationButton.addEventListener('click', function() {
-            meaterModal.style.display = "block";
+            showModal(meaterModal);
         });
     }
 
     // Close the modal
     if (closeModal) {
         closeModal.addEventListener('click', function() {
-            meaterModal.style.display = "none";
-            meaterStatus.textContent = ''; // Clear status on close
+            hideModal(meaterModal, meaterStatus);
         });
     }
 
     // Close the modal when clicking outside of it
     window.addEventListener('click', function(event) {
         if (event.target == meaterModal) {
-            meaterModal.style.display = "none";
-            meaterStatus.textContent = ''; // Clear status on close
+            hideModal(meaterModal, meaterStatus);
         }
     });
 
     if (closeModalButton) {
         closeModalButton.addEventListener('click', function() {
-            meaterModal.style.display = "none";
-            meaterStatus.textContent = ''; // Clear status on close
+            hideModal(meaterModal, meaterStatus);
             closeModalButton.style.display = 'none'; // Hide close button
         });
     }
@@ -53,23 +51,24 @@ document.addEventListener("DOMContentLoaded", function() {
                 },
                 body: JSON.stringify({ email, password })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json().catch(() => {
+                    throw new Error('Invalid JSON response');
+                });
+            })
             .then(data => {
                 if (data.success) {
-                    meaterStatus.textContent = 'Meater API Key requested successfully!';
-                    meaterStatus.style.color = 'green';
+                    updateStatus(meaterStatus, 'Meater API Key requested successfully!', 'green');
                 } else {
-                    meaterStatus.textContent = 'Failed to request Meater API Key: ' + data.message;
-                    meaterStatus.style.color = 'red';
+                    updateStatus(meaterStatus, 'Failed to request Meater API Key: ' + data.message, 'red');
                 }
-                meaterStatus.style.display = 'block';
                 closeModalButton.style.display = 'block'; // Show close button
             })
             .catch(error => {
-                console.error('Error requesting Meater API Key:', error);
-                meaterStatus.textContent = 'Error requesting Meater API Key.';
-                meaterStatus.style.color = 'red';
-                meaterStatus.style.display = 'block';
+                handleFetchError(error, meaterStatus, 'Error requesting Meater API Key.');
                 closeModalButton.style.display = 'block'; // Show close button
             });
         });
@@ -259,6 +258,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error fetching settings:', error);
             });
     }
+
     function fetchMeaterStatus() {
         fetch('/get_meater_status')
             .then(response => {
@@ -284,6 +284,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 meaterStatusElement.style.color = 'red';
             });
     }
+
     function updateFanStatus() {
         fetch('/api/fan-status')
             .then(response => {
@@ -300,6 +301,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById('fan-status').innerText = 'Error fetching fan status';
             });
     }
+
     fetchMeaterStatus();
     fetchSettings();
     fetchStatus();
