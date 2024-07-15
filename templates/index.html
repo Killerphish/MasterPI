@@ -14,8 +14,8 @@
     </div>
     <div class="content">
         <h1 id="deviceName">MasterPi Smoker</h1> <!-- Dynamically updated device name -->
-        <p>Current Temperature: <span id="current-temp">Loading...</span></p>
-        <p>Fan Status: <span id="fan-status">Loading...</span></p>
+        <p>Current Temperature:<div id="current-temp">Current temperature will be displayed here.</div></p>
+        <p>Fan Status:<div id="fan-status">Fan status will be displayed here.</div></p>
         <p>Target Temperature: <input type="number" id="target-temp" min="0" max="700"> <button onclick="updateTargetTemp()">Set</button></p>
         <button onclick="emergencyShutdown()">Emergency Shutdown</button>
     </div>
@@ -54,23 +54,9 @@
                 console.error('Error:', error);
             });
         }
-
-        function fetchStatus() {
-            fetch('/get_status')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
-                document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
-            })
-            .catch(error => {
-                console.error('Error fetching status:', error);
-            });
-        }
-
-        fetchStatus();
         setInterval(fetchStatus, 3000); // Update status every 3 seconds
     </script>
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             fetch('/get_settings')
