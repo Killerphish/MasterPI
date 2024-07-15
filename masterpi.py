@@ -229,5 +229,14 @@ def autotune_status():
         autotune_results = get_autotune_results()  # Implement this function to retrieve results
         return jsonify({'success': True, 'results': autotune_results})
 
+@app.route('/get_meater_status', methods=['GET'])
+def get_meater_status():
+    # Replace with actual logic to get Meater status
+    status = {
+        "connected": True,
+        "temperature": 75.0
+    }
+    return jsonify(status)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
