@@ -38,13 +38,10 @@ document.addEventListener("DOMContentLoaded", function() {
     function updateChart() {
         fetchTemperatureData()
             .then(data => {
-                console.log('Fetched temperature data:', data); // Log the fetched data
-
                 if (!Array.isArray(data)) {
                     throw new Error('Data format is incorrect');
                 }
 
-                // Ensure data is in the format: [ [timestamp, entry], [timestamp, entry] ]
                 let labels = data.map(d => new Date(d[0]));
                 let temperatures = data.map(d => d[1]);
 
@@ -82,7 +79,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initial fetches and intervals for fetching data
     updateChart(); // Initial fetch
     setInterval(updateChart, 5000); // Fetch data every 5 seconds
-
     updateStatus(); // Initial fetch
     setInterval(updateStatus, 5000); // Fetch status every 5 seconds
 });
