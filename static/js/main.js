@@ -1,3 +1,5 @@
+import { fetchTemperatureData, fetchStatus, updateTargetTemp } from './api.js';
+
 document.addEventListener("DOMContentLoaded", function() {
     const ctx = document.getElementById('tempChart').getContext('2d');
     let tempChart = new Chart(ctx, {
@@ -26,15 +28,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Function to fetch temperature data and update the chart
-    function fetchTemperatureData() {
-        fetch('/temp_data')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
+    function updateChart() {
+        fetchTemperatureData()
             .then(data => {
                 if (!Array.isArray(data)) {
                     throw new Error('Data format is incorrect');
@@ -52,15 +47,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
-    // Function to fetch current temperature status and fan status
-    function fetchStatus() {
-        fetch('/get_status')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
+    function updateStatus() {
+        fetchStatus()
             .then(data => {
                 document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
                 document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
@@ -69,33 +57,22 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error fetching status:', error);
             });
     }
-    function updateTargetTemp() {
-        const targetTemp = document.getElementById('target-temp').value;  // Get the value from input field
-        fetch('/update_target_temperature', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ target_temp: targetTemp }),  // Send as JSON data
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Success:', data);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    }
+
+    document.getElementById('target-temp').addEventListener('change', function() {
+        const targetTemp = this.value;
+        updateTargetTemp(targetTemp)
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
 
     // Initial fetches and intervals for fetching data
-    fetchTemperatureData(); // Initial fetch
-    setInterval(fetchTemperatureData, 5000); // Fetch data every 5 seconds
+    updateChart(); // Initial fetch
+    setInterval(updateChart, 5000); // Fetch data every 5 seconds
 
-    fetchStatus(); // Initial fetch
-    setInterval(fetchStatus, 5000); // Fetch status every 5 seconds
+    updateStatus(); // Initial fetch
+    setInterval(updateStatus, 5000); // Fetch status every 5 seconds
 });
