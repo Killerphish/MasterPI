@@ -201,13 +201,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();
             })
             .then(data => {
-                if (document.getElementById('current-temp')) {
-                    const tempUnit = document.getElementById('temp_unit').value;
+                const tempUnitElement = document.getElementById('temp_unit');
+                if (tempUnitElement) {
+                    const tempUnit = tempUnitElement.value;
                     let temperature = data.temperature;
                     if (tempUnit === 'F') {
                         temperature = celsiusToFahrenheit(temperature);
                     }
-                    document.getElementById('current-temp').textContent = temperature.toFixed(2) + ` °${tempUnit}`;
+                    if (document.getElementById('current-temp')) {
+                        document.getElementById('current-temp').textContent = temperature.toFixed(2) + ` °${tempUnit}`;
+                    }
+                } else {
+                    console.error('Element with id "temp_unit" not found.');
                 }
                 if (document.getElementById('fan-status')) {
                     document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
