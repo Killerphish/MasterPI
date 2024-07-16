@@ -18,6 +18,7 @@
         <p>Fan Status: <div id="fan-status">Fan status will be displayed here.</div></p>
         <p>Target Temperature: <input type="number" id="target-temp" min="0" max="700"> <button onclick="updateTargetTemp()">Set</button></p>
         <button onclick="emergencyShutdown()">Emergency Shutdown</button>
+        <canvas id="tempChart"></canvas> <!-- Add this line -->
     </div>
     <script src="{{ url_for('static', filename='js/api.js') }}" type="module"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}" type="module"></script>
