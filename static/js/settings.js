@@ -346,5 +346,5 @@ document.addEventListener("DOMContentLoaded", function() {
     fetchSettings();
     fetchStatus();
     fetchMeaterTemperature();
-    setInterval(fetchStatus, 3000); // Update status every 3 seconds
+    setInterval(fetchStatus, 15000); // Update status every 15 seconds
 });
