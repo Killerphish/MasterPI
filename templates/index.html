@@ -6,6 +6,7 @@
     <title>Temperature Control Dashboard</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js CDN -->
 </head>
 <body>
     <div class="navbar">
@@ -18,7 +19,7 @@
         <p>Fan Status: <div id="fan-status">Fan status will be displayed here.</div></p>
         <p>Target Temperature: <input type="number" id="target-temp" min="0" max="700"> <button onclick="updateTargetTemp()">Set</button></p>
         <button onclick="emergencyShutdown()">Emergency Shutdown</button>
-        <canvas id="tempChart"></canvas>
+        <canvas id="tempChart"></canvas> <!-- Ensure this line is present -->
     </div>
     <script src="{{ url_for('static', filename='js/api.js') }}" type="module" defer></script>
     <script src="{{ url_for('static', filename='js/main.js') }}" type="module" defer></script>

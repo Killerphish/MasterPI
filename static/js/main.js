@@ -1,7 +1,13 @@
 import { fetchTemperatureData, fetchStatus, updateTargetTemp } from './api.js';
 
 document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('tempChart').getContext('2d');
+    const tempChartElement = document.getElementById('tempChart');
+    if (!tempChartElement) {
+        console.error('Element with id "tempChart" not found.');
+        return;
+    }
+
+    const ctx = tempChartElement.getContext('2d');
     let tempChart = new Chart(ctx, {
         type: 'line',
         data: {
