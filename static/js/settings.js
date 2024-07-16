@@ -297,11 +297,21 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();
             })
             .then(data => {
-                document.getElementById('fan-status').innerText = `Fan status: ${data.status}`;
+                const fanStatusElement = document.getElementById('fan-status');
+                if (fanStatusElement) {
+                    fanStatusElement.textContent = `Fan status: ${data.status}`;
+                } else {
+                    console.error('Element with ID "fan-status" not found.');
+                }
             })
             .catch(error => {
                 console.error('Error fetching fan status:', error);
-                document.getElementById('fan-status').innerText = 'Error fetching fan status';
+                const fanStatusElement = document.getElementById('fan-status');
+                if (fanStatusElement) {
+                    fanStatusElement.textContent = 'Error fetching fan status';
+                } else {
+                    console.error('Element with ID "fan-status" not found.');
+                }
             });
     }
 

@@ -57,7 +57,12 @@
 
         function fetchStatus() {
             fetch('/status')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     document.getElementById('current-temp').innerText = data.current_temp;
                     document.getElementById('fan-status').innerText = data.fan_status;
