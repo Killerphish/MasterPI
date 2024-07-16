@@ -217,8 +217,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     console.error('Element with id "temp_unit" not found.');
                 }
-                if (document.getElementById('fan-status')) {
-                    document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
+                const fanStatusElement = document.getElementById('fan-status');
+                if (fanStatusElement) {
+                    fanStatusElement.textContent = data.fan_on ? 'On' : 'Off';
+                } else {
+                    console.error('Element with id "fan-status" not found.');
                 }
             })
             .catch(error => {
@@ -345,6 +348,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    // Ensure fetchStatus is called after the DOM is fully loaded
     fetchMeaterStatus();
     fetchSettings();
     fetchStatus();
