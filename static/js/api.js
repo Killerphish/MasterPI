@@ -6,6 +6,16 @@ export function fetchTemperatureData() {
                 throw new Error('Network response was not ok ' + response.statusText);
             }
             return response.json();
+        })
+        .then(data => {
+            console.log('API response data:', data); // Log the API response data
+
+            // Check if data is in the correct format
+            if (!Array.isArray(data) || !data.every(item => Array.isArray(item) && item.length === 2)) {
+                throw new Error('Data format is incorrect');
+            }
+
+            return data;
         });
 }
 
