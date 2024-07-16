@@ -208,8 +208,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (tempUnit === 'F') {
                         temperature = celsiusToFahrenheit(temperature);
                     }
-                    if (document.getElementById('current-temp')) {
-                        document.getElementById('current-temp').textContent = temperature.toFixed(2) + ` °${tempUnit}`;
+                    const currentTempElement = document.getElementById('current-temp');
+                    if (currentTempElement) {
+                        currentTempElement.textContent = temperature.toFixed(2) + ` °${tempUnit}`;
+                    } else {
+                        console.error('Element with id "current-temp" not found.');
                     }
                 } else {
                     console.error('Element with id "temp_unit" not found.');
