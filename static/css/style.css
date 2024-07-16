@@ -66,3 +66,11 @@ label {
     text-decoration: none;
     cursor: pointer;
 }
+
+#tempChart {
+    max-width: 600px;
+    max-height: 400px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+}

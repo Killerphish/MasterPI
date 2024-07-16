@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }]
         },
         options: {
+            maintainAspectRatio: true, // Maintain aspect ratio
             scales: {
                 x: {
                     type: 'time',
