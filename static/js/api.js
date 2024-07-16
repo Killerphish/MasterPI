@@ -8,9 +8,14 @@ export function fetchTemperatureData() {
             return response.json();
         })
         .then(data => {
-            // Ensure data is in the format: [ [timestamp, entry], [timestamp, entry] ]
+            // Attempt to transform data into the correct format
             if (!Array.isArray(data)) {
-                throw new Error('Data format is incorrect: not an array');
+                if (typeof data === 'object' && data !== null) {
+                    // Convert object to array of arrays
+                    data = Object.entries(data);
+                } else {
+                    throw new Error('Data format is incorrect: not an array');
+                }
             }
 
             const transformedData = data.map(item => {
