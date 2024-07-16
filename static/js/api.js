@@ -8,14 +8,22 @@ export function fetchTemperatureData() {
             return response.json();
         })
         .then(data => {
-            console.log('API response data:', data); // Log the API response data
-
-            // Check if data is in the correct format
-            if (!Array.isArray(data) || !data.every(item => Array.isArray(item) && item.length === 2)) {
-                throw new Error('Data format is incorrect');
+            // Ensure data is in the format: [ [timestamp, entry], [timestamp, entry] ]
+            if (!Array.isArray(data)) {
+                throw new Error('Data format is incorrect: not an array');
             }
 
-            return data;
+            const transformedData = data.map(item => {
+                if (Array.isArray(item) && item.length === 2) {
+                    return item;
+                } else if (item.timestamp && item.entry) {
+                    return [item.timestamp, item.entry];
+                } else {
+                    throw new Error('Data format is incorrect: item structure is invalid');
+                }
+            });
+
+            return transformedData;
         });
 }
 
