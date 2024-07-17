@@ -1,5 +1,5 @@
 import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
-import { Chart, registerables } from 'chart.js';
+import { Chart, registerables } from './node_modules/chart.js/dist/chart.js';
 Chart.register(...registerables);
 
 document.addEventListener("DOMContentLoaded", function() {
