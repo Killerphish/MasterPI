@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error:', error);
             });
     });
-w
+
     // Initial fetches and intervals for fetching data
     updateChart(); // Initial fetch
     setInterval(updateChart, 5000); // Fetch data every 5 seconds
