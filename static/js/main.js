@@ -74,12 +74,18 @@ document.addEventListener("DOMContentLoaded", function() {
     function updateChart() {
         fetchTemperatureData()
             .then(data => {
+                console.log('Fetched temperature data:', data); // Log the fetched data
+
+                // Transform the data if necessary
                 if (!Array.isArray(data)) {
                     throw new Error('Data format is incorrect');
                 }
 
-                let labels = data.map(d => new Date(d[0]));
-                let temperatures = data.map(d => d[1]);
+                // Assuming the data needs to be transformed from an object to an array of arrays
+                let transformedData = data.map(item => [item.timestamp, item.temperature]);
+
+                let labels = transformedData.map(d => new Date(d[0]));
+                let temperatures = transformedData.map(d => d[1]);
 
                 tempChart.data.labels = labels.reverse();
                 tempChart.data.datasets[0].data = temperatures.reverse();
