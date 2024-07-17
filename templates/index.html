@@ -25,5 +25,20 @@
     <script src="{{ url_for('static', filename='js/api.js') }}" type="module" defer></script>
     <script src="{{ url_for('static', filename='js/main.js') }}" type="module" defer></script>
     <script src="{{ url_for('static', filename='js/status.js') }}" type="module" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/get_settings')
+                .then(response => response.json())
+                .then(settings => {
+                    const deviceNameElement = document.getElementById('deviceName');
+                    if (deviceNameElement) {
+                        deviceNameElement.textContent = settings.device_name;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching settings:', error);
+                });
+        });
+    </script>
 </body>
 </html>
