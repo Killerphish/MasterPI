@@ -1,4 +1,6 @@
 import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 document.addEventListener("DOMContentLoaded", function() {
     function updateStatus() {
@@ -43,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }]
         },
         options: {
-            maintainAspectRatio: true, // Maintain aspect ratio
+            maintainAspectRatio: true,
             scales: {
                 x: {
                     type: 'time',
@@ -58,9 +60,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Define fetchTemperatureData function
     function fetchTemperatureData() {
-        return fetch('http://masterpi.local/get_temperature') // Updated URL
+        return fetch('http://masterpi.local/get_temperature')
             .then(response => {
                 if (!response.ok) {
                     return response.json().then(errorData => {
@@ -70,22 +71,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();
             })
             .then(data => {
-                console.log('Raw data fetched:', data); // Log the raw data
+                console.log('Raw data fetched:', data);
 
-                // Transform the data if necessary
                 if (data && data.temperatures) {
                     data = data.temperatures.map(item => ({
-                        timestamp: item.time, // Assuming the API returns 'time' instead of 'timestamp'
-                        temperature: item.temp // Assuming the API returns 'temp' instead of 'temperature'
+                        timestamp: item.time,
+                        temperature: item.temp
                     }));
                 }
 
-                // Ensure the data is in the correct format
                 if (!Array.isArray(data)) {
                     throw new Error('Data format is incorrect');
                 }
 
-                // Validate each item in the array
                 data.forEach(item => {
                     if (typeof item.timestamp === 'undefined' || typeof item.temperature === 'undefined') {
                         throw new Error('Data item format is incorrect');
@@ -99,14 +97,12 @@ document.addEventListener("DOMContentLoaded", function() {
     function updateChart() {
         fetchTemperatureData()
             .then(data => {
-                console.log('Fetched temperature data:', data); // Log the fetched data
+                console.log('Fetched temperature data:', data);
 
-                // Check if the data is an array
                 if (!Array.isArray(data)) {
                     throw new Error('Data format is incorrect');
                 }
 
-                // Assuming the data needs to be transformed from an object to an array of arrays
                 let transformedData = data.map(item => {
                     if (!item.timestamp || !item.temperature) {
                         throw new Error('Data item format is incorrect');
@@ -137,9 +133,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     });
 
-    // Initial fetches and intervals for fetching data
-    updateChart(); // Initial fetch
-    setInterval(updateChart, 5000); // Fetch data every 5 seconds
-    updateStatus(); // Initial fetch
-    setInterval(updateStatus, 5000); // Fetch status every 5 seconds
+    updateChart();
+    setInterval(updateChart, 5000);
+    updateStatus();
+    setInterval(updateStatus, 5000);
 });
