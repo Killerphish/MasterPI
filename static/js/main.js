@@ -187,6 +187,24 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     });
 
+    function updateTemperatureUnit(unit) {
+        // Fetch the current temperature and update the display
+        fetch('/get_temperature')
+            .then(response => response.json())
+            .then(data => {
+                if (data.temperature !== undefined) {
+                    let temperature = data.temperature;
+                    if (unit === 'F') {
+                        temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
+                    }
+                    document.getElementById('current-temp').textContent = `${temperature.toFixed(2)} °${unit}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching temperature:', error);
+            });
+    }
+
     updateChart();
     setInterval(updateChart, 5000);
     updateStatus();
