@@ -127,6 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 tempChart.data.datasets[0].data = temperatures.reverse();
                 tempChart.data.datasets[0].label = `Temperature (°${tempUnit})`;
                 tempChart.update();
+                console.log('Chart updated with new data');
             })
             .catch(error => {
                 console.error('Error fetching temperature data:', error);
@@ -204,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     updateChart();
-    setInterval(updateChart, 5000);
+    setInterval(updateChart, 30000); // Update chart every 30 seconds
     updateStatus();
     setInterval(updateStatus, 5000);
 });
