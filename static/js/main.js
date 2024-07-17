@@ -60,10 +60,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Define fetchTemperatureData function
     function fetchTemperatureData() {
-        return fetch('/api/get_temperature')
+        return fetch('http://masterpi.local/get_temperature') // Updated URL
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    return response.json().then(errorData => {
+                        throw new Error(`Network response was not ok: ${errorData.message}`);
+                    });
                 }
                 return response.json();
             });
