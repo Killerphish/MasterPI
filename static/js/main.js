@@ -70,6 +70,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();
             })
             .then(data => {
+                console.log('Raw data fetched:', data); // Log the raw data
+
+                // Transform the data if necessary
+                if (data && data.temperatures) {
+                    data = data.temperatures.map(item => ({
+                        timestamp: item.time, // Assuming the API returns 'time' instead of 'timestamp'
+                        temperature: item.temp // Assuming the API returns 'temp' instead of 'temperature'
+                    }));
+                }
+
                 // Ensure the data is in the correct format
                 if (!Array.isArray(data)) {
                     throw new Error('Data format is incorrect');
