@@ -169,23 +169,21 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        fetch('/get_settings')
-            .then(response => response.json())
-            .then(settings => {
-                const deviceNameElement = document.getElementById('deviceName');
-                if (deviceNameElement) {
-                    deviceNameElement.textContent = settings.device_name;
-                }
+    fetch('/get_settings')
+        .then(response => response.json())
+        .then(settings => {
+            const deviceNameElement = document.getElementById('deviceName');
+            if (deviceNameElement) {
+                deviceNameElement.textContent = settings.device_name;
+            }
 
-                // Update temperature unit
-                tempUnit = settings.temp_unit; // Set the global variable
-                updateTemperatureUnit(tempUnit);
-            })
-            .catch(error => {
-                console.error('Error fetching settings:', error);
-            });
-    });
+            // Update temperature unit
+            tempUnit = settings.temp_unit; // Set the global variable
+            updateTemperatureUnit(tempUnit);
+        })
+        .catch(error => {
+            console.error('Error fetching settings:', error);
+        });
 
     function updateTemperatureUnit(unit) {
         // Fetch the current temperature and update the display
