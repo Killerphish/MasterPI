@@ -39,13 +39,6 @@ export function fetchStatus() {
                 throw new Error('Network response was not ok ' + response.statusText);
             }
             return response.json();
-        })
-        .then(data => {
-            // Ensure data contains the temperature and fan status
-            if (typeof data.temperature !== 'number' || typeof data.fan_on !== 'boolean') {
-                throw new Error('Data format is incorrect');
-            }
-            return data;
         });
 }
 
