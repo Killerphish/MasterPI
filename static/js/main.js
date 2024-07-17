@@ -68,6 +68,21 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
                 }
                 return response.json();
+            })
+            .then(data => {
+                // Ensure the data is in the correct format
+                if (!Array.isArray(data)) {
+                    throw new Error('Data format is incorrect');
+                }
+
+                // Validate each item in the array
+                data.forEach(item => {
+                    if (typeof item.timestamp === 'undefined' || typeof item.temperature === 'undefined') {
+                        throw new Error('Data item format is incorrect');
+                    }
+                });
+
+                return data;
             });
     }
 
