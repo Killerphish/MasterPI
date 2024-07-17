@@ -73,11 +73,12 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 console.log('Raw data fetched:', data);
 
-                if (data && data.temperatures) {
-                    data = data.temperatures.map(item => ({
-                        timestamp: item.time,
-                        temperature: item.temp
-                    }));
+                // Transform the data to the expected format
+                if (data && typeof data.temperature !== 'undefined') {
+                    data = [{
+                        time: new Date().toISOString(), // Use the current time as the timestamp
+                        temp: data.temperature
+                    }];
                 }
 
                 if (!Array.isArray(data)) {
@@ -85,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
 
                 data.forEach(item => {
-                    if (typeof item.timestamp === 'undefined' || typeof item.temperature === 'undefined') {
+                    if (typeof item.time === 'undefined' || typeof item.temp === 'undefined') {
                         throw new Error('Data item format is incorrect');
                     }
                 });
@@ -104,10 +105,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
 
                 let transformedData = data.map(item => {
-                    if (!item.timestamp || !item.temperature) {
+                    if (!item.time || !item.temp) {
                         throw new Error('Data item format is incorrect');
                     }
-                    return [item.timestamp, item.temperature];
+                    return [item.time, item.temp];
                 });
 
                 let labels = transformedData.map(d => new Date(d[0]));
