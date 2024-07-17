@@ -66,6 +66,49 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    let temperatureHistory = [];
+
+    function updateChart() {
+        fetchTemperatureData()
+            .then(data => {
+                console.log('Fetched temperature data:', data);
+
+                if (!Array.isArray(data)) {
+                    throw new Error('Data format is incorrect');
+                }
+
+                let transformedData = data.map(item => {
+                    if (!item.time || !item.temp) {
+                        throw new Error('Data item format is incorrect');
+                    }
+                    let temperature = item.temp;
+                    if (tempUnit === 'F') {
+                        temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
+                    }
+                    return { time: new Date(item.time), temp: temperature };
+                });
+
+                // Add new data to the history
+                temperatureHistory = temperatureHistory.concat(transformedData);
+
+                // Keep only the last 2 minutes of data
+                const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+                temperatureHistory = temperatureHistory.filter(item => item.time >= twoMinutesAgo);
+
+                // Update the chart
+                let labels = temperatureHistory.map(d => d.time);
+                let temperatures = temperatureHistory.map(d => d.temp);
+                tempChart.data.labels = labels;
+                tempChart.data.datasets[0].data = temperatures;
+                tempChart.data.datasets[0].label = `Temperature (°${tempUnit})`;
+                tempChart.update();
+                console.log('Chart updated with new data');
+            })
+            .catch(error => {
+                console.error('Error fetching temperature data:', error);
+            });
+    }
+
     function fetchTemperatureData() {
         return fetch('http://masterpi.local/get_temperature')
             .then(response => {
@@ -98,39 +141,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
 
                 return data;
-            });
-    }
-
-    function updateChart() {
-        fetchTemperatureData()
-            .then(data => {
-                console.log('Fetched temperature data:', data);
-
-                if (!Array.isArray(data)) {
-                    throw new Error('Data format is incorrect');
-                }
-
-                let transformedData = data.map(item => {
-                    if (!item.time || !item.temp) {
-                        throw new Error('Data item format is incorrect');
-                    }
-                    let temperature = item.temp;
-                    if (tempUnit === 'F') {
-                        temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
-                    }
-                    return [item.time, temperature];
-                });
-
-                let labels = transformedData.map(d => new Date(d[0]));
-                let temperatures = transformedData.map(d => d[1]);
-                tempChart.data.labels = labels.reverse();
-                tempChart.data.datasets[0].data = temperatures.reverse();
-                tempChart.data.datasets[0].label = `Temperature (°${tempUnit})`;
-                tempChart.update();
-                console.log('Chart updated with new data');
-            })
-            .catch(error => {
-                console.error('Error fetching temperature data:', error);
             });
     }
 
