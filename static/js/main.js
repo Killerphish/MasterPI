@@ -15,6 +15,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 if (fanStatusElement) {
                     fanStatusElement.textContent = data.fan_on ? 'On' : 'Off';
+                } else {
+                    console.error('Element with id "fan-status" not found.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching status:', error);
+            });
+    }
+
     const tempChartElement = document.getElementById('tempChart');
     if (!tempChartElement) {
         console.error('Element with id "tempChart" not found.');
@@ -65,17 +74,6 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(error => {
                 console.error('Error fetching temperature data:', error);
-            });
-    }
-
-    function updateStatus() {
-        fetchStatus()
-            .then(data => {
-                document.getElementById('current-temp').textContent = data.temperature.toFixed(2) + ' °C';
-                document.getElementById('fan-status').textContent = data.fan_on ? 'On' : 'Off';
-            })
-            .catch(error => {
-                console.error('Error fetching status:', error);
             });
     }
 
