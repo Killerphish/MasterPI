@@ -1,4 +1,4 @@
-import { fetchStatus, updateTargetTemp } from './api.js';
+import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
 
 document.addEventListener("DOMContentLoaded", function() {
     function updateStatus() {
@@ -57,6 +57,17 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+
+    // Define fetchTemperatureData function
+    function fetchTemperatureData() {
+        return fetch('/api/temperature-data')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            });
+    }
 
     function updateChart() {
         fetchTemperatureData()
