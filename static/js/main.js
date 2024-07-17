@@ -114,14 +114,18 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (!item.time || !item.temp) {
                         throw new Error('Data item format is incorrect');
                     }
-                    return [item.time, item.temp];
+                    let temperature = item.temp;
+                    if (tempUnit === 'F') {
+                        temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
+                    }
+                    return [item.time, temperature];
                 });
 
                 let labels = transformedData.map(d => new Date(d[0]));
                 let temperatures = transformedData.map(d => d[1]);
-
                 tempChart.data.labels = labels.reverse();
                 tempChart.data.datasets[0].data = temperatures.reverse();
+                tempChart.data.datasets[0].label = `Temperature (°${tempUnit})`;
                 tempChart.update();
             })
             .catch(error => {
