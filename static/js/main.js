@@ -76,13 +76,18 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 console.log('Fetched temperature data:', data); // Log the fetched data
 
-                // Transform the data if necessary
+                // Check if the data is an array
                 if (!Array.isArray(data)) {
                     throw new Error('Data format is incorrect');
                 }
 
                 // Assuming the data needs to be transformed from an object to an array of arrays
-                let transformedData = data.map(item => [item.timestamp, item.temperature]);
+                let transformedData = data.map(item => {
+                    if (!item.timestamp || !item.temperature) {
+                        throw new Error('Data item format is incorrect');
+                    }
+                    return [item.timestamp, item.temperature];
+                });
 
                 let labels = transformedData.map(d => new Date(d[0]));
                 let temperatures = transformedData.map(d => d[1]);
