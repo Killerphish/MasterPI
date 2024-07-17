@@ -2,6 +2,8 @@ import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
 //import { Chart, registerables } from 'chart.js';
 // Chart.register(...registerables);
 
+let tempUnit = 'C'; // Default unit
+
 document.addEventListener("DOMContentLoaded", function() {
     function updateStatus() {
         fetchStatus()
@@ -10,7 +12,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 const fanStatusElement = document.getElementById('fan-status');
 
                 if (currentTempElement) {
-                    currentTempElement.textContent = data.temperature.toFixed(2) + ' °C';
+                    let temperature = data.temperature;
+                    if (tempUnit === 'F') {
+                        temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
+                    }
+                    currentTempElement.textContent = temperature.toFixed(2) + ` °${tempUnit}`;
                 } else {
                     console.error('Element with id "current-temp" not found.');
                 }
@@ -158,6 +164,24 @@ document.addEventListener("DOMContentLoaded", function() {
             alert('Error updating target temperature.');
         });
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/get_settings')
+            .then(response => response.json())
+            .then(settings => {
+                const deviceNameElement = document.getElementById('deviceName');
+                if (deviceNameElement) {
+                    deviceNameElement.textContent = settings.device_name;
+                }
+
+                // Update temperature unit
+                tempUnit = settings.temp_unit; // Set the global variable
+                updateTemperatureUnit(tempUnit);
+            })
+            .catch(error => {
+                console.error('Error fetching settings:', error);
+            });
+    });
 
     updateChart();
     setInterval(updateChart, 5000);
