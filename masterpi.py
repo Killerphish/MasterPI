@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from quart import Quart, jsonify, request, render_template  # Add render_template to the import
+from quart import Quart, jsonify, request, render_template, send_from_directory  # Add send_from_directory to the import
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController  # Import FanController class
@@ -321,6 +321,7 @@ def initialize_database():
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
+        init_db()  # Initialize the database
         config = Config()
         config.bind = ["0.0.0.0:5000"]
         try:
