@@ -7,6 +7,7 @@ from fan_control import FanController  # Import FanController class
 from database import save_settings_to_db, get_settings_from_db, insert_temperature_data, get_last_24_hours_temperature_data, init_db
 import digitalio
 import adafruit_blinka
+import board
 import os
 import aiohttp  # Import aiohttp
 import sqlite3  # Import sqlite3 for database operations
