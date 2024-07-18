@@ -5,6 +5,13 @@ REMOTE_REPO="https://github.com/Killerphish/MasterPI.git"
 BRANCH="main"  # Replace with your branch name if different
 PROJECT_DIR="/home/smoke/MasterPi"  # Adjust this to your actual project directory
 
+# Ensure the script itself is executable
+chmod +x "$0" || { echo "Failed to set execute permission on install script"; exit 1; }
+
+# Ensure autorun.sh and auto_update.sh are executable
+chmod +x "$PROJECT_DIR/tools/autorun.sh" || { echo "Failed to set execute permission on autorun.sh"; exit 1; }
+chmod +x "$PROJECT_DIR/tools/auto_update.sh" || { echo "Failed to set execute permission on auto_update.sh"; exit 1; }
+
 # Function to set up autorun
 setup_autorun() {
     read -p "Do you want to set up the application to autorun at system startup? (y/n): " autorun_choice
