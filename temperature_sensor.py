@@ -1,4 +1,4 @@
-import board
+import adafruit_blinka
 import digitalio
 import adafruit_max31865
 
