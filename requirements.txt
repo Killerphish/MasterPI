@@ -5,7 +5,6 @@ Adafruit-PureIO
 adafruit-circuitpython-max31865
 adafruit-circuitpython-busdevice
 adafruit-circuitpython-dht
-board
 lgpio
 gpiozero
 digitalio
