@@ -141,7 +141,7 @@ def enable_meater_integration():
     return jsonify({'success': True})
 
 @app.route('/manifest.json')
-def manifest():
+async def manifest():
     try:
         # Specify the directory where manifest.json is located
         manifest_dir = os.path.abspath(os.path.dirname(__file__))
@@ -153,7 +153,7 @@ def manifest():
             app.logger.error(f"Manifest file not found at path: {manifest_path}")
             return "Manifest file not found", 404
         
-        return send_from_directory(manifest_dir, 'manifest.json')
+        return await send_from_directory(manifest_dir, 'manifest.json')
     except Exception as e:
         app.logger.error(f"Error serving manifest.json: {e}", exc_info=True)
         return str(e), 500
@@ -267,9 +267,9 @@ def get_meater_status():
     return jsonify(status)
 
 @app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+async def favicon():
+    return await send_from_directory(os.path.join(app.root_path, 'static'),
+                                     'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/save_temperature', methods=['POST'])
 def save_temperature():
