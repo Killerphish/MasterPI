@@ -35,7 +35,7 @@ app.logger.setLevel(logging.INFO)
 app.logger.info('Application startup')
 
 # Initialize temperature sensor (using GPIO18 for CS pin)
-sensor = TemperatureSensor(board.D18)
+sensor = TemperatureSensor(digitalio.DigitalInOut(board.D18))
 
 # Initialize PID controller
 pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=30.0)
@@ -188,7 +188,7 @@ def update_target_temperature():
 def emergency_shutdown():
     # Logic to turn off the fan
     # For example, setting the fan GPIO pin to LOW
-    fan_pin = digitalio.DigitalInOut(board.D27)  #Fan GPIO pin
+    fan_pin = digitalio.DigitalInOut(board.D27)  # Fan GPIO pin
     fan_pin.direction = digitalio.Direction.OUTPUT
     fan_pin.value = False  # Turn off the fan
     return jsonify({'status': 'success'})
