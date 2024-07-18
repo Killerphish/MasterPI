@@ -67,7 +67,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     function updateChart(minutes) {
-        fetchTemperatureData(minutes)
+        fetch(`/get_temperature_data?minutes=${minutes}`)
+            .then(response => response.json())
             .then(data => {
                 const labels = data.map(point => new Date(point[0]));
                 const temperatures = data.map(point => point[1]);

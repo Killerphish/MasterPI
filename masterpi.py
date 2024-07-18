@@ -12,6 +12,7 @@ from logging.handlers import RotatingFileHandler
 import time
 import requests
 import aiohttp  # Import aiohttp
+import sqlite3  # Import sqlite3 for database operations
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -281,6 +282,19 @@ def get_temperature_data():
         app.logger.error(f"Error fetching temperature data: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+def get_temperature_data_by_range(minutes):
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('''
+        SELECT timestamp, temperature 
+        FROM temperature_data 
+        WHERE timestamp >= datetime('now', ? || ' minutes') 
+        ORDER BY timestamp ASC
+    ''', (-minutes,))
+    data = c.fetchall()
+    conn.close()
+    return data
+
 @app.route('/init_db', methods=['POST'])
 def initialize_database():
     try:
@@ -289,22 +303,6 @@ def initialize_database():
     except Exception as e:
         app.logger.error(f"Error initializing database: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
-def get_temperature_data_by_range(minutes):
-    # Implement the logic to fetch temperature data for the given range
-    # This is just a placeholder implementation
-    # You should replace this with your actual data fetching logic
-    end_time = time.time()
-    start_time = end_time - (minutes * 60)
-    
-    # Example: Fetch data from the database within the time range
-    # Replace this with your actual database query
-    data = [
-        [start_time * 1000, 22.5],  # Example data: [timestamp, temperature]
-        [end_time * 1000, 23.0]
-    ]
-    
-    return data
 
 if __name__ == '__main__':
     try:
