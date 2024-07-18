@@ -66,55 +66,27 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    const timeRangeSelect = document.getElementById('time-range');
-
-    function fetchTemperatureData(minutes) {
-        return fetch(`/get_temperature_data?minutes=${minutes}`)
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(`Network response was not ok: ${errorData.message}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Fetched temperature data:', data);
-
-                if (!Array.isArray(data)) {
-                    throw new Error('Data format is incorrect');
-                }
-
-                return data.map(item => ({
-                    time: new Date(item[0]),
-                    temp: item[1]
-                }));
-            });
-    }
-
     function updateChart(minutes) {
         fetchTemperatureData(minutes)
             .then(data => {
-                console.log('Fetched temperature data:', data);
+                const labels = data.map(point => new Date(point[0]));
+                const temperatures = data.map(point => point[1]);
 
-                // Update the chart
-                let labels = data.map(d => d.time);
-                let temperatures = data.map(d => d.temp);
                 tempChart.data.labels = labels;
                 tempChart.data.datasets[0].data = temperatures;
-                tempChart.data.datasets[0].label = `Temperature (°${tempUnit})`;
                 tempChart.update();
-                console.log('Chart updated with new data');
             })
             .catch(error => {
                 console.error('Error fetching temperature data:', error);
             });
     }
 
-    timeRangeSelect.addEventListener('change', function() {
-        const minutes = this.value;
-        updateChart(minutes);
-    });
+    const timeRangeSelect = document.getElementById('time-range');
+    if (timeRangeSelect) {
+        timeRangeSelect.addEventListener('change', function() {
+            updateChart(this.value);
+        });
+    }
 
     // Initial chart update
     updateChart(timeRangeSelect.value);
