@@ -20,6 +20,7 @@ nest_asyncio.apply()
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.secret_key = 'your_secret_key'  # Add a secret key for session management
+app.config['REQUEST_TIMEOUT'] = 60  # Set request timeout to 60 seconds
 
 # Setup logging
 if not os.path.exists('logs'):
@@ -84,7 +85,8 @@ def get_meater_temperature():
             app.logger.error(f"Error fetching Meater temperature: {e}", exc_info=True)
             return jsonify({'error': str(e)}), 500
 
-    return asyncio.run_coroutine_threadsafe(fetch_temperature(), asyncio.get_event_loop()).result()
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(fetch_temperature())
 
 # Endpoint to get Meater devices
 @app.route('/meater/devices', methods=['GET'])
