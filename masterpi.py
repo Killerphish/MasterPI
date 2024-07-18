@@ -5,7 +5,6 @@ from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController  # Import FanController class
 from database import save_settings_to_db, get_settings_from_db, insert_temperature_data, get_last_24_hours_temperature_data, init_db
-import board
 import digitalio
 import os
 import aiohttp  # Import aiohttp
