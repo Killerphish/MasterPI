@@ -265,6 +265,7 @@ def save_temperature():
 
     try:
         insert_temperature_data(temperature)
+        app.logger.info(f"Temperature data saved: {temperature}")
         return jsonify({'status': 'success'})
     except Exception as e:
         app.logger.error(f"Error saving temperature: {e}")

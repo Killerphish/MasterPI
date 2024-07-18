@@ -1,4 +1,5 @@
 import sqlite3
+import logging
 
 def init_db():
     # Initialize database.db
@@ -60,6 +61,7 @@ def insert_temperature_data(temp):
     c.execute('INSERT INTO temperature_data (temperature) VALUES (?)', (temp,))
     conn.commit()
     conn.close()
+    logging.info(f"Inserted temperature data: {temp}")
 
 def get_last_24_hours_temperature_data():
     conn = sqlite3.connect('database.db')
