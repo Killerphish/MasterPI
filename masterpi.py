@@ -224,9 +224,9 @@ def get_settings():
     return jsonify(settings)
 
 @app.route('/save_settings', methods=['POST'])
-def save_settings():
+async def save_settings():
     try:
-        form_data = request.form
+        form_data = await request.form
         device_name = form_data.get('device_name')
         temp_offset = form_data.get('temp_offset')
         temp_unit = form_data.get('temp_unit')
