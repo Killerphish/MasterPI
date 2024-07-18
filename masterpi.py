@@ -59,8 +59,8 @@ async def create_aiohttp_session():
 dht_device = adafruit_dht.DHT22(board.D18)
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+async def index():
+    return await render_template('index.html')
 
 @app.route('/settings.html')
 def settings():
