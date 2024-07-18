@@ -88,8 +88,8 @@ def get_meater_temperature():
             return jsonify({'error': str(e)}), 500
 
     loop = asyncio.get_event_loop()
-    task = loop.create_task(fetch_temperature())
-    return task.result()
+    future = asyncio.run_coroutine_threadsafe(fetch_temperature(), loop)
+    return future.result()
 
 # Endpoint to get Meater devices
 @app.route('/meater/devices', methods=['GET'])
