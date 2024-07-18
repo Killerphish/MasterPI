@@ -12,6 +12,7 @@ import aiohttp  # Import aiohttp
 import sqlite3  # Import sqlite3 for database operations
 from meater import MeaterApi  # Import the MeaterApi class
 import nest_asyncio  # Import nest_asyncio
+import asyncio  # Import asyncio
 
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
