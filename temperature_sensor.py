@@ -1,5 +1,6 @@
 import adafruit_blinka
 import digitalio
+import board
 import adafruit_max31865
 
 class TemperatureSensor:
