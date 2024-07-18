@@ -1,4 +1,5 @@
 import aiohttp
+import os  # Import the os module
 
 class MeaterApi:
     def __init__(self, session):

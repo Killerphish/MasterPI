@@ -36,11 +36,14 @@ pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=30.0)
 # Initialize FanController
 fan_controller = FanController(fan_pin=27, target_temperature=50.0)  # Adjust this based on actual GPIO pin
 
-# Initialize aiohttp session
-aiohttp_session = aiohttp.ClientSession()
+# Initialize aiohttp session and Meater API
+aiohttp_session = None
+meater_api = None
 
-# Initialize Meater API with aiohttp session
-meater_api = MeaterApi(aiohttp_session)
+async def create_aiohttp_session():
+    global aiohttp_session, meater_api
+    aiohttp_session = aiohttp.ClientSession()
+    meater_api = MeaterApi(aiohttp_session)
 
 @app.route('/')
 def index():
@@ -300,7 +303,13 @@ def initialize_database():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
-    try:
-        app.run(host='0.0.0.0', port=5000)
-    finally:
-        aiohttp_session.close()  # Ensure the aiohttp session is closed properly
+    import asyncio
+
+    async def main():
+        await create_aiohttp_session()
+        try:
+            app.run(host='0.0.0.0', port=5000)
+        finally:
+            await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
+
+    asyncio.run(main())
