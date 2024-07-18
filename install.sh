@@ -64,6 +64,13 @@ sudo apt-get install -y python3 python3-pip || { echo "Python installation faile
 # Install virtualenv
 pip3 install virtualenv || { echo "virtualenv installation failed"; exit 1; }
 
+# Install adafruit-python-shell
+pip3 install --upgrade adafruit-python-shell || { echo "adafruit-python-shell installation failed"; exit 1; }
+
+# Download and run the raspi-blinka.py script
+wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py || { echo "Failed to download raspi-blinka.py"; exit 1; }
+sudo -E env PATH=$PATH python3 raspi-blinka.py || { echo "Failed to run raspi-blinka.py"; exit 1; }
+
 # Create and activate a virtual environment
 if [ ! -d "venv" ]; then
     virtualenv venv || { echo "Failed to create virtual environment"; exit 1; }
