@@ -11,6 +11,10 @@ import os
 import aiohttp  # Import aiohttp
 import sqlite3  # Import sqlite3 for database operations
 from meater import MeaterApi  # Import the MeaterApi class
+import nest_asyncio  # Import nest_asyncio
+
+# Apply nest_asyncio to allow nested event loops
+nest_asyncio.apply()
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -306,8 +310,6 @@ def initialize_database():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
-    import asyncio
-
     async def main():
         await create_aiohttp_session()
         try:

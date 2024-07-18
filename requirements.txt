@@ -12,3 +12,4 @@ matplotlib
 meater-python
 sqlite3
 requests
+nest_asyncio
