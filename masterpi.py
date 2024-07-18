@@ -17,6 +17,7 @@ import asyncio  # Import asyncio
 import adafruit_dht  # Import the adafruit_dht module
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
+import ssl  # Import ssl for custom SSL context
 
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
@@ -78,10 +79,19 @@ def get_temperature():
 async def get_meater_temperature():
     app.logger.info('Fetching Meater temperature...')
     try:
-        token = await get_meater_api_token()
+        # Replace with your actual email and password
+        email = 'your_email@example.com'
+        password = 'your_password'
+        token = await get_meater_api_token(email, password)
         headers = {'Authorization': f'Bearer {token}'}
-        async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.meater.com/devices', headers=headers) as response:
+        
+        # Create a custom SSL context
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context)) as session:
+            async with session.get('https://public-api.cloud.meater.com/v1/devices', headers=headers) as response:
                 if response.status == 401:
                     app.logger.error('Unauthorized access - check your API credentials')
                     return jsonify({'error': 'Unauthorized access'}), 401
@@ -339,16 +349,16 @@ def initialize_database():
         app.logger.error(f"Error initializing database: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-async def get_meater_api_token():
+async def get_meater_api_token(email, password):
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.post('https://api.meater.com/authenticate', json={
-                'email': 'your_email@example.com',
-                'password': 'your_password'
+            async with session.post('https://public-api.cloud.meater.com/v1/login', json={
+                'email': email,
+                'password': password
             }) as response:
                 response.raise_for_status()
                 data = await response.json()
-                return data['token']
+                return data['data']['token']
     except aiohttp.ClientError as e:
         app.logger.error(f"Error fetching Meater API token: {e}")
         raise
