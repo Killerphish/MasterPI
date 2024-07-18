@@ -20,6 +20,17 @@
         <p>Fan Status: <div id="fan-status">Fan status will be displayed here.</div></p>
         <p>Target Temperature: <input type="number" id="target-temp" min="0" max="700"> <button onclick="updateTargetTemp()">Set</button></p>
         <button onclick="emergencyShutdown()">Emergency Shutdown</button>
+        <label for="time-range">Select Time Range:</label>
+        <select id="time-range">
+            <option value="5">Last 5 minutes</option>
+            <option value="15">Last 15 minutes</option>
+            <option value="30">Last 30 minutes</option>
+            <option value="60">Last 1 hour</option>
+            <option value="180">Last 3 hours</option>
+            <option value="360">Last 6 hours</option>
+            <option value="720">Last 12 hours</option>
+            <option value="1440">Last 24 hours</option>
+        </select>
         <canvas id="tempChart"></canvas> <!-- Ensure this line is present -->
     </div>
     <script src="{{ url_for('static', filename='js/api.js') }}" type="module" defer></script>

@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController  # Import FanController class
-from database import save_settings_to_db, get_settings_from_db
+from database import save_settings_to_db, get_settings_from_db, insert_temperature_data, get_last_24_hours_temperature_data, init_db
 import board
 import digitalio
 import os
@@ -255,6 +255,39 @@ def get_meater_status():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/save_temperature', methods=['POST'])
+def save_temperature():
+    data = request.get_json()
+    temperature = data.get('temperature')
+    if temperature is None:
+        return jsonify({'error': 'Temperature is required'}), 400
+
+    try:
+        insert_temperature_data(temperature)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        app.logger.error(f"Error saving temperature: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/get_temperature_data', methods=['GET'])
+def get_temperature_data():
+    try:
+        minutes = request.args.get('minutes', default=1440, type=int)  # Default to 24 hours
+        data = get_temperature_data_by_range(minutes)
+        return jsonify(data)
+    except Exception as e:
+        app.logger.error(f"Error fetching temperature data: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/init_db', methods=['POST'])
+def initialize_database():
+    try:
+        init_db()
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        app.logger.error(f"Error initializing database: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
     try:

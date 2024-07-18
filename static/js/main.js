@@ -66,10 +66,18 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    let temperatureHistory = [];
+    const timeRangeSelect = document.getElementById('time-range');
 
-    function updateChart() {
-        fetchTemperatureData()
+    function fetchTemperatureData(minutes) {
+        return fetch(`/get_temperature_data?minutes=${minutes}`)
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(`Network response was not ok: ${errorData.message}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('Fetched temperature data:', data);
 
@@ -77,27 +85,21 @@ document.addEventListener("DOMContentLoaded", function() {
                     throw new Error('Data format is incorrect');
                 }
 
-                let transformedData = data.map(item => {
-                    if (!item.time || !item.temp) {
-                        throw new Error('Data item format is incorrect');
-                    }
-                    let temperature = item.temp;
-                    if (tempUnit === 'F') {
-                        temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
-                    }
-                    return { time: new Date(item.time), temp: temperature };
-                });
+                return data.map(item => ({
+                    time: new Date(item[0]),
+                    temp: item[1]
+                }));
+            });
+    }
 
-                // Add new data to the history
-                temperatureHistory = temperatureHistory.concat(transformedData);
-
-                // Keep only the last 2 minutes of data
-                const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-                temperatureHistory = temperatureHistory.filter(item => item.time >= twoMinutesAgo);
+    function updateChart(minutes) {
+        fetchTemperatureData(minutes)
+            .then(data => {
+                console.log('Fetched temperature data:', data);
 
                 // Update the chart
-                let labels = temperatureHistory.map(d => d.time);
-                let temperatures = temperatureHistory.map(d => d.temp);
+                let labels = data.map(d => d.time);
+                let temperatures = data.map(d => d.temp);
                 tempChart.data.labels = labels;
                 tempChart.data.datasets[0].data = temperatures;
                 tempChart.data.datasets[0].label = `Temperature (°${tempUnit})`;
@@ -109,40 +111,13 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
-    function fetchTemperatureData() {
-        return fetch('http://masterpi.local/get_temperature')
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(`Network response was not ok: ${errorData.message}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Raw data fetched:', data);
+    timeRangeSelect.addEventListener('change', function() {
+        const minutes = this.value;
+        updateChart(minutes);
+    });
 
-                // Transform the data to the expected format
-                if (data && typeof data.temperature !== 'undefined') {
-                    data = [{
-                        time: new Date().toISOString(), // Use the current time as the timestamp
-                        temp: data.temperature
-                    }];
-                }
-
-                if (!Array.isArray(data)) {
-                    throw new Error('Data format is incorrect');
-                }
-
-                data.forEach(item => {
-                    if (typeof item.time === 'undefined' || typeof item.temp === 'undefined') {
-                        throw new Error('Data item format is incorrect');
-                    }
-                });
-
-                return data;
-            });
-    }
+    // Initial chart update
+    updateChart(timeRangeSelect.value);
 
     document.getElementById('target-temp').addEventListener('change', function() {
         const targetTemp = this.value;
