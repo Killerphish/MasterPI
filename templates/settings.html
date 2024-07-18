@@ -70,6 +70,16 @@
 
     <button id="initDbButton" type="button">Initialize Database</button>
 
+    <!-- Initialize Database Modal -->
+    <div id="initDbModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Initialize Database</h2>
+            <div id="initDbStatus">Initialization status will be displayed here.</div>
+            <button id="closeInitDbModalButton" type="button">Close</button>
+        </div>
+    </div>
+
     <script type="module" src="{{ url_for('static', filename='js/settings.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
