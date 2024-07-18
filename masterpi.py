@@ -78,15 +78,23 @@ def get_temperature():
 async def get_meater_temperature():
     app.logger.info('Fetching Meater temperature...')
     try:
-        devices = await meater_api.devices()
-        app.logger.info(f'Devices response: {devices}')
-        if devices and 'data' in devices and devices['data']:
-            device = devices['data'][0]  # Assuming you are using the first Meater device
-            temperature = device['temperature']['internal']
-            app.logger.info(f'Meater temperature fetched successfully: {temperature}')
-            return jsonify({'temperature': temperature})
-        app.logger.error('No Meater device or probe found')
-        return jsonify({'error': 'No Meater device or probe found'}), 404
+        token = await get_meater_api_token()
+        headers = {'Authorization': f'Bearer {token}'}
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://api.meater.com/devices', headers=headers) as response:
+                if response.status == 401:
+                    app.logger.error('Unauthorized access - check your API credentials')
+                    return jsonify({'error': 'Unauthorized access'}), 401
+                response.raise_for_status()
+                devices = await response.json()
+                app.logger.info(f'Devices response: {devices}')
+                if devices and 'data' in devices and devices['data']:
+                    device = devices['data'][0]  # Assuming you are using the first Meater device
+                    temperature = device['temperature']['internal']
+                    app.logger.info(f'Meater temperature fetched successfully: {temperature}')
+                    return jsonify({'temperature': temperature})
+                app.logger.error('No Meater device or probe found')
+                return jsonify({'error': 'No Meater device or probe found'}), 404
     except aiohttp.ClientError as e:
         app.logger.error(f"Network error fetching Meater temperature: {e}")
         return jsonify({'error': 'Network error'}), 500
@@ -330,6 +338,20 @@ def initialize_database():
     except Exception as e:
         app.logger.error(f"Error initializing database: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+async def get_meater_api_token():
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post('https://api.meater.com/authenticate', json={
+                'email': 'your_email@example.com',
+                'password': 'your_password'
+            }) as response:
+                response.raise_for_status()
+                data = await response.json()
+                return data['token']
+    except aiohttp.ClientError as e:
+        app.logger.error(f"Error fetching Meater API token: {e}")
+        raise
 
 if __name__ == '__main__':
     async def main():
