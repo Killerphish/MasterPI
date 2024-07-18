@@ -69,16 +69,27 @@ document.addEventListener("DOMContentLoaded", function() {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Settings saved successfully!');
-                    const deviceName = formData.get('device_name');
-                    if (document.getElementById('deviceName')) {
-                        document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.text();  // Get response as text
+            })
+            .then(text => {
+                try {
+                    const data = JSON.parse(text);  // Attempt to parse JSON
+                    if (data.success) {
+                        alert('Settings saved successfully!');
+                        const deviceName = formData.get('device_name');
+                        if (document.getElementById('deviceName')) {
+                            document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
+                        }
+                    } else {
+                        alert('Failed to save settings.');
                     }
-                } else {
-                    alert('Failed to save settings.');
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                    alert('Error saving settings. Please check the console for details.');
                 }
             })
             .catch(error => {
