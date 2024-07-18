@@ -63,8 +63,8 @@ async def index():
     return await render_template('index.html')
 
 @app.route('/settings.html')
-def settings():
-    return render_template('settings.html')
+async def settings():
+    return await render_template('settings.html')
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
