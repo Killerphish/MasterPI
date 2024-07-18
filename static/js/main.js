@@ -150,7 +150,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Attach the emergencyShutdown function to the button's onclick event
-    document.getElementById('emergency-shutdown-button').onclick = emergencyShutdown;
+    const emergencyShutdownButton = document.getElementById('emergency-shutdown-button');
+    if (emergencyShutdownButton) {
+        emergencyShutdownButton.onclick = emergencyShutdown;
+    } else {
+        console.error('Element with id "emergency-shutdown-button" not found.');
+    }
 
     updateChart(timeRangeSelect.value);
     setInterval(() => updateChart(timeRangeSelect.value), 30000); // Update chart every 30 seconds
