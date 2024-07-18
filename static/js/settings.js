@@ -152,22 +152,19 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch('/get_meater_temperature')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                    throw new Error('Network response was not ok ' + response.statusText);
                 }
                 return response.json();
             })
             .then(data => {
-                if (data.error) {
-                    console.error('Error fetching Meater temperature:', data.error);
-                    document.getElementById('meater-temp').textContent = 'Error fetching temperature';
+                if (data.temperature !== undefined) {
+                    document.getElementById('meater-temp').textContent = data.temperature + ' °C';
                 } else {
-                    const temperature = data.temperature;
-                    document.getElementById('meater-temp').textContent = temperature.toFixed(2) + ' °C';
+                    console.error('Error fetching Meater temperature:', data.error);
                 }
             })
             .catch(error => {
                 console.error('Error fetching Meater temperature:', error);
-                document.getElementById('meater-temp').textContent = 'Error fetching temperature';
             });
     }
 

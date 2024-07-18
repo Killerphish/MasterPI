@@ -60,16 +60,20 @@ def get_temperature():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/get_meater_temperature')
+@app.route('/get_meater_temperature', methods=['GET'])
 def get_meater_temperature():
     try:
+        app.logger.info("Fetching Meater devices")
         devices = meater_api.devices()
         if devices:
+            app.logger.info(f"Found devices: {devices}")
             device = devices[0]  # Assuming you are using the first Meater device
             probes = device.probes
             if probes:
+                app.logger.info(f"Found probes: {probes}")
                 probe = probes[0]  # Assuming you are using the first probe
                 temperature = probe.temperature.internal
+                app.logger.info(f"Probe temperature: {temperature}")
                 return jsonify({'temperature': temperature})
         app.logger.error('No Meater device or probe found')
         return jsonify({'error': 'No Meater device or probe found'}), 404
