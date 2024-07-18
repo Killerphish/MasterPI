@@ -168,10 +168,12 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('meater-temp').textContent = data.temperature + ' °C';
                 } else {
                     console.error('Error fetching Meater temperature:', data.error);
+                    alert('Error fetching Meater temperature: ' + data.error);  // Display error to user
                 }
             })
             .catch(error => {
                 console.error('Error fetching Meater temperature:', error);
+                alert('Error fetching Meater temperature: ' + error.message);  // Display error to user
             });
     }
 
