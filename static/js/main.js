@@ -137,16 +137,37 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
+    // Define the updateTargetTemp function
+    function updateTargetTemp() {
+        const targetTemp = document.getElementById('target-temp').value;
+        fetch('/set_target_temperature', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ target_temperature: targetTemp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Target temperature updated:', data);
+        })
+        .catch(error => {
+            console.error('Error updating target temperature:', error);
+        });
+    }
+
     // Define the emergencyShutdown function
     function emergencyShutdown() {
-        fetch('/emergency_shutdown', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Emergency shutdown success:', data);
-            })
-            .catch(error => {
-                console.error('Error during emergency shutdown:', error);
-            });
+        fetch('/emergency_shutdown', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Emergency shutdown initiated:', data);
+        })
+        .catch(error => {
+            console.error('Error initiating emergency shutdown:', error);
+        });
     }
 
     // Attach the emergencyShutdown function to the button's onclick event
