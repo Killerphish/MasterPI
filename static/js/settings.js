@@ -348,6 +348,47 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    // Initialize Database Modal
+    const initDbButton = document.getElementById('initDbButton');
+    const initDbModal = document.getElementById('initDbModal');
+    const closeInitDbModalButton = document.getElementById('closeInitDbModalButton');
+    const initDbStatus = document.getElementById('initDbStatus');
+
+    initDbButton.addEventListener('click', function() {
+        initDbModal.style.display = 'block';
+        initDatabase();
+    });
+
+    closeInitDbModalButton.addEventListener('click', function() {
+        initDbModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target == initDbModal) {
+            initDbModal.style.display = 'none';
+        }
+    });
+
+    function initDatabase() {
+        fetch('/init_db', { method: 'POST' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    initDbStatus.textContent = 'Database initialized successfully.';
+                } else {
+                    initDbStatus.textContent = 'Error initializing database: ' + data.message;
+                }
+            })
+            .catch(error => {
+                initDbStatus.textContent = 'Error initializing database: ' + error.message;
+            });
+    }
+
     // Ensure fetchStatus is called after the DOM is fully loaded
     fetchMeaterStatus();
     fetchSettings();
