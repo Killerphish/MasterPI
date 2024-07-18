@@ -289,6 +289,22 @@ def initialize_database():
         app.logger.error(f"Error initializing database: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+def get_temperature_data_by_range(minutes):
+    # Implement the logic to fetch temperature data for the given range
+    # This is just a placeholder implementation
+    # You should replace this with your actual data fetching logic
+    end_time = time.time()
+    start_time = end_time - (minutes * 60)
+    
+    # Example: Fetch data from the database within the time range
+    # Replace this with your actual database query
+    data = [
+        [start_time * 1000, 22.5],  # Example data: [timestamp, temperature]
+        [end_time * 1000, 23.0]
+    ]
+    
+    return data
+
 if __name__ == '__main__':
     try:
         app.run(host='0.0.0.0', port=5000)
