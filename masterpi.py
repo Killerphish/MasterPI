@@ -62,21 +62,24 @@ def get_temperature():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/get_meater_temperature', methods=['GET'])
-async def get_meater_temperature():
-    try:
-        devices = await meater_api.devices()
-        if devices and 'data' in devices and devices['data']:
-            device = devices['data'][0]  # Assuming you are using the first Meater device
-            temperature = device['temperature']['internal']
-            return jsonify({'temperature': temperature})
-        app.logger.error('No Meater device or probe found')
-        return jsonify({'error': 'No Meater device or probe found'}), 404
-    except aiohttp.ClientError as e:
-        app.logger.error(f"Network error fetching Meater temperature: {e}")
-        return jsonify({'error': 'Network error'}), 500
-    except Exception as e:
-        app.logger.error(f"Error fetching Meater temperature: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+def get_meater_temperature():
+    async def fetch_temperature():
+        try:
+            devices = await meater_api.devices()
+            if devices and 'data' in devices and devices['data']:
+                device = devices['data'][0]  # Assuming you are using the first Meater device
+                temperature = device['temperature']['internal']
+                return jsonify({'temperature': temperature})
+            app.logger.error('No Meater device or probe found')
+            return jsonify({'error': 'No Meater device or probe found'}), 404
+        except aiohttp.ClientError as e:
+            app.logger.error(f"Network error fetching Meater temperature: {e}")
+            return jsonify({'error': 'Network error'}), 500
+        except Exception as e:
+            app.logger.error(f"Error fetching Meater temperature: {e}", exc_info=True)
+            return jsonify({'error': str(e)}), 500
+
+    return asyncio.run(fetch_temperature())
 
 # Endpoint to get Meater devices
 @app.route('/meater/devices', methods=['GET'])
