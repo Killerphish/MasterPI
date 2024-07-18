@@ -9,8 +9,17 @@ PROJECT_DIR="/home/smoke/MasterPi"  # Adjust this to your actual project directo
 chmod +x "$0" || { echo "Failed to set execute permission on install script"; exit 1; }
 
 # Ensure autorun.sh and auto_update.sh are executable
-chmod +x "$PROJECT_DIR/tools/autorun.sh" || { echo "Failed to set execute permission on autorun.sh"; exit 1; }
-chmod +x "$PROJECT_DIR/tools/auto_update.sh" || { echo "Failed to set execute permission on auto_update.sh"; exit 1; }
+if [ -f "$PROJECT_DIR/tools/autorun.sh" ]; then
+    chmod +x "$PROJECT_DIR/tools/autorun.sh" || { echo "Failed to set execute permission on autorun.sh"; exit 1; }
+else
+    echo "autorun.sh not found at $PROJECT_DIR/tools/autorun.sh, skipping."
+fi
+
+if [ -f "$PROJECT_DIR/tools/auto_update.sh" ]; then
+    chmod +x "$PROJECT_DIR/tools/auto_update.sh" || { echo "Failed to set execute permission on auto_update.sh"; exit 1; }
+else
+    echo "auto_update.sh not found at $PROJECT_DIR/tools/auto_update.sh, skipping."
+fi
 
 # Function to set up autorun
 setup_autorun() {
