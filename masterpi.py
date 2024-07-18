@@ -15,6 +15,8 @@ from meater import MeaterApi  # Import the MeaterApi class
 import nest_asyncio  # Import nest_asyncio
 import asyncio  # Import asyncio
 import adafruit_dht  # Import the adafruit_dht module
+from hypercorn.asyncio import serve
+from hypercorn.config import Config
 
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
@@ -319,8 +321,10 @@ def initialize_database():
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
+        config = Config()
+        config.bind = ["0.0.0.0:5000"]
         try:
-            app.run(host='0.0.0.0', port=5000)
+            await serve(app, config)
         finally:
             await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
 
