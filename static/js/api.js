@@ -73,11 +73,16 @@ export function requestMeaterApiKey(email, password) {
         return response.json();
     })
     .then(data => {
+        console.log('Meater API response:', data);  // Log the response for debugging
         if (data.statusCode === 200 && data.data.token) {
             localStorage.setItem('meater_jwt', data.data.token); // Store the JWT in localStorage
             return data.data.token;
         } else {
-            throw new Error('Failed to obtain JWT');
+            throw new Error('API response does not contain success property');
         }
+    })
+    .catch(error => {
+        console.error('Error requesting Meater API Key:', error);
+        throw error;
     });
 }

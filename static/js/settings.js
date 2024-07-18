@@ -1,5 +1,6 @@
 import { showModal, hideModal } from './modal.js';
 import { updateStatus, handleFetchError } from './status.js';
+import { requestMeaterApiKey } from './api.js';
 
 document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById('settingsForm');
@@ -47,22 +48,14 @@ document.addEventListener("DOMContentLoaded", function() {
             const password = document.getElementById('meater_password').value;
 
             requestMeaterApiKey(email, password)
-                .then(data => {
-                    if (data && data.success) {
-                        updateStatus(meaterStatus, 'Meater API Key requested successfully!', 'green');
-                    } else {
-                        updateStatus(meaterStatus, 'Failed to request Meater API Key.', 'red');
-                        throw new Error('API response does not contain success property');
-                    }
-                    if (closeModalButton) {
-                        closeModalButton.style.display = 'block'; // Show close button
-                    }
+                .then(token => {
+                    console.log('Meater API Key obtained:', token);
+                    // Handle successful login, e.g., update UI or store token
                 })
                 .catch(error => {
-                    handleFetchError(error, meaterStatus, 'Error requesting Meater API Key.');
-                    if (closeModalButton) {
-                        closeModalButton.style.display = 'block'; // Show close button
-                    }
+                    console.error('Error requesting Meater API Key:', error);
+                    // Handle error, e.g., show error message to user
+                    alert('Error requesting Meater API Key. Please check the console for details.');
                 });
         });
     }
@@ -321,28 +314,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.error('Element with ID "fan-status" not found.');
                 }
             });
-    }
-
-    async function requestMeaterApiKey(email, password) {
-        try {
-            const response = await fetch('https://public-api.cloud.meater.com/v1/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (!response.ok) {
-                throw new Error(`Network response was not ok ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error requesting Meater API Key:', error);
-            throw error;
-        }
     }
 
     // Initialize Database Modal
