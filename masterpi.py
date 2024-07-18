@@ -35,7 +35,7 @@ app.logger.setLevel(logging.INFO)
 app.logger.info('Application startup')
 
 # Initialize temperature sensor (using GPIO18 for CS pin)
-sensor = TemperatureSensor(digitalio.DigitalInOut(board.D45))
+sensor = TemperatureSensor(digitalio.DigitalInOut(board.GP45))
 
 # Initialize PID controller
 pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=30.0)
@@ -53,7 +53,7 @@ async def create_aiohttp_session():
     meater_api = MeaterApi(aiohttp_session)
 
 # Initialize the DHT22 sensor
-dht_device = adafruit_dht.DHT22(board.D45)
+dht_device = adafruit_dht.DHT22(board.GP45)
 
 @app.route('/')
 def index():
