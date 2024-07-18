@@ -61,6 +61,7 @@
                 <button type="submit">Save</button>
             </form>
             <div id="meaterStatus"></div>
+            <button id="closeModalButton" type="button">Close</button> <!-- Added this button -->
         </div>
     </div>
 
@@ -91,22 +92,6 @@
                 .catch(error => {
                     console.error('Error fetching settings:', error);
                 });
-
-            document.getElementById('initDbButton').addEventListener('click', function() {
-                fetch('/init_db', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            alert('Database initialized successfully!');
-                        } else {
-                            alert('Failed to initialize database.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error initializing database:', error);
-                        alert('Error initializing database.');
-                    });
-            });
         });
     </script>
 </body>

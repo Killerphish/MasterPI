@@ -130,31 +130,6 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     });
 
-    function updateTargetTemp() {
-        const targetTempInput = document.getElementById('target-temp');
-        const targetTemp = targetTempInput.value;
-
-        fetch('/update_target_temperature', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ target_temp: targetTemp })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert('Target temperature updated successfully!');
-            } else {
-                alert('Failed to update target temperature.');
-            }
-        })
-        .catch(error => {
-            console.error('Error updating target temperature:', error);
-            alert('Error updating target temperature.');
-        });
-    }
-
     fetch('/get_settings')
         .then(response => response.json())
         .then(settings => {
@@ -189,8 +164,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
-    updateChart();
-    setInterval(updateChart, 30000); // Update chart every 30 seconds
+    updateChart(timeRangeSelect.value);
+    setInterval(() => updateChart(timeRangeSelect.value), 30000); // Update chart every 30 seconds
     updateStatus();
     setInterval(updateStatus, 5000);
 });
