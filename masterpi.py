@@ -36,10 +36,11 @@ async def get_meater_temperature():
     app.logger.info('Fetching Meater temperature...')
     try:
         devices = await meater_api.devices()
+        app.logger.info(f'Devices response: {devices}')
         if devices and 'data' in devices and devices['data']:
             device = devices['data'][0]  # Assuming you are using the first Meater device
             temperature = device['temperature']['internal']
-            app.logger.info('Meater temperature fetched successfully')
+            app.logger.info(f'Meater temperature fetched successfully: {temperature}')
             return jsonify({'temperature': temperature})
         app.logger.error('No Meater device or probe found')
         return jsonify({'error': 'No Meater device or probe found'}), 404
