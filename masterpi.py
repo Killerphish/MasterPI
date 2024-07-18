@@ -79,10 +79,10 @@ def get_temperature():
 async def get_meater_temperature():
     app.logger.info('Fetching Meater temperature...')
     try:
-        # Replace with your actual email and password
-        email = 'your_email@example.com'
-        password = 'your_password'
-        token = await get_meater_api_token(email, password)
+        # Hardcoded email and password for testing
+        EMAIL = 'rlwinchester@gmail.com'
+        PASSWORD = 'Ninja600!!'
+        token = await get_meater_api_token(EMAIL, PASSWORD)
         headers = {'Authorization': f'Bearer {token}'}
         
         # Create a custom SSL context
