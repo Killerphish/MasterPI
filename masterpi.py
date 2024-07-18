@@ -6,11 +6,6 @@ from database import save_settings_to_db, get_settings_from_db, insert_temperatu
 import board
 import digitalio
 import os
-from meater import MeaterApi  # Import the Meater API
-import logging
-from logging.handlers import RotatingFileHandler
-import time
-import requests
 import aiohttp  # Import aiohttp
 import sqlite3  # Import sqlite3 for database operations
 
@@ -61,20 +56,13 @@ def get_temperature():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/get_meater_temperature', methods=['GET'])
-def get_meater_temperature():
+async def get_meater_temperature():
     try:
-        app.logger.info("Fetching Meater devices")
-        devices = meater_api.devices()
-        if devices:
-            app.logger.info(f"Found devices: {devices}")
-            device = devices[0]  # Assuming you are using the first Meater device
-            probes = device.probes
-            if probes:
-                app.logger.info(f"Found probes: {probes}")
-                probe = probes[0]  # Assuming you are using the first probe
-                temperature = probe.temperature.internal
-                app.logger.info(f"Probe temperature: {temperature}")
-                return jsonify({'temperature': temperature})
+        devices = await meater_api.devices()
+        if devices and 'data' in devices and devices['data']:
+            device = devices['data'][0]  # Assuming you are using the first Meater device
+            temperature = device['temperature']['internal']
+            return jsonify({'temperature': temperature})
         app.logger.error('No Meater device or probe found')
         return jsonify({'error': 'No Meater device or probe found'}), 404
     except aiohttp.ClientError as e:
@@ -313,3 +301,18 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', port=5000)
     finally:
         aiohttp_session.close()  # Ensure the aiohttp session is closed properly
+
+class MeaterApi:
+    def __init__(self, session):
+        self.session = session
+        self.base_url = 'https://public-api.cloud.meater.com/v1/'
+        self.jwt = os.getenv('MEATER_JWT')  # Load JWT from environment variable
+
+    async def devices(self):
+        headers = {
+            'Authorization': f'Bearer {self.jwt}'
+        }
+        async with self.session.get(f'{self.base_url}devices', headers=headers) as response:
+            if response.status != 200:
+                raise aiohttp.ClientError(f'Failed to fetch devices: {response.status}')
+            return await response.json()

@@ -71,5 +71,13 @@ export function requestMeaterApiKey(email, password) {
             throw new Error(`Network response was not ok ${response.statusText}`);
         }
         return response.json();
+    })
+    .then(data => {
+        if (data.statusCode === 200 && data.data.token) {
+            localStorage.setItem('meater_jwt', data.data.token); // Store the JWT in localStorage
+            return data.data.token;
+        } else {
+            throw new Error('Failed to obtain JWT');
+        }
     });
 }
