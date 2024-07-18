@@ -70,11 +70,13 @@ def get_temperature():
 @app.route('/get_meater_temperature', methods=['GET'])
 def get_meater_temperature():
     async def fetch_temperature():
+        app.logger.info('Fetching Meater temperature...')
         try:
             devices = await meater_api.devices()
             if devices and 'data' in devices and devices['data']:
                 device = devices['data'][0]  # Assuming you are using the first Meater device
                 temperature = device['temperature']['internal']
+                app.logger.info('Meater temperature fetched successfully')
                 return jsonify({'temperature': temperature})
             app.logger.error('No Meater device or probe found')
             return jsonify({'error': 'No Meater device or probe found'}), 404
@@ -86,7 +88,8 @@ def get_meater_temperature():
             return jsonify({'error': str(e)}), 500
 
     loop = asyncio.get_event_loop()
-    return loop.run_until_complete(fetch_temperature())
+    task = loop.create_task(fetch_temperature())
+    return task.result()
 
 # Endpoint to get Meater devices
 @app.route('/meater/devices', methods=['GET'])
