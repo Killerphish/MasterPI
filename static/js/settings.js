@@ -159,7 +159,9 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch('/get_meater_temperature')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
+                    return response.text().then(text => {
+                        throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+                    });
                 }
                 return response.json();
             })
