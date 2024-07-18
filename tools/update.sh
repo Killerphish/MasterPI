@@ -6,7 +6,7 @@ CURRENT_USER=$(logname)
 
 # Define the path to your project directory and service name
 PROJECT_DIR="/home/$CURRENT_USER/MasterPi"
-SERVICE_NAME="flaskapp"
+#SERVICE_NAME="flaskapp"
 
 # Configure Git to mark the directory as safe for the actual user
 sudo -u $CURRENT_USER git config --global --add safe.directory $PROJECT_DIR
@@ -22,8 +22,8 @@ sudo chmod -R u+rwX $PROJECT_DIR
 cd $PROJECT_DIR || exit
 
 # Stop the Flask application using systemd
-echo "Stopping the Flask application..."
-sudo systemctl stop $SERVICE_NAME
+#echo "Stopping the Flask application..."
+#sudo systemctl stop $SERVICE_NAME
 
 # Stash any local changes
 echo "Stashing local changes..."
@@ -38,7 +38,7 @@ echo "Reapplying stashed changes..."
 sudo -u $CURRENT_USER git stash pop
 
 # Restart the Flask application using systemd
-echo "Restarting the Flask application..."
-sudo systemctl start $SERVICE_NAME
+#echo "Restarting the Flask application..."
+#sudo systemctl start $SERVICE_NAME
 
-echo "Update and restart completed."
+echo "Update completed."
