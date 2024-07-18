@@ -13,6 +13,7 @@ import sqlite3  # Import sqlite3 for database operations
 from meater import MeaterApi  # Import the MeaterApi class
 import nest_asyncio  # Import nest_asyncio
 import asyncio  # Import asyncio
+from adafruit_dht import DHT22  # Import the DHT22 sensor class
 
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
@@ -51,6 +52,9 @@ async def create_aiohttp_session():
     aiohttp_session = aiohttp.ClientSession()
     meater_api = MeaterApi(aiohttp_session)
 
+# Initialize the DHT22 sensor
+dht_device = DHT22(board.D18)
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -68,28 +72,24 @@ def get_temperature():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/get_meater_temperature', methods=['GET'])
-def get_meater_temperature():
-    async def fetch_temperature():
-        app.logger.info('Fetching Meater temperature...')
-        try:
-            devices = await meater_api.devices()
-            if devices and 'data' in devices and devices['data']:
-                device = devices['data'][0]  # Assuming you are using the first Meater device
-                temperature = device['temperature']['internal']
-                app.logger.info('Meater temperature fetched successfully')
-                return jsonify({'temperature': temperature})
-            app.logger.error('No Meater device or probe found')
-            return jsonify({'error': 'No Meater device or probe found'}), 404
-        except aiohttp.ClientError as e:
-            app.logger.error(f"Network error fetching Meater temperature: {e}")
-            return jsonify({'error': 'Network error'}), 500
-        except Exception as e:
-            app.logger.error(f"Error fetching Meater temperature: {e}", exc_info=True)
-            return jsonify({'error': str(e)}), 500
-
-    loop = asyncio.get_event_loop()
-    future = asyncio.run_coroutine_threadsafe(fetch_temperature(), loop)
-    return future.result()
+async def get_meater_temperature():
+    app.logger.info('Fetching Meater temperature...')
+    try:
+        devices = await meater_api.devices()
+        app.logger.info(f'Devices response: {devices}')
+        if devices and 'data' in devices and devices['data']:
+            device = devices['data'][0]  # Assuming you are using the first Meater device
+            temperature = device['temperature']['internal']
+            app.logger.info(f'Meater temperature fetched successfully: {temperature}')
+            return jsonify({'temperature': temperature})
+        app.logger.error('No Meater device or probe found')
+        return jsonify({'error': 'No Meater device or probe found'}), 404
+    except aiohttp.ClientError as e:
+        app.logger.error(f"Network error fetching Meater temperature: {e}")
+        return jsonify({'error': 'Network error'}), 500
+    except Exception as e:
+        app.logger.error(f"Error fetching Meater temperature: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
 
 # Endpoint to get Meater devices
 @app.route('/meater/devices', methods=['GET'])

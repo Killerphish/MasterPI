@@ -5,6 +5,7 @@ Adafruit-PureIO
 adafruit-circuitpython-max31865
 adafruit-circuitpython-busdevice
 board
+gpiozero
 digitalio
 simple-pid
 numpy
