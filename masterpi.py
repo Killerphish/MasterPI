@@ -10,6 +10,7 @@ import digitalio
 import os
 import aiohttp  # Import aiohttp
 import sqlite3  # Import sqlite3 for database operations
+from meater import MeaterApi  # Import the MeaterApi class
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -303,18 +304,3 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', port=5000)
     finally:
         aiohttp_session.close()  # Ensure the aiohttp session is closed properly
-
-class MeaterApi:
-    def __init__(self, session):
-        self.session = session
-        self.base_url = 'https://public-api.cloud.meater.com/v1/'
-        self.jwt = os.getenv('MEATER_JWT')  # Load JWT from environment variable
-
-    async def devices(self):
-        headers = {
-            'Authorization': f'Bearer {self.jwt}'
-        }
-        async with self.session.get(f'{self.base_url}devices', headers=headers) as response:
-            if response.status != 200:
-                raise aiohttp.ClientError(f'Failed to fetch devices: {response.status}')
-            return await response.json()
