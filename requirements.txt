@@ -4,7 +4,9 @@ Adafruit-PlatformDetect
 Adafruit-PureIO
 adafruit-circuitpython-max31865
 adafruit-circuitpython-busdevice
+adafruit-circuitpython-dht
 board
+libgpiod2
 gpiozero
 digitalio
 simple-pid

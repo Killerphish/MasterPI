@@ -13,7 +13,7 @@ import sqlite3  # Import sqlite3 for database operations
 from meater import MeaterApi  # Import the MeaterApi class
 import nest_asyncio  # Import nest_asyncio
 import asyncio  # Import asyncio
-from adafruit_dht import DHT22  # Import the DHT22 sensor class
+import adafruit_dht  # Import the adafruit_dht module
 
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
@@ -53,7 +53,7 @@ async def create_aiohttp_session():
     meater_api = MeaterApi(aiohttp_session)
 
 # Initialize the DHT22 sensor
-dht_device = DHT22(board.D18)
+dht_device = adafruit_dht.DHT22(board.D18)
 
 @app.route('/')
 def index():
