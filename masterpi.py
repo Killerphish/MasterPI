@@ -225,15 +225,28 @@ def get_settings():
 
 @app.route('/save_settings', methods=['POST'])
 def save_settings():
-    form_data = request.form
-    device_name = form_data.get('device_name')
-    temp_offset = form_data.get('temp_offset')
-    temp_unit = form_data.get('temp_unit')
-    
-    # Save settings to the database
-    success = save_settings_to_db(device_name, temp_offset, temp_unit)
-    
-    return jsonify({'success': True})
+    try:
+        form_data = request.form
+        device_name = form_data.get('device_name')
+        temp_offset = form_data.get('temp_offset')
+        temp_unit = form_data.get('temp_unit')
+
+        if not device_name or not temp_unit:
+            raise ValueError("Device name and temperature unit are required.")
+
+        # Save settings to the database
+        success = save_settings_to_db(device_name, temp_offset, temp_unit)
+        
+        if not success:
+            raise Exception("Failed to save settings to the database.")
+
+        return jsonify({'success': True})
+    except ValueError as ve:
+        app.logger.error(f"Validation error: {ve}")
+        return jsonify({'success': False, 'error': str(ve)}), 400
+    except Exception as e:
+        app.logger.error(f"Error saving settings: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
 @app.route('/pid_autotune', methods=['POST'])
 def pid_autotune():

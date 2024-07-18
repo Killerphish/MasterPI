@@ -94,6 +94,7 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(error => {
                 console.error('Error saving settings:', error);
+                alert('Error saving settings: ' + error.message);
             });
         });
     }
