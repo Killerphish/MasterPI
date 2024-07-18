@@ -3,7 +3,7 @@
 # Remote repository URL and branch name
 REMOTE_REPO="https://github.com/Killerphish/MasterPI.git"
 BRANCH="main"  # Replace with your branch name if different
-PROJECT_DIR="/home/smoke/MasterPi"  # Adjust this to your actual project directory
+PROJECT_DIR="/home/smoke/MasterPI"  # Adjust this to your actual project directory
 
 # Ensure the script itself is executable
 chmod +x "$0" || { echo "Failed to set execute permission on install script"; exit 1; }
