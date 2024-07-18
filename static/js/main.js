@@ -137,6 +137,21 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
+    // Define the emergencyShutdown function
+    function emergencyShutdown() {
+        fetch('/emergency_shutdown', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Emergency shutdown success:', data);
+            })
+            .catch(error => {
+                console.error('Error during emergency shutdown:', error);
+            });
+    }
+
+    // Attach the emergencyShutdown function to the button's onclick event
+    document.getElementById('emergency-shutdown-button').onclick = emergencyShutdown;
+
     updateChart(timeRangeSelect.value);
     setInterval(() => updateChart(timeRangeSelect.value), 30000); // Update chart every 30 seconds
     updateStatus();
