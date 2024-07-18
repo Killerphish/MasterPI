@@ -5,7 +5,7 @@ CURRENT_USER=$(logname)
 
 
 # Define the path to your project directory and service name
-PROJECT_DIR="/home/$CURRENT_USER/MasterPi"
+PROJECT_DIR="/home/$CURRENT_USER/MasterPI"
 #SERVICE_NAME="flaskapp"
 
 # Configure Git to mark the directory as safe for the actual user
