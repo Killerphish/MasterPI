@@ -7,7 +7,6 @@ adafruit-circuitpython-busdevice
 adafruit-circuitpython-dht
 lgpio
 gpiozero
-digitalio
 simple-pid
 numpy
 matplotlib
