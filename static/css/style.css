@@ -74,3 +74,27 @@ label {
     height: auto;
     margin: 0 auto;
 }
+
+/* Additional styles for tabs */
+.container {
+    display: flex;
+}
+
+.sidebar {
+    width: 200px;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}

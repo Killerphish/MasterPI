@@ -13,76 +13,81 @@
     </div>
     <h1 id="deviceName">MasterPi Smoker</h1>
     <h1>Settings</h1>
-    <form id="settingsForm">
-        <div>
-            <label for="device_name">Device Name:</label>
-            <input type="text" id="device_name" name="device_name" placeholder="Device Name">
+    <div class="container">
+        <div class="sidebar">
+            <ul>
+                <li><a href="#" class="tab-link" data-tab="general">General</a></li>
+                <li><a href="#" class="tab-link" data-tab="devices">Devices</a></li>
+                <li><a href="#" class="tab-link" data-tab="integrations">Integrations</a></li>
+            </ul>
         </div>
-        <div>
-            <label for="pid_autotune">PID Autotune:</label>
-            <button id="pid_autotune">Start Autotune</button>
-        </div>
-        <div>
-            <label for="temp_offset">Temperature Offset:</label>
-            <input type="number" id="temp_offset" name="temp_offset" placeholder="Offset in degrees">
-        </div>
-        <div>
-            <label for="temp_unit">Temperature Unit:</label>
-            <select id="temp_unit" name="temp_unit">
-                <option value="C">Celsius</option>
-                <option value="F">Fahrenheit</option>
-            </select>
-        </div>
-        <div id="meaterStatus">Meater connection status will be displayed here.</div>
-        <div>
-            <h2>Meater Temperature: <span id="meater-temp">Loading...</span></h2>
-        </div>
-        <div>
-            <button type="submit">Save Settings</button>
-        </div>
-    </form>
-
-    <button id="enableMeaterIntegration" type="button">Enable Meater Integration</button>
-
-    <!-- Meater Integration Modal -->
-    <div id="meaterModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Enable Meater Integration</h2>
-            <form id="meaterForm">
-                <div>
-                    <label for="meater_email">Meater Cloud Email:</label>
-                    <input type="email" id="meater_email" name="meater_email" placeholder="Meater Cloud Email">
+        <div class="content">
+            <form id="settingsForm">
+                <div id="general" class="tab-content">
+                    <h2>General</h2>
+                    <div>
+                        <label for="device_name">Device Name:</label>
+                        <input type="text" id="device_name" name="device_name" placeholder="Device Name">
+                    </div>
+                </div>
+                <div id="devices" class="tab-content">
+                    <h2>Devices</h2>
+                    <div>
+                        <label for="temp_offset">Temperature Offset:</label>
+                        <input type="number" id="temp_offset" name="temp_offset" placeholder="Offset in degrees">
+                    </div>
+                    <div>
+                        <label for="pid_autotune">PID Autotune:</label>
+                        <button id="pid_autotune">Start Autotune</button>
+                    </div>
+                </div>
+                <div id="integrations" class="tab-content">
+                    <h2>Integrations</h2>
+                    <div>
+                        <label for="meater_integration">Enable Meater Integration:</label>
+                        <input type="checkbox" id="meater_integration" name="meater_integration">
+                    </div>
+                    <div id="meaterStatus">Meater connection status will be displayed here.</div>
+                    <div>
+                        <label for="meater_email">Meater Cloud Email:</label>
+                        <input type="email" id="meater_email" name="meater_email" placeholder="Meater Cloud Email">
+                    </div>
+                    <div>
+                        <label for="meater_password">Meater Cloud Password:</label>
+                        <input type="password" id="meater_password" name="meater_password" placeholder="Meater Cloud Password">
+                    </div>
                 </div>
                 <div>
-                    <label for="meater_password">Meater Cloud Password:</label>
-                    <input type="password" id="meater_password" name="meater_password" placeholder="Meater Cloud Password">
+                    <button type="submit">Save Settings</button>
                 </div>
-                <button type="submit">Save</button>
             </form>
-            <div id="meaterStatus"></div>
-            <button id="closeModalButton" type="button">Close</button> <!-- Added this button -->
-        </div>
-    </div>
-
-    <div id="current-temp">Current temperature will be displayed here.</div>
-    <div id="fan-status">Fan status will be displayed here.</div>
-
-    <button id="initDbButton" type="button">Initialize Database</button>
-
-    <!-- Initialize Database Modal -->
-    <div id="initDbModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Initialize Database</h2>
-            <div id="initDbStatus">Initialization status will be displayed here.</div>
-            <button id="closeInitDbModalButton" type="button">Close</button>
         </div>
     </div>
 
     <script type="module" src="{{ url_for('static', filename='js/settings.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // Tab navigation
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const tab = this.getAttribute('data-tab');
+
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+
+                    document.getElementById(tab).classList.add('active');
+                });
+            });
+
+            // Set default tab
+            document.querySelector('.tab-link[data-tab="general"]').click();
+
+            // Fetch settings
             fetch('/get_settings')
                 .then(response => response.json())
                 .then(settings => {
@@ -94,9 +99,25 @@
                     if (deviceNameInput) {
                         deviceNameInput.value = settings.device_name;
                     }
+                    const tempOffsetInput = document.getElementById('temp_offset');
+                    if (tempOffsetInput) {
+                        tempOffsetInput.value = settings.temp_offset;
+                    }
                     const tempUnitSelect = document.getElementById('temp_unit');
                     if (tempUnitSelect) {
                         tempUnitSelect.value = settings.temp_unit;
+                    }
+                    const meaterIntegrationCheckbox = document.getElementById('meater_integration');
+                    if (meaterIntegrationCheckbox) {
+                        meaterIntegrationCheckbox.checked = settings.meater_integration;
+                    }
+                    const meaterEmailInput = document.getElementById('meater_email');
+                    if (meaterEmailInput) {
+                        meaterEmailInput.value = settings.meater_email;
+                    }
+                    const meaterPasswordInput = document.getElementById('meater_password');
+                    if (meaterPasswordInput) {
+                        meaterPasswordInput.value = settings.meater_password;
                     }
                 })
                 .catch(error => {
