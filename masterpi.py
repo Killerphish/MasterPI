@@ -1,38 +1,49 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from quart import Quart, jsonify, request, render_template, send_from_directory  # Add send_from_directory to the import
+from quart import Quart, jsonify, request, render_template, send_from_directory, session  # Add session to the import
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
-from fan_control import FanController  # Import FanController class
-from database import save_settings_to_db, get_settings_from_db, insert_temperature_data, get_last_24_hours_temperature_data, init_db
+from fan_control import FanController
+from database import insert_temperature_data, get_last_24_hours_temperature_data, init_db
 import digitalio
 import adafruit_blinka
 import board
 import os
-import aiohttp  # Import aiohttp
-import sqlite3  # Import sqlite3 for database operations
-from meater import MeaterApi  # Import the MeaterApi class
-import nest_asyncio  # Import nest_asyncio
-import asyncio  # Import asyncio
-import adafruit_dht  # Import the adafruit_dht module
+import aiohttp
+import sqlite3
+from meater import MeaterApi
+import nest_asyncio
+import asyncio
+import adafruit_dht
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
-import ssl  # Import ssl for custom SSL context
+import ssl
+import yaml
+
+# Load configuration from config.yaml
+def load_config():
+    with open('config.yaml', 'r') as config_file:
+        return yaml.safe_load(config_file)
+
+def save_config(config):
+    with open('config.yaml', 'w') as config_file:
+        yaml.safe_dump(config, config_file)
+
+config = load_config()
 
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
 
 app = Quart(__name__)
-app.config['DEBUG'] = True
+app.config['DEBUG'] = config['app']['debug']
 app.secret_key = 'your_secret_key'  # Add a secret key for session management
 app.config['REQUEST_TIMEOUT'] = 60  # Set request timeout to 60 seconds
 
 # Setup logging
 if not os.path.exists('logs'):
     os.mkdir('logs')
-file_handler = RotatingFileHandler('logs/app.log', maxBytes=10240, backupCount=10)
-file_handler.setFormatter(logging.Formatter(
-    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+file_handler = RotatingFileHandler(config['logging']['filename'], maxBytes=10240, backupCount=10)
+file_handler.setFormatter(logging.Formatter(config['logging']['format']))
 file_handler.setLevel(logging.INFO)
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
@@ -42,10 +53,10 @@ app.logger.info('Application startup')
 sensor = TemperatureSensor(board.D18)
 
 # Initialize PID controller
-pid = PIDController(kp=1.0, ki=0.1, kd=0.01, setpoint=30.0)
+pid = PIDController(kp=config['pid']['kp'], ki=config['pid']['ki'], kd=config['pid']['kd'], setpoint=config['pid']['target_temperature'])
 
 # Initialize FanController
-fan_controller = FanController(fan_pin=27, target_temperature=50.0)  # Adjust this based on actual GPIO pin
+fan_controller = FanController(fan_pin=config['fan']['pin'], target_temperature=config['pid']['target_temperature'])
 
 # Initialize aiohttp session and Meater API
 aiohttp_session = None
@@ -226,7 +237,6 @@ def get_status():
         'fan_speed': fan_speed  # Optionally return fan speed for visualization
     })
 
-
 @app.route('/update_pid', methods=['POST'])
 def update_pid():
     data = request.get_json()
@@ -238,7 +248,12 @@ def update_pid():
 
 @app.route('/get_settings', methods=['GET'])
 def get_settings():
-    settings = get_settings_from_db()
+    config = load_config()
+    settings = {
+        'device_name': config['device']['name'],
+        'temp_offset': config['sensor']['temp_offset'],
+        'temp_unit': config['units']['temperature']
+    }
     return jsonify(settings)
 
 @app.route('/save_settings', methods=['POST'])
@@ -252,11 +267,14 @@ async def save_settings():
         if not device_name or not temp_unit:
             raise ValueError("Device name and temperature unit are required.")
 
-        # Save settings to the database
-        success = save_settings_to_db(device_name, temp_offset, temp_unit)
-        
-        if not success:
-            raise Exception("Failed to save settings to the database.")
+        config = load_config()
+
+        # Update config with new settings
+        config['device']['name'] = device_name
+        config['units']['temperature'] = temp_unit
+        config['sensor']['temp_offset'] = temp_offset
+
+        save_config(config)
 
         return jsonify({'success': True})
     except ValueError as ve:
@@ -349,8 +367,10 @@ def initialize_database():
         app.logger.error(f"Error initializing database: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-async def get_meater_api_token(email, password):
+async def get_meater_api_token():
     try:
+        email = config['meater_integration']['username']
+        password = config['meater_integration']['password']
         async with aiohttp.ClientSession() as session:
             async with session.post('https://public-api.cloud.meater.com/v1/login', json={
                 'email': email,

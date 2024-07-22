@@ -1,0 +1,71 @@
+# General application settings
+app:
+  name: Temperature Control System
+  version: 1.0.0
+  debug: true
+  host: 0.0.0.0
+  port: 5000
+
+# Sensor settings
+sensor:
+  type: MAX31865
+  chip_select_pin: 18
+  rtd_type: PT100
+  reference_resistor: 430.0
+  temp_offset: 0.0  # Add temp_offset here
+
+# PID controller settings
+pid:
+  kp: 1.0
+  ki: 0.1
+  kd: 0.05
+  target_temperature: 25.0  # Default target temperature in Celsius
+  sample_time: 1.0          # Time in seconds between PID calculations
+
+# Fan control settings
+fan:
+  pin: 17
+  min_speed: 0
+  max_speed: 100
+
+# Web dashboard settings
+dashboard:
+  title: Temperature Monitoring Dashboard
+  refresh_interval: 5       # Time in seconds between data refresh
+
+# Logging settings
+logging:
+  level: INFO
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  filename: app.log
+
+# Emergency shutdown settings
+emergency_shutdown:
+  enabled: true
+  temperature_threshold: 100.0  # Temperature in Celsius
+
+# Meater integration settings
+meater_integration:
+  enabled: false
+  username: ''
+  password: ''
+
+# Unit settings
+units:
+  temperature: Celsius  # Options: Celsius, Fahrenheit
+
+# Device settings
+device:
+  name: My Temperature Controller
+  location: 'Server Room'
+
+# Chart settings
+chart:
+  history_minutes: 60
+  update_interval: 60  # Time in seconds between chart updates
+
+# Quart-specific settings
+quart:
+  use_hypercorn: true  # If you plan to use Hypercorn as the ASGI server
+  workers: 1           # Number of worker processes
+  loop: 'asyncio'      # Event loop, default is 'asyncio', options include 'uvloop'
