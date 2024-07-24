@@ -94,11 +94,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();  // Get response as JSON
             })
             .then(data => {
+                console.log('Response data:', data); // Debugging line
                 if (data.success) {
                     displayMessage('Settings saved successfully!', 'success'); // Display success message
                     // Update the device name on the page
                     const deviceNameElement = document.getElementById('deviceName');
                     if (deviceNameElement) {
+                        console.log('Updating device name to:', deviceName); // Debugging line
                         deviceNameElement.textContent = deviceName;
                     }
                 } else {
