@@ -89,8 +89,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     const data = JSON.parse(text);  // Attempt to parse JSON
                     if (data.success) {
                         alert('Settings saved successfully!');
-                        if (document.getElementById('deviceName')) {
-                            document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
+                        // Update the device name on the page
+                        const deviceNameElement = document.getElementById('deviceName');
+                        if (deviceNameElement) {
+                            deviceNameElement.textContent = deviceName;
                         }
                     } else {
                         alert('Failed to save settings.');
