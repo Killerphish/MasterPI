@@ -350,17 +350,14 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initialize Database Modal
     const initDbButton = document.getElementById('initDbButton');
     const initDbModal = document.getElementById('initDbModal');
-    const closeInitDbModalButton = document.getElementById('closeInitDbModalButton');
     const initDbStatus = document.getElementById('initDbStatus');
 
-    initDbButton.addEventListener('click', function() {
-        initDbModal.style.display = 'block';
-        initDatabase();
-    });
-
-    closeInitDbModalButton.addEventListener('click', function() {
-        initDbModal.style.display = 'none';
-    });
+    if (initDbButton) { // Check if initDbButton exists
+        initDbButton.addEventListener('click', function() {
+            initDbModal.style.display = 'block';
+            initDatabase();
+        });
+    }
 
     window.addEventListener('click', function(event) {
         if (event.target == initDbModal) {
