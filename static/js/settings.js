@@ -91,24 +91,18 @@ document.addEventListener("DOMContentLoaded", function() {
                         throw new Error('Network response was not ok: ' + response.status + ' ' + response.statusText + ' - ' + text);
                     });
                 }
-                return response.text();  // Get response as text
+                return response.json();  // Get response as JSON
             })
-            .then(text => {
-                try {
-                    const data = JSON.parse(text);  // Attempt to parse JSON
-                    if (data.success) {
-                        displayMessage('Settings saved successfully!', 'success'); // Display success message
-                        // Update the device name on the page
-                        const deviceNameElement = document.getElementById('deviceName');
-                        if (deviceNameElement) {
-                            deviceNameElement.textContent = deviceName;
-                        }
-                    } else {
-                        displayMessage('Failed to save settings.', 'error'); // Display error message
+            .then(data => {
+                if (data.success) {
+                    displayMessage('Settings saved successfully!', 'success'); // Display success message
+                    // Update the device name on the page
+                    const deviceNameElement = document.getElementById('deviceName');
+                    if (deviceNameElement) {
+                        deviceNameElement.textContent = deviceName;
                     }
-                } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                    displayMessage('Error saving settings. Please check the console for details.', 'error'); // Display error message
+                } else {
+                    displayMessage('Failed to save settings.', 'error'); // Display error message
                 }
             })
             .catch(error => {
