@@ -22,6 +22,7 @@
             </ul>
         </div>
         <div class="content">
+            <div id="messageContainer"></div>
             <form id="settingsForm">
                 <div id="general" class="tab-content">
                     <h2>General</h2>
@@ -142,13 +143,21 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('General settings saved successfully!');
+                        const messageContainer = document.getElementById('messageContainer');
+                        messageContainer.textContent = 'General settings saved successfully!';
+                        const deviceNameElement = document.getElementById('deviceName');
+                        if (deviceNameElement) {
+                            deviceNameElement.textContent = data.device_name;
+                        }
                     } else {
-                        alert('Failed to save general settings.');
+                        const messageContainer = document.getElementById('messageContainer');
+                        messageContainer.textContent = 'Failed to save general settings.';
                     }
                 })
                 .catch(error => {
                     console.error('Error saving general settings:', error);
+                    const messageContainer = document.getElementById('messageContainer');
+                    messageContainer.textContent = 'Error saving general settings: ' + error.message;
                 });
             });
 
@@ -164,13 +173,17 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Device settings saved successfully!');
+                        const messageContainer = document.getElementById('messageContainer');
+                        messageContainer.textContent = 'Device settings saved successfully!';
                     } else {
-                        alert('Failed to save device settings.');
+                        const messageContainer = document.getElementById('messageContainer');
+                        messageContainer.textContent = 'Failed to save device settings.';
                     }
                 })
                 .catch(error => {
                     console.error('Error saving device settings:', error);
+                    const messageContainer = document.getElementById('messageContainer');
+                    messageContainer.textContent = 'Error saving device settings: ' + error.message;
                 });
             });
 
@@ -188,13 +201,17 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Integration settings saved successfully!');
+                        const messageContainer = document.getElementById('messageContainer');
+                        messageContainer.textContent = 'Integration settings saved successfully!';
                     } else {
-                        alert('Failed to save integration settings.');
+                        const messageContainer = document.getElementById('messageContainer');
+                        messageContainer.textContent = 'Failed to save integration settings.';
                     }
                 })
                 .catch(error => {
                     console.error('Error saving integration settings:', error);
+                    const messageContainer = document.getElementById('messageContainer');
+                    messageContainer.textContent = 'Error saving integration settings: ' + error.message;
                 });
             });
         });

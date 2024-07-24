@@ -10,6 +10,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const meaterForm = document.getElementById('meaterForm');
     const meaterStatus = document.getElementById('meaterStatus');
     const closeModalButton = document.getElementById('closeModalButton');
+    const messageContainer = document.getElementById('messageContainer'); // Add this line
+
+    // Function to display messages
+    function displayMessage(message, type) {
+        messageContainer.innerHTML = `<div class="${type}">${message}</div>`;
+        setTimeout(() => {
+            messageContainer.innerHTML = '';
+        }, 5000);
+    }
 
     // Open the modal
     if (enableMeaterIntegrationButton) {
@@ -55,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .catch(error => {
                     console.error('Error requesting Meater API Key:', error);
                     // Handle error, e.g., show error message to user
-                    alert('Error requesting Meater API Key. Please check the console for details.');
+                    displayMessage('Error requesting Meater API Key. Please check the console for details.', 'error'); // Display error message
                 });
         });
     }
@@ -88,23 +97,23 @@ document.addEventListener("DOMContentLoaded", function() {
                 try {
                     const data = JSON.parse(text);  // Attempt to parse JSON
                     if (data.success) {
-                        alert('Settings saved successfully!');
+                        displayMessage('Settings saved successfully!', 'success'); // Display success message
                         // Update the device name on the page
                         const deviceNameElement = document.getElementById('deviceName');
                         if (deviceNameElement) {
                             deviceNameElement.textContent = deviceName;
                         }
                     } else {
-                        alert('Failed to save settings.');
+                        displayMessage('Failed to save settings.', 'error'); // Display error message
                     }
                 } catch (error) {
                     console.error('Error parsing JSON:', error);
-                    alert('Error saving settings. Please check the console for details.');
+                    displayMessage('Error saving settings. Please check the console for details.', 'error'); // Display error message
                 }
             })
             .catch(error => {
                 console.error('Error saving settings:', error);
-                alert('Error saving settings: ' + error.message);
+                displayMessage('Error saving settings: ' + error.message, 'error'); // Display error message
             });
         });
     }
@@ -119,10 +128,10 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('PID Autotune started! Waiting for completion...');
+                    displayMessage('PID Autotune started! Waiting for completion...', 'success'); // Display success message
                     checkAutotuneStatus();  // Call function to check autotune status
                 } else {
-                    alert('Failed to start PID Autotune.');
+                    displayMessage('Failed to start PID Autotune.', 'error'); // Display error message
                 }
             });
         });
@@ -178,12 +187,12 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('meater-temp').textContent = data.temperature + ' °C';
                 } else {
                     console.error('Error fetching Meater temperature:', data.error);
-                    alert('Error fetching Meater temperature: ' + data.error);  // Display error to user
+                    displayMessage('Error fetching Meater temperature: ' + data.error, 'error'); // Display error message
                 }
             })
             .catch(error => {
                 console.error('Error fetching Meater temperature:', error);
-                alert('Error fetching Meater temperature: ' + error.message);  // Display error to user
+                displayMessage('Error fetching Meater temperature: ' + error.message, 'error'); // Display error message
             });
     }
 
@@ -198,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 if (data.success) {
                     const results = data.results;
-                    alert(`PID Autotune completed successfully:\nKp: ${results.Kp}, Ki: ${results.Ki}, Kd: ${results.Kd}`);
+                    displayMessage(`PID Autotune completed successfully:\nKp: ${results.Kp}, Ki: ${results.Ki}, Kd: ${results.Kd}`, 'success'); // Display success message
                 } else {
                     setTimeout(checkAutotuneStatus, 3000); // Check again after 3 seconds
                 }
