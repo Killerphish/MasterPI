@@ -383,6 +383,30 @@ async def get_meater_api_token():
         app.logger.error(f"Error fetching Meater API token: {e}")
         raise
 
+@app.route('/save_general_settings', methods=['POST'])
+async def save_general_settings():
+    try:
+        form_data = await request.form
+        device_name = form_data.get('device_name')
+
+        if not device_name:
+            raise ValueError("Device name is required.")
+
+        config = load_config()
+
+        # Update config with new settings
+        config['device']['name'] = device_name
+
+        save_config(config)
+
+        return jsonify({'success': True})
+    except ValueError as ve:
+        app.logger.error(f"Validation error: {ve}")
+        return jsonify({'success': False, 'error': str(ve)}), 400
+    except Exception as e:
+        app.logger.error(f"Error saving general settings: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
