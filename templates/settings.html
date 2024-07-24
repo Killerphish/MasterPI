@@ -29,6 +29,9 @@
                         <label for="device_name">Device Name:</label>
                         <input type="text" id="device_name" name="device_name" placeholder="Device Name">
                     </div>
+                    <div>
+                        <button type="button" id="saveGeneral">Save General Settings</button>
+                    </div>
                 </div>
                 <div id="devices" class="tab-content">
                     <h2>Devices</h2>
@@ -39,6 +42,9 @@
                     <div>
                         <label for="pid_autotune">PID Autotune:</label>
                         <button id="pid_autotune">Start Autotune</button>
+                    </div>
+                    <div>
+                        <button type="button" id="saveDevices">Save Device Settings</button>
                     </div>
                 </div>
                 <div id="integrations" class="tab-content">
@@ -56,9 +62,9 @@
                         <label for="meater_password">Meater Cloud Password:</label>
                         <input type="password" id="meater_password" name="meater_password" placeholder="Meater Cloud Password">
                     </div>
-                </div>
-                <div>
-                    <button type="submit">Save Settings</button>
+                    <div>
+                        <button type="button" id="saveIntegrations">Save Integration Settings</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -123,6 +129,74 @@
                 .catch(error => {
                     console.error('Error fetching settings:', error);
                 });
+
+            // Save General Settings
+            document.getElementById('saveGeneral').addEventListener('click', function() {
+                const formData = new FormData();
+                formData.append('device_name', document.getElementById('device_name').value);
+
+                fetch('/save_general_settings', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('General settings saved successfully!');
+                    } else {
+                        alert('Failed to save general settings.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving general settings:', error);
+                });
+            });
+
+            // Save Device Settings
+            document.getElementById('saveDevices').addEventListener('click', function() {
+                const formData = new FormData();
+                formData.append('temp_offset', document.getElementById('temp_offset').value);
+
+                fetch('/save_device_settings', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Device settings saved successfully!');
+                    } else {
+                        alert('Failed to save device settings.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving device settings:', error);
+                });
+            });
+
+            // Save Integration Settings
+            document.getElementById('saveIntegrations').addEventListener('click', function() {
+                const formData = new FormData();
+                formData.append('meater_integration', document.getElementById('meater_integration').checked);
+                formData.append('meater_email', document.getElementById('meater_email').value);
+                formData.append('meater_password', document.getElementById('meater_password').value);
+
+                fetch('/save_integration_settings', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Integration settings saved successfully!');
+                    } else {
+                        alert('Failed to save integration settings.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving integration settings:', error);
+                });
+            });
         });
     </script>
 </body>
