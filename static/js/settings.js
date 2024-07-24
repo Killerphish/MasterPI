@@ -65,6 +65,13 @@ document.addEventListener("DOMContentLoaded", function() {
             event.preventDefault();
             const formData = new FormData(form);
 
+            // Ensure default values are included
+            const deviceName = formData.get('device_name') || 'Default Device Name';
+            const tempUnit = formData.get('temp_unit') || 'C'; // Assuming 'C' is the default unit
+
+            formData.set('device_name', deviceName);
+            formData.set('temp_unit', tempUnit);
+
             fetch('/save_settings', {
                 method: 'POST',
                 body: formData
@@ -82,7 +89,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     const data = JSON.parse(text);  // Attempt to parse JSON
                     if (data.success) {
                         alert('Settings saved successfully!');
-                        const deviceName = formData.get('device_name');
                         if (document.getElementById('deviceName')) {
                             document.getElementById('deviceName').textContent = deviceName ? deviceName : "MasterPi Smoker";
                         }
