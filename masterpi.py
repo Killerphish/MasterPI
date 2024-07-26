@@ -19,6 +19,8 @@ from hypercorn.asyncio import serve
 from hypercorn.config import Config
 import ssl
 import yaml
+import busio
+from adafruit_max31855 import MAX31855
 
 # Load configuration from config.yaml
 def load_config():
