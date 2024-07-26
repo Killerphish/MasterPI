@@ -305,7 +305,8 @@ async def get_status():
             'app': 'Temperature Control System',
             'version': '1.0.0',
             'status': 'running',
-            'sensors': [sensor.__class__.__name__ for sensor in sensors]
+            'sensors': [sensor.__class__.__name__ for sensor in sensors],
+            'temperature': sensors[0].temperature if sensors else None  # Example temperature data
         }
         return jsonify(status)
     except Exception as e:
