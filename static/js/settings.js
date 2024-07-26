@@ -386,10 +386,18 @@ document.addEventListener("DOMContentLoaded", function() {
     fetchMeaterTemperature();
     setInterval(fetchStatus, 3000); // Update status every 15 seconds
 
+    const saveIntegrationsButton = document.getElementById('saveIntegrations');
+    if (saveIntegrationsButton) {
+        saveIntegrationsButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            saveIntegrationSettings();
+        });
+    }
+
     function saveIntegrationSettings() {
-        const meaterEnabled = document.getElementById('meater-enabled').checked;
-        const meaterUsername = document.getElementById('meater-username').value;
-        const meaterPassword = document.getElementById('meater-password').value;
+        const meaterEnabled = document.getElementById('meater_integration').checked;
+        const meaterUsername = document.getElementById('meater_email').value;
+        const meaterPassword = document.getElementById('meater_password').value;
 
         const formData = new FormData();
         formData.append('meater_enabled', meaterEnabled);
@@ -400,12 +408,7 @@ document.addEventListener("DOMContentLoaded", function() {
             method: 'POST',
             body: formData
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.success) {
                 displayMessage('Integration settings saved successfully', 'success');

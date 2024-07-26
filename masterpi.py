@@ -296,6 +296,8 @@ async def save_integration_settings():
         meater_username = form_data.get('meater_username')
         meater_password = form_data.get('meater_password')
 
+        app.logger.info(f"Form Data: {form_data}")  # Debugging line
+
         config = load_config()
 
         # Update config with new settings
@@ -332,4 +334,6 @@ if __name__ == '__main__':
         finally:
             await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
 
+    asyncio.run(main())
+    asyncio.run(main())
     asyncio.run(main())
