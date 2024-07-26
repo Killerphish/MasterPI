@@ -3,6 +3,7 @@ Adafruit-Blinka
 Adafruit-PlatformDetect
 Adafruit-PureIO
 adafruit-circuitpython-max31865
+adafruit-circuitpython-max31855
 adafruit-circuitpython-busdevice
 adafruit-circuitpython-dht
 lgpio
