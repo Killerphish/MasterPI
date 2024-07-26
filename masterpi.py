@@ -297,6 +297,21 @@ async def get_settings():
         app.logger.error(f"Error fetching settings: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 
+@app.route('/get_status', methods=['GET'])
+async def get_status():
+    try:
+        # Example status data, replace with actual status logic
+        status = {
+            'app': 'Temperature Control System',
+            'version': '1.0.0',
+            'status': 'running',
+            'sensors': [sensor.__class__.__name__ for sensor in sensors]
+        }
+        return jsonify(status)
+    except Exception as e:
+        app.logger.error(f"Error fetching status: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
