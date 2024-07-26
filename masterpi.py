@@ -310,6 +310,17 @@ async def save_integration_settings():
         app.logger.error(f"Error saving integration settings: {e}", exc_info=True)
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
+@app.route('/pid_autotune', methods=['POST'])
+async def pid_autotune():
+    try:
+        # Replace with actual logic to start PID autotune
+        # For example, you might call a method on your PIDController instance
+        pid.start_autotune()
+        return jsonify({'success': True})
+    except Exception as e:
+        app.logger.error(f"Error starting PID autotune: {e}")
+        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
