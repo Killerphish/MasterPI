@@ -288,6 +288,28 @@ async def get_status():
         app.logger.error(f"Error fetching status: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 
+@app.route('/save_integration_settings', methods=['POST'])
+async def save_integration_settings():
+    try:
+        form_data = await request.form
+        meater_enabled = form_data.get('meater_enabled') == 'true'
+        meater_username = form_data.get('meater_username')
+        meater_password = form_data.get('meater_password')
+
+        config = load_config()
+
+        # Update config with new settings
+        config['meater_integration']['enabled'] = meater_enabled
+        config['meater_integration']['username'] = meater_username
+        config['meater_integration']['password'] = meater_password
+
+        save_config(config)
+
+        return jsonify({'success': True})
+    except Exception as e:
+        app.logger.error(f"Error saving integration settings: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
