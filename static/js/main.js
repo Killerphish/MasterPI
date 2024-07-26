@@ -182,4 +182,27 @@ document.addEventListener("DOMContentLoaded", function() {
     setInterval(() => updateChart(timeRangeSelect.value), 30000); // Update chart every 30 seconds
     updateStatus();
     setInterval(updateStatus, 5000);
+
+    const pidAutotuneButton = document.getElementById('pid_autotune');
+    if (pidAutotuneButton) {
+        pidAutotuneButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            fetch('/pid_autotune', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayMessage('PID Autotune started! Waiting for completion...', 'success'); // Display success message
+                    checkAutotuneStatus();  // Call function to check autotune status
+                } else {
+                    displayMessage('Failed to start PID Autotune.', 'error'); // Display error message
+                }
+            })
+            .catch(error => {
+                console.error('Error starting PID Autotune:', error);
+                displayMessage('Error starting PID Autotune: ' + error.message, 'error'); // Display error message
+            });
+        });
+    }
 });
