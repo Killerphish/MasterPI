@@ -56,6 +56,18 @@
                         <button id="pid_autotune">Start Autotune</button>
                     </div>
                     <div>
+                        <label for="sensor_type">Sensor Type:</label>
+                        <select id="sensor_type" name="sensor_type">
+                            <option value="MAX31865">MAX31865</option>
+                            <option value="MAX31855">MAX31855</option>
+                            <option value="ADS1115">ADS1115</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="sensor_count">Number of Sensors:</label>
+                        <input type="number" id="sensor_count" name="sensor_count" min="1" max="4" value="1">
+                    </div>
+                    <div>
                         <button type="button" id="saveDevices">Save Device Settings</button>
                     </div>
                 </div>
@@ -137,6 +149,14 @@
                     if (meaterPasswordInput) {
                         meaterPasswordInput.value = settings.meater_password;
                     }
+                    const sensorTypeSelect = document.getElementById('sensor_type');
+                    if (sensorTypeSelect) {
+                        sensorTypeSelect.value = settings.sensor_type;
+                    }
+                    const sensorCountInput = document.getElementById('sensor_count');
+                    if (sensorCountInput) {
+                        sensorCountInput.value = settings.sensor_count;
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching settings:', error);
@@ -200,6 +220,8 @@
             document.getElementById('saveDevices').addEventListener('click', function() {
                 const formData = new FormData();
                 formData.append('temp_offset', document.getElementById('temp_offset').value);
+                formData.append('sensor_type', document.getElementById('sensor_type').value);
+                formData.append('sensor_count', document.getElementById('sensor_count').value);
 
                 fetch('/save_device_settings', {
                     method: 'POST',

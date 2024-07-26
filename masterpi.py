@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from quart import Quart, jsonify, request, render_template, send_from_directory, session  # Add session to the import
+from quart import Quart, jsonify, request, render_template, send_from_directory, session
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
@@ -49,10 +49,27 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Application startup')
 
-# Initialize temperature sensor (using GPIO18 for CS pin)
-print("Initializing temperature sensor...")
-sensor = TemperatureSensor(board.D18)
-print("Temperature sensor initialized.")
+# Initialize temperature sensors based on settings
+print("Initializing temperature sensors...")
+sensors = []
+sensor_configs = config['sensors']
+for sensor_config in sensor_configs:
+    sensor_type = sensor_config['type']
+    cs_pin = getattr(board, sensor_config['cs_pin'])
+    if sensor_type == 'MAX31865':
+        from adafruit_max31865 import MAX31865
+        sensor = MAX31865(board.SPI(), digitalio.DigitalInOut(cs_pin))
+    elif sensor_type == 'MAX31855':
+        from adafruit_max31855 import MAX31855
+        sensor = MAX31855(board.SPI(), digitalio.DigitalInOut(cs_pin))
+    elif sensor_type == 'ADS1115':
+        from adafruit_ads1x15.analog_in import AnalogIn
+        from adafruit_ads1x15.ads1115 import ADS1115
+        i2c = board.I2C()
+        ads = ADS1115(i2c)
+        sensor = AnalogIn(ads, sensor_config['channel'])
+    sensors.append(sensor)
+print("Temperature sensors initialized.")
 
 # Initialize PID controller
 pid = PIDController(kp=config['pid']['kp'], ki=config['pid']['ki'], kd=config['pid']['kd'], setpoint=config['pid']['target_temperature'])
@@ -83,10 +100,10 @@ async def settings():
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
     try:
-        print("Reading temperature from sensor...")
-        temperature = sensor.read_temperature()
-        print(f"Temperature read: {temperature} °C")
-        return jsonify({'temperature': temperature})
+        print("Reading temperature from sensors...")
+        temperatures = [sensor.temperature for sensor in sensors]
+        print(f"Temperatures read: {temperatures} °C")
+        return jsonify({'temperatures': temperatures})
     except Exception as e:
         app.logger.error(f"Error reading temperature: {e}")
         return jsonify({"error": str(e)}), 500
@@ -136,188 +153,6 @@ async def get_meater_temperature_endpoint():
         return jsonify({'error': str(e)}), 500
 
 # Endpoint to get Meater devices
-@app.route('/meater/devices', methods=['GET'])
-def get_meater_devices():
-    # Check if the token is stored in the session
-    if 'meater_token' not in session:
-        return jsonify({'error': 'Meater integration not enabled or token missing'}), 401
-
-    token = session['meater_token']
-    headers = {
-        'Authorization': f'Bearer {token}'
-    }
-    response = requests.get('https://public-api.cloud.meater.com/v1/devices', headers=headers)
-    
-    if response.status_code != 200:
-        return jsonify({'error': 'Failed to fetch Meater devices'}), response.status_code
-
-    devices = response.json().get('data', {}).get('devices', [])
-    return jsonify({'devices': devices})
-
-# Endpoint to enable Meater integration
-@app.route('/meater/enable', methods=['POST'])
-def enable_meater_integration():
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
-
-    if not email or not password:
-        return jsonify({'error': 'Email and password are required'}), 400
-
-    # Make a request to the Meater login endpoint to get the token
-    response = requests.post('https://public-api.cloud.meater.com/v1/login', json={
-        'email': email,
-        'password': password
-    })
-
-    if response.status_code != 200:
-        return jsonify({'error': 'Failed to login to Meater'}), response.status_code
-
-    token = response.json().get('data', {}).get('token')
-    if not token:
-        return jsonify({'error': 'Token not received from Meater'}), 500
-
-    # Store the token in the session
-    session['meater_token'] = token
-    return jsonify({'success': True})
-
-@app.route('/manifest.json')
-async def manifest():
-    try:
-        # Specify the directory where manifest.json is located
-        manifest_dir = os.path.abspath(os.path.dirname(__file__))
-        app.logger.debug(f"Manifest directory: {manifest_dir}")
-        
-        # Check if the file exists
-        manifest_path = os.path.join(manifest_dir, 'manifest.json')
-        if not os.path.exists(manifest_path):
-            app.logger.error(f"Manifest file not found at path: {manifest_path}")
-            return "Manifest file not found", 404
-        
-        return await send_from_directory(manifest_dir, 'manifest.json')
-    except Exception as e:
-        app.logger.error(f"Error serving manifest.json: {e}", exc_info=True)
-        return str(e), 500
-    
-@app.route('/update_target_temperature', methods=['POST'])
-def update_target_temperature():
-    global fan_controller  # Access the global variable
-
-    data = request.get_json()
-    target_temp = data.get('target_temp', 0)
-
-    if fan_controller is None:
-        # Initialize FanController with GPIO pin and initial target temperature
-        fan_controller = FanController(fan_pin=27, target_temperature=float(target_temp))
-    else:
-        # Update target temperature in existing FanController instance
-        fan_controller.set_target_temperature(float(target_temp))
-    
-    try:
-        # Example: Read current temperature from sensor
-        current_temperature = sensor.read_temperature()
-        
-        # Compute new fan speed based on updated setpoint and current temperature
-        fan_speed = fan_controller.update(current_temperature)
-        
-        # Logic to control the fan based on fan_speed (if needed)
-        
-        return jsonify({'status': 'success', 'target_temp': target_temp})
-    
-    except Exception as e:
-        app.logger.error(f"Error updating target temperature: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-@app.route('/emergency_shutdown', methods=['POST'])
-def emergency_shutdown():
-    # Logic to turn off the fan
-    # For example, setting the fan GPIO pin to LOW
-    fan_pin = digitalio.DigitalInOut(board.D27)  # Fan GPIO pin
-    fan_pin.direction = digitalio.Direction.OUTPUT
-    fan_pin.value = False  # Turn off the fan
-    return jsonify({'status': 'success'})
-
-@app.route('/get_status')
-def get_status():
-    current_temperature = sensor.read_temperature()  # Example: Read current temperature from sensor
-    fan_speed = fan_controller.update(current_temperature)  # Update fan control based on temperature
-    fan_on = fan_controller.is_fan_on()  # Check fan state
-
-    return jsonify({
-        'temperature': current_temperature,
-        'fan_on': fan_on,
-        'fan_speed': fan_speed  # Optionally return fan speed for visualization
-    })
-
-@app.route('/update_pid', methods=['POST'])
-def update_pid():
-    data = request.get_json()
-    Kp = data.get('kp', 1.0)
-    Ki = data.get('ki', 0.1)
-    Kd = data.get('kd', 0.01)
-    pid.set_parameters(Kp, Ki, Kd)
-    return jsonify({'status': 'success', 'Kp': Kp, 'Ki': Ki, 'Kd': Kd})
-
-@app.route('/get_settings', methods=['GET'])
-def get_settings():
-    config = load_config()
-    settings = {
-        'device_name': config['device']['name'],
-        'temp_offset': config['sensor']['temp_offset'],
-        'temp_unit': config['units']['temperature']
-    }
-    return jsonify(settings)
-
-@app.route('/save_settings', methods=['POST'])
-async def save_settings():
-    try:
-        form_data = await request.form
-        device_name = form_data.get('device_name')
-        temp_offset = form_data.get('temp_offset')
-        temp_unit = form_data.get('temp_unit')
-
-        if not device_name or not temp_unit:
-            raise ValueError("Device name and temperature unit are required.")
-
-        config = load_config()
-
-        # Update config with new settings
-        config['device']['name'] = device_name
-        config['units']['temperature'] = temp_unit
-        config['sensor']['temp_offset'] = temp_offset
-
-        save_config(config)
-
-        return jsonify({'success': True})
-    except ValueError as ve:
-        app.logger.error(f"Validation error: {ve}")
-        return jsonify({'success': False, 'error': str(ve)}), 400
-    except Exception as e:
-        app.logger.error(f"Error saving settings: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
-
-@app.route('/pid_autotune', methods=['POST'])
-def pid_autotune():
-    try:
-        # Start PID autotune process
-        success = start_pid_autotune()  # Call your defined function here
-
-        if success:
-            return jsonify({'success': True}), 200
-        else:
-            return jsonify({'success': False}), 500
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-    
-@app.route('/autotune_status')
-def autotune_status():
-    # Check autotune status and retrieve results
-    if autotune_in_progress():
-        return jsonify({'success': False})
-    else:
-        autotune_results = get_autotune_results()  # Implement this function to retrieve results
-        return jsonify({'success': True, 'results': autotune_results})
-
 @app.route('/get_meater_status', methods=['GET'])
 def get_meater_status():
     # Replace with actual logic to get Meater status
@@ -379,10 +214,8 @@ def initialize_database():
         app.logger.error(f"Error initializing database: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-async def get_meater_api_token():
+async def get_meater_api_token(email, password):
     try:
-        email = config['meater_integration']['username']
-        password = config['meater_integration']['password']
         async with aiohttp.ClientSession() as session:
             async with session.post('https://public-api.cloud.meater.com/v1/login', json={
                 'email': email,
@@ -417,6 +250,32 @@ async def save_general_settings():
         return jsonify({'success': False, 'error': str(ve)}), 400
     except Exception as e:
         app.logger.error(f"Error saving general settings: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+
+@app.route('/save_device_settings', methods=['POST'])
+async def save_device_settings():
+    try:
+        form_data = await request.form
+        temp_offset = form_data.get('temp_offset')
+        sensor_type = form_data.get('sensor_type')
+        sensor_count = form_data.get('sensor_count')
+
+        if not sensor_type or not sensor_count:
+            raise ValueError("Sensor type and count are required.")
+
+        config = load_config()
+
+        # Update config with new settings
+        config['sensors'] = [{'type': sensor_type, 'cs_pin': f'D{i+18}', 'channel': i} for i in range(int(sensor_count))]
+
+        save_config(config)
+
+        return jsonify({'success': True})
+    except ValueError as ve:
+        app.logger.error(f"Validation error: {ve}")
+        return jsonify({'success': False, 'error': str(ve)}), 400
+    except Exception as e:
+        app.logger.error(f"Error saving device settings: {e}", exc_info=True)
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
 if __name__ == '__main__':
