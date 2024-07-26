@@ -88,7 +88,14 @@ def get_temperature():
 
 @app.route('/get_meater_temperature', methods=['GET'])
 async def get_meater_temperature():
-    app.logger.info('Fetching Meater temperature...')
+    try:
+        temperature = await get_meater_temperature_endpoint()
+        return jsonify({'temperature': temperature})
+    except Exception as e:
+        app.logger.error(f"Error fetching Meater temperature: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+async def get_meater_temperature_endpoint():
     try:
         # Hardcoded email and password for testing
         EMAIL = 'rlwinchester@gmail.com'
@@ -113,7 +120,7 @@ async def get_meater_temperature():
                     device = devices['data'][0]  # Assuming you are using the first Meater device
                     temperature = device['temperature']['internal']
                     app.logger.info(f'Meater temperature fetched successfully: {temperature}')
-                    return jsonify({'temperature': temperature})
+                    return temperature
                 app.logger.error('No Meater device or probe found')
                 return jsonify({'error': 'No Meater device or probe found'}), 404
     except aiohttp.ClientError as e:
