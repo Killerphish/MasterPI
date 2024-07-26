@@ -18,6 +18,7 @@ sensors:
     temp_offset: 0.0
   - type: ADS1115
     channel: 0
+    address: 0x48  # Default address
     temp_offset: 0.0
 
 # PID controller settings
