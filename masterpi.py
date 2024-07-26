@@ -24,8 +24,15 @@ from adafruit_max31855 import MAX31855
 
 # Load configuration from config.yaml
 def load_config():
-    with open('config.yaml', 'r') as config_file:
-        return yaml.safe_load(config_file)
+    try:
+        with open('config.yaml', 'r') as config_file:
+            print("Config file opened successfully")
+            config = yaml.safe_load(config_file)
+            print("Config file loaded successfully")
+            return config
+    except Exception as e:
+        print(f"Error loading config file: {e}")
+        raise
 
 def save_config(config):
     with open('config.yaml', 'w') as config_file:
