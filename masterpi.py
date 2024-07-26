@@ -55,21 +55,29 @@ sensors = []
 sensor_configs = config['sensors']
 for sensor_config in sensor_configs:
     sensor_type = sensor_config['type']
-    if sensor_type == 'MAX31865':
-        from adafruit_max31865 import MAX31865
-        cs_pin = getattr(board, sensor_config['chip_select_pin'])
-        sensor = MAX31865(board.SPI(), digitalio.DigitalInOut(cs_pin))
-    elif sensor_type == 'MAX31855':
-        from adafruit_max31855 import MAX31855
-        cs_pin = getattr(board, sensor_config['chip_select_pin'])
-        sensor = MAX31855(board.SPI(), digitalio.DigitalInOut(cs_pin))
-    elif sensor_type == 'ADS1115':
-        from adafruit_ads1x15.analog_in import AnalogIn
-        from adafruit_ads1x15.ads1115 import ADS1115
-        i2c = board.I2C()
-        ads = ADS1115(i2c)
-        sensor = AnalogIn(ads, sensor_config['channel'])
-    sensors.append(sensor)
+    try:
+        if sensor_type == 'MAX31865':
+            from adafruit_max31865 import MAX31865
+            cs_pin = getattr(board, sensor_config['chip_select_pin'])
+            sensor = MAX31865(board.SPI(), digitalio.DigitalInOut(cs_pin))
+        elif sensor_type == 'MAX31855':
+            from adafruit_max31855 import MAX31855
+            cs_pin = getattr(board, sensor_config['chip_select_pin'])
+            sensor = MAX31855(board.SPI(), digitalio.DigitalInOut(cs_pin))
+        elif sensor_type == 'ADS1115':
+            from adafruit_ads1x15.analog_in import AnalogIn
+            from adafruit_ads1x15.ads1115 import ADS1115
+            i2c = board.I2C()
+            address = sensor_config.get('address', 0x48)  # Default to 0x48 if not specified
+            try:
+                ads = ADS1115(i2c, address=address)
+                sensor = AnalogIn(ads, sensor_config['channel'])
+            except ValueError as e:
+                app.logger.error(f"ADS1115 not found at address {address}: {e}")
+                continue  # Skip this sensor
+        sensors.append(sensor)
+    except Exception as e:
+        app.logger.error(f"Error initializing {sensor_type}: {e}")
 print("Temperature sensors initialized.")
 
 # Initialize PID controller
