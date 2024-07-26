@@ -121,46 +121,21 @@ def get_temperature():
 @app.route('/get_meater_temperature', methods=['GET'])
 async def get_meater_temperature():
     try:
-        temperature = await get_meater_temperature_endpoint()
+        temperature = await fetch_meater_temperature()
         return jsonify({'temperature': temperature})
     except Exception as e:
         app.logger.error(f"Error fetching Meater temperature: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 
-async def get_meater_temperature_endpoint():
+async def fetch_meater_temperature():
+    # Replace with actual logic to fetch Meater temperature
+    # Replace with actual implementation
     try:
-        # Hardcoded email and password for testing
-        EMAIL = 'rlwinchester@gmail.com'
-        PASSWORD = 'Ninja600!!'
-        token = await get_meater_api_token(EMAIL, PASSWORD)
-        headers = {'Authorization': f'Bearer {token}'}
-        
-        # Create a custom SSL context
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context)) as session:
-            async with session.get('https://public-api.cloud.meater.com/v1/devices', headers=headers) as response:
-                if response.status == 401:
-                    app.logger.error('Unauthorized access - check your API credentials')
-                    return jsonify({'error': 'Unauthorized access'}), 401
-                response.raise_for_status()
-                devices = await response.json()
-                app.logger.info(f'Devices response: {devices}')
-                if devices and 'data' in devices and devices['data']:
-                    device = devices['data'][0]  # Assuming you are using the first Meater device
-                    temperature = device['temperature']['internal']
-                    app.logger.info(f'Meater temperature fetched successfully: {temperature}')
-                    return temperature
-                app.logger.error('No Meater device or probe found')
-                return jsonify({'error': 'No Meater device or probe found'}), 404
-    except aiohttp.ClientError as e:
-        app.logger.error(f"Network error fetching Meater temperature: {e}")
-        return jsonify({'error': 'Network error'}), 500
+        # Simulate fetching temperature from Meater API
+        temperature = 75.0  # Example temperature value
+        return temperature
     except Exception as e:
-        app.logger.error(f"Error fetching Meater temperature: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        raise e
 
 # Endpoint to get Meater devices
 @app.route('/get_meater_status', methods=['GET'])
