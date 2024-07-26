@@ -119,6 +119,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     displayMessage('Failed to start PID Autotune.', 'error'); // Display error message
                 }
+            })
+            .catch(error => {
+                console.error('Error starting PID Autotune:', error);
+                displayMessage('Error starting PID Autotune: ' + error.message, 'error'); // Display error message
             });
         });
     }
@@ -140,18 +144,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();
             })
             .then(data => {
-                if (!data.temperature) {
+                if (!data.temperatures) {  // Check for 'temperatures' instead of 'temperature'
                     throw new Error('Data format is incorrect');
                 }
 
-                let temperature = data.temperature;
+                let temperatures = data.temperatures;  // Adjust to match the returned data format
                 const tempUnit = document.getElementById('temp_unit').value;
 
                 if (tempUnit === 'F') {
-                    temperature = celsiusToFahrenheit(temperature);
+                    temperatures = temperatures.map(celsiusToFahrenheit);
                 }
 
-                updateTemperatureDisplay([temperature]); // Pass as an array with one element
+                updateTemperatureDisplay(temperatures);  // Pass the array of temperatures
             })
             .catch(error => {
                 console.error('Error fetching temperature data:', error);
