@@ -328,12 +328,10 @@ if __name__ == '__main__':
         await create_aiohttp_session()
         init_db()  # Initialize the database
         config = Config()
-        config.bind = ["0.0.0.0:5000"]
+        config.bind = ["0.0.0.0:5000"]  # Ensure this is correct
         try:
             await serve(app, config)
         finally:
             await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
 
-    asyncio.run(main())
-    asyncio.run(main())
     asyncio.run(main())
