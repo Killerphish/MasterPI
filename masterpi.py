@@ -288,6 +288,15 @@ async def save_device_settings():
         app.logger.error(f"Error saving device settings: {e}", exc_info=True)
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
+@app.route('/get_settings', methods=['GET'])
+async def get_settings():
+    try:
+        config = load_config()
+        return jsonify(config)
+    except Exception as e:
+        app.logger.error(f"Error fetching settings: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
