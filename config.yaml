@@ -14,7 +14,7 @@ sensors:
     reference_resistor: 430.0
     temp_offset: 0.0
   - type: MAX31855
-    chip_select_pin: D19
+    chip_select_pin: D8  # GPIO 8 (Pin 24)
     temp_offset: 0.0
   - type: ADS1115
     channel: 0

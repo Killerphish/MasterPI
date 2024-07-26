@@ -56,27 +56,13 @@ sensor_configs = config['sensors']
 for sensor_config in sensor_configs:
     sensor_type = sensor_config['type']
     try:
-        # if sensor_type == 'MAX31865':
-        #     from adafruit_max31865 import MAX31865
-        #     cs_pin = getattr(board, sensor_config['chip_select_pin'])
-        #     sensor = MAX31865(board.SPI(), digitalio.DigitalInOut(cs_pin))
         if sensor_type == 'MAX31855':
-            from adafruit_max31855 import MAX31855
-            cs_pin = getattr(board, sensor_config['chip_select_pin'])
-            sensor = MAX31855(board.SPI(), digitalio.DigitalInOut(cs_pin))
+            # Initialize SPI bus and sensor
+            spi = busio.SPI(clock=board.SCLK, MISO=board.MISO)
+            cs = digitalio.DigitalInOut(board.D8)  # GPIO 8 (Pin 24)
+            sensor = MAX31855(spi, cs)
             sensors.append(sensor)
-        # elif sensor_type == 'ADS1115':
-        #     from adafruit_ads1x15.analog_in import AnalogIn
-        #     from adafruit_ads1x15.ads1115 import ADS1115
-        #     i2c = board.I2C()
-        #     address = sensor_config.get('address', 0x48)  # Default to 0x48 if not specified
-        #     try:
-        #         ads = ADS1115(i2c, address=address)
-        #         sensor = AnalogIn(ads, sensor_config['channel'])
-        #         sensors.append(sensor)
-        #     except ValueError as e:
-        #         app.logger.error(f"ADS1115 not found at address {address}: {e}")
-        #         continue  # Skip this sensor
+            app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
     except Exception as e:
         app.logger.error(f"Error initializing {sensor_type}: {e}")
 print("Temperature sensors initialized.")
@@ -111,7 +97,15 @@ async def settings():
 def get_temperature():
     try:
         print("Reading temperature from sensors...")
-        temperatures = [sensor.temperature for sensor in sensors]
+        temperatures = []
+        for sensor in sensors:
+            try:
+                temperature = sensor.temperature
+                temperatures.append(temperature)
+                app.logger.info(f"Read temperature: {temperature} °C from {sensor.__class__.__name__}")
+            except Exception as e:
+                app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
+                temperatures.append(None)
         print(f"Temperatures read: {temperatures} °C")
         return jsonify({'temperatures': temperatures})
     except Exception as e:
