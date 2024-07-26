@@ -26,17 +26,17 @@ try:
     fault = sensor.fault
     if fault:
         print(f"Fault detected: {fault}")
-        if fault & sensor.FAULT_HIGHTHRESH:
+        if fault & adafruit_max31865.FAULT_HIGHTHRESH:
             print("RTD High Threshold")
-        if fault & sensor.FAULT_LOWTHRESH:
+        if fault & adafruit_max31865.FAULT_LOWTHRESH:
             print("RTD Low Threshold")
-        if fault & sensor.FAULT_REFINLOW:
+        if fault & adafruit_max31865.FAULT_REFINLOW:
             print("REFIN- > 0.85 x Bias")
-        if fault & sensor.FAULT_REFINHIGH:
+        if fault & adafruit_max31865.FAULT_REFINHIGH:
             print("REFIN- < 0.85 x Bias - FORCE- open")
-        if fault & sensor.FAULT_RTDINLOW:
+        if fault & adafruit_max31865.FAULT_RTDINLOW:
             print("RTDIN- < 0.85 x Bias - FORCE- open")
-        if fault & sensor.FAULT_OVUV:
+        if fault & adafruit_max31865.FAULT_OVUV:
             print("Under/Over voltage")
 
     # Clear the fault
