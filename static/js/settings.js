@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const closeModal = document.getElementsByClassName('close')[0];
     const meaterForm = document.getElementById('meaterForm');
     const meaterStatus = document.getElementById('meaterStatus');
-    const closeModalButton = document.getElementById('closeModalButton');
     const messageContainer = document.getElementById('messageContainer'); // Add this line
 
     // Function to display messages
@@ -40,15 +39,6 @@ document.addEventListener("DOMContentLoaded", function() {
             hideModal(meaterModal, meaterStatus);
         }
     });
-
-    if (closeModalButton) {
-        closeModalButton.addEventListener('click', function() {
-            hideModal(meaterModal, meaterStatus);
-            closeModalButton.style.display = 'none'; // Hide close button
-        });
-    } else {
-        console.error('Element with id "closeModalButton" not found.');
-    }
 
     if (meaterForm) {
         meaterForm.addEventListener('submit', function(event) {
