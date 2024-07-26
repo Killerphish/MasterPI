@@ -1,4 +1,4 @@
-# General application settings
+# General application settings.
 app:
   name: Temperature Control System
   version: 1.0.0
