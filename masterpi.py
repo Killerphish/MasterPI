@@ -328,7 +328,7 @@ if __name__ == '__main__':
         await create_aiohttp_session()
         init_db()  # Initialize the database
         config = Config()
-        config.bind = ["0.0.0.0:5000"]  # Ensure this is correct
+        config.bind = ["127.0.0.1:5000"]  # Ensure this is correct
         try:
             await serve(app, config)
         finally:
