@@ -50,7 +50,9 @@ app.logger.setLevel(logging.INFO)
 app.logger.info('Application startup')
 
 # Initialize temperature sensor (using GPIO18 for CS pin)
+print("Initializing temperature sensor...")
 sensor = TemperatureSensor(board.D18)
+print("Temperature sensor initialized.")
 
 # Initialize PID controller
 pid = PIDController(kp=config['pid']['kp'], ki=config['pid']['ki'], kd=config['pid']['kd'], setpoint=config['pid']['target_temperature'])
@@ -81,9 +83,12 @@ async def settings():
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
     try:
+        print("Reading temperature from sensor...")
         temperature = sensor.read_temperature()
+        print(f"Temperature read: {temperature} °C")
         return jsonify({'temperature': temperature})
     except Exception as e:
+        app.logger.error(f"Error reading temperature: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/get_meater_temperature', methods=['GET'])
