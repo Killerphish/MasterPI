@@ -64,6 +64,7 @@ for sensor_config in sensor_configs:
             from adafruit_max31855 import MAX31855
             cs_pin = getattr(board, sensor_config['chip_select_pin'])
             sensor = MAX31855(board.SPI(), digitalio.DigitalInOut(cs_pin))
+            sensors.append(sensor)
         # elif sensor_type == 'ADS1115':
         #     from adafruit_ads1x15.analog_in import AnalogIn
         #     from adafruit_ads1x15.ads1115 import ADS1115
@@ -72,10 +73,10 @@ for sensor_config in sensor_configs:
         #     try:
         #         ads = ADS1115(i2c, address=address)
         #         sensor = AnalogIn(ads, sensor_config['channel'])
+        #         sensors.append(sensor)
         #     except ValueError as e:
         #         app.logger.error(f"ADS1115 not found at address {address}: {e}")
         #         continue  # Skip this sensor
-        sensors.append(sensor)
     except Exception as e:
         app.logger.error(f"Error initializing {sensor_type}: {e}")
 print("Temperature sensors initialized.")
