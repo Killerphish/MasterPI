@@ -55,12 +55,13 @@ sensors = []
 sensor_configs = config['sensors']
 for sensor_config in sensor_configs:
     sensor_type = sensor_config['type']
-    cs_pin = getattr(board, sensor_config['cs_pin'])
     if sensor_type == 'MAX31865':
         from adafruit_max31865 import MAX31865
+        cs_pin = getattr(board, sensor_config['chip_select_pin'])
         sensor = MAX31865(board.SPI(), digitalio.DigitalInOut(cs_pin))
     elif sensor_type == 'MAX31855':
         from adafruit_max31855 import MAX31855
+        cs_pin = getattr(board, sensor_config['chip_select_pin'])
         sensor = MAX31855(board.SPI(), digitalio.DigitalInOut(cs_pin))
     elif sensor_type == 'ADS1115':
         from adafruit_ads1x15.analog_in import AnalogIn
@@ -266,7 +267,7 @@ async def save_device_settings():
         config = load_config()
 
         # Update config with new settings
-        config['sensors'] = [{'type': sensor_type, 'cs_pin': f'D{i+18}', 'channel': i} for i in range(int(sensor_count))]
+        config['sensors'] = [{'type': sensor_type, 'chip_select_pin': f'D{i+18}', 'channel': i} for i in range(int(sensor_count))]
 
         save_config(config)
 
