@@ -329,6 +329,7 @@ async def pid_autotune():
 # Check if the wizard has been completed
 @app.before_request
 async def check_wizard():
+    app.logger.info(f"Wizard completed: {config['app'].get('wizard_completed', False)}")
     if not config['app'].get('wizard_completed', False):
         return redirect(url_for('wizard'))
 
