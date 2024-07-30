@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from quart import Quart, jsonify, request, render_template, send_from_directory, session
+from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
