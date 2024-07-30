@@ -326,6 +326,30 @@ async def pid_autotune():
         app.logger.error(f"Error starting PID autotune: {e}")
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
+# Check if the wizard has been completed
+@app.before_request
+async def check_wizard():
+    if not config['app'].get('wizard_completed', False):
+        return redirect(url_for('wizard'))
+
+@app.route('/wizard', methods=['GET'])
+async def wizard():
+    return await render_template('wizard.html')
+
+@app.route('/complete_wizard', methods=['POST'])
+async def complete_wizard():
+    device_name = request.form.get('device_name')
+    temp_unit = request.form.get('temp_unit')
+
+    # Update the configuration with the new settings
+    config['device'] = {'name': device_name}
+    config['temp_unit'] = temp_unit
+    config['app']['wizard_completed'] = True  # Set the wizard as completed
+
+    save_config(config)  # Save the updated configuration
+
+    return redirect(url_for('index'))  # Redirect to the main page
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
