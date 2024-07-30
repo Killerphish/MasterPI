@@ -349,6 +349,9 @@ async def complete_wizard():
 
     save_config(config)  # Save the updated configuration
 
+    # Log the updated configuration
+    app.logger.info(f"Updated configuration: {config['app']}")
+
     return redirect(url_for('index'))  # Redirect to the main page
 
 if __name__ == '__main__':

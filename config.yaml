@@ -77,7 +77,3 @@ quart:
   use_hypercorn: true  # If you plan to use Hypercorn as the ASGI server
   workers: 1           # Number of worker processes
   loop: 'asyncio'      # Event loop, default is 'asyncio', options include 'uvloop'
-
-def save_config(config):
-    with open('config.yaml', 'w') as config_file:
-        yaml.safe_dump(config, config_file)
