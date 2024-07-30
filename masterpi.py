@@ -334,7 +334,7 @@ async def check_wizard():
 
 @app.route('/wizard', methods=['GET'])
 async def wizard():
-    return await render_template('wizard.html')
+    return await render_template('wizard.html')  # This will look for wizard.html in the templates folder
 
 @app.route('/complete_wizard', methods=['POST'])
 async def complete_wizard():
