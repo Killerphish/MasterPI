@@ -341,8 +341,9 @@ async def wizard():
 
 @app.route('/complete_wizard', methods=['POST'])
 async def complete_wizard():
-    device_name = request.form.get('device_name')
-    temp_unit = request.form.get('temp_unit')
+    form_data = await request.form  # Await the request.form to get the form data
+    device_name = form_data.get('device_name')
+    temp_unit = form_data.get('temp_unit')
 
     # Update the configuration with the new settings
     config['device'] = {'name': device_name}
@@ -352,13 +353,10 @@ async def complete_wizard():
     save_config(config)  # Save the updated configuration
 
     # Log the updated configuration
-    app.logger.info(f"Updated configuration: {config['app']}")
+    app.logger.info(f"Updated configuration: {config}")
 
-    # Check if the configuration was saved correctly
-    loaded_config = load_config()
-    app.logger.info(f"Loaded configuration after saving: {loaded_config['app']}")
-
-    return redirect(url_for('index'))  # Redirect to the main page
+    # Redirect to the main page
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     async def main():
