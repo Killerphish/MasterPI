@@ -66,7 +66,7 @@ app.logger.info('Application startup')
 # Context processor to inject CSRF token into templates
 @app.context_processor
 def inject_csrf_token():
-    token = generate_csrf()  # Use generate_csrf function
+    token = generate_csrf()
     app.logger.debug(f"Generated CSRF token: {token}")
     return dict(csrf_token=token)
 
