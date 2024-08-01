@@ -9,15 +9,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const closeModal = document.getElementsByClassName('close')[0];
     const meaterForm = document.getElementById('meaterForm');
     const meaterStatus = document.getElementById('meaterStatus');
-    const messageContainer = document.getElementById('messageContainer'); // Add this line
-
-    // Function to display messages
-    function displayMessage(message, type) {
-        messageContainer.innerHTML = `<div class="${type}">${message}</div>`;
-        setTimeout(() => {
-            messageContainer.innerHTML = '';
-        }, 5000);
-    }
 
     // Open the modal
     if (enableMeaterIntegrationButton) {
@@ -54,7 +45,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 .catch(error => {
                     console.error('Error requesting Meater API Key:', error);
                     // Handle error, e.g., show error message to user
-                    displayMessage('Error requesting Meater API Key. Please check the console for details.', 'error'); // Display error message
                 });
         });
     }
@@ -86,7 +76,6 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 console.log('Response data:', data); // Debugging line
                 if (data.success) {
-                    displayMessage('Settings saved successfully!', 'success'); // Display success message
                     // Update the device name on the page
                     const deviceNameElement = document.getElementById('deviceName');
                     if (deviceNameElement) {
@@ -94,12 +83,12 @@ document.addEventListener("DOMContentLoaded", function() {
                         deviceNameElement.textContent = deviceName;
                     }
                 } else {
-                    displayMessage('Failed to save settings.', 'error'); // Display error message
+                    // No need to display message here, as it will be handled server-side
                 }
             })
             .catch(error => {
                 console.error('Error saving settings:', error);
-                displayMessage('Error saving settings: ' + error.message, 'error'); // Display error message
+                // No need to display message here, as it will be handled server-side
             });
         });
     }
@@ -114,15 +103,14 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    displayMessage('PID Autotune started! Waiting for completion...', 'success'); // Display success message
                     checkAutotuneStatus();  // Call function to check autotune status
                 } else {
-                    displayMessage('Failed to start PID Autotune.', 'error'); // Display error message
+                    // No need to display message here, as it will be handled server-side
                 }
             })
             .catch(error => {
                 console.error('Error starting PID Autotune:', error);
-                displayMessage('Error starting PID Autotune: ' + error.message, 'error'); // Display error message
+                // No need to display message here, as it will be handled server-side
             });
         });
     }
@@ -219,14 +207,14 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                displayMessage('Device settings saved successfully!', 'success');
+                // No need to display message here, as it will be handled server-side
             } else {
-                displayMessage('Failed to save device settings.', 'error');
+                // No need to display message here, as it will be handled server-side
             }
         })
         .catch(error => {
             console.error('Error saving device settings:', error);
-            displayMessage('Error saving device settings: ' + error.message, 'error');
+            // No need to display message here, as it will be handled server-side
         });
     });
 
@@ -245,12 +233,12 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('meater-temp').textContent = data.temperature + ' °C';
                 } else {
                     console.error('Error fetching Meater temperature:', data.error);
-                    displayMessage('Error fetching Meater temperature: ' + data.error, 'error'); // Display error message
+                    // No need to display message here, as it will be handled server-side
                 }
             })
             .catch(error => {
                 console.error('Error fetching Meater temperature:', error);
-                displayMessage('Error fetching Meater temperature: ' + error.message, 'error'); // Display error message
+                // No need to display message here, as it will be handled server-side
             });
     }
 
@@ -265,7 +253,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 if (data.success) {
                     const results = data.results;
-                    displayMessage(`PID Autotune completed successfully:\nKp: ${results.Kp}, Ki: ${results.Ki}, Kd: ${results.Kd}`, 'success'); // Display success message
+                    // No need to display message here, as it will be handled server-side
                 } else {
                     setTimeout(checkAutotuneStatus, 3000); // Check again after 3 seconds
                 }
@@ -479,14 +467,14 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                displayMessage('Integration settings saved successfully', 'success');
+                // No need to display message here, as it will be handled server-side
             } else {
-                displayMessage('Error saving integration settings: ' + data.error, 'error');
+                // No need to display message here, as it will be handled server-side
             }
         })
         .catch(error => {
             console.error('Error saving integration settings:', error);
-            displayMessage('Error saving integration settings: ' + error.message, 'error');
+            // No need to display message here, as it will be handled server-side
         });
     }
 });
