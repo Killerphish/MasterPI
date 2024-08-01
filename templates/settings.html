@@ -56,12 +56,23 @@
                         <button id="pid_autotune">Start Autotune</button>
                     </div>
                     <div>
-                        <label for="sensor_type">Sensor Type:</label>
-                        <select id="sensor_type" name="sensor_type">
-                            <option value="MAX31865">MAX31865</option>
-                            <option value="MAX31855">MAX31855</option>
-                            <option value="ADS1115">ADS1115</option>
-                        </select>
+                        <label for="sensor_type_max31865">Enable MAX31865:</label>
+                        <input type="checkbox" id="sensor_type_max31865" name="sensor_type_max31865">
+                    </div>
+                    <div>
+                        <label for="sensor_type_max31855">Enable MAX31855:</label>
+                        <input type="checkbox" id="sensor_type_max31855" name="sensor_type_max31855">
+                    </div>
+                    <div>
+                        <label for="sensor_type_ads1115">Enable ADS1115:</label>
+                        <input type="checkbox" id="sensor_type_ads1115" name="sensor_type_ads1115">
+                    </div>
+                    <div>
+                        <label for="sensor_count">Number of Sensors:</label>
+                        <input type="number" id="sensor_count" name="sensor_count" min="1" max="4" value="1">
+                    </div>
+                    <div>
+                        <button type="button" id="saveDevices">Save Device Settings</button>
                     </div>
                     <div>
                         <label for="sensor_count">Number of Sensors:</label>

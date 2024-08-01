@@ -162,6 +162,34 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
+    // Save Device Settings
+document.getElementById('saveDevices').addEventListener('click', function() {
+    const formData = new FormData();
+    formData.append('enable_max31865', document.getElementById('enable_max31865').checked);
+    formData.append('enable_max31855', document.getElementById('enable_max31855').checked);
+    formData.append('enable_ads1115', document.getElementById('enable_ads1115').checked);
+    
+    fetch('/save_device_settings', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.textContent = 'Device settings saved successfully!';
+        } else {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.textContent = 'Failed to save device settings.';
+        }
+    })
+    .catch(error => {
+        console.error('Error saving device settings:', error);
+        const messageContainer = document.getElementById('messageContainer');
+        messageContainer.textContent = 'Error saving device settings: ' + error.message;
+    });
+});
+
     function fetchMeaterTemperature() {
         fetch('/get_meater_temperature')
             .then(response => {

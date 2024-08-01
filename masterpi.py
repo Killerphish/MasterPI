@@ -63,6 +63,7 @@ app.logger.info('Application startup')
 
 # Initialize temperature sensors based on settings
 print("Initializing temperature sensors...")
+def initialize_sensors(config):
 sensors = []
 sensor_configs = config['sensors']
 
@@ -99,6 +100,11 @@ for sensor_config in sensor_configs:
         app.logger.error(f"Error initializing {sensor_type} on pin {sensor_config.get('chip_select_pin', sensor_config.get('channel', 'N/A'))}: {e}")
 
 print("Temperature sensors initialized.")
+    return sensors
+
+# Initialize temperature sensors based on settings
+print("Initializing temperature sensors...")
+sensors = initialize_sensors(config)
 
 # Initialize PID controller
 pid = PIDController(kp=config['pid']['kp'], ki=config['pid']['ki'], kd=config['pid']['kd'], setpoint=config['pid']['target_temperature'])
@@ -134,25 +140,39 @@ def get_temperature():
         for sensor, offset in sensors:
             try:
                 if isinstance(sensor, MAX31865):
+                    # Read temperature from MAX31865 sensor
                     temperature_celsius = sensor.temperature
                 elif isinstance(sensor, MAX31855):
+                    # Read temperature from MAX31855 sensor
                     temperature_celsius = sensor.temperature
                 elif isinstance(sensor, AnalogIn):
-                    # Assuming the ADS1115 is used to measure temperature in a specific way
-                    temperature_celsius = sensor.voltage  # Custom conversion might be needed here
+                    # Read voltage from ADS1115 sensor
+                    voltage = sensor.voltage
+                    # Convert voltage to temperature; you need to implement the correct formula here
+                    temperature_celsius = voltage_to_temperature(voltage)
+                else:
+                    raise ValueError("Unsupported sensor type")
 
                 corrected_temperature_celsius = temperature_celsius + offset
                 temperature_fahrenheit = (corrected_temperature_celsius * 9/5) + 32 if config['units']['temperature'] == 'Fahrenheit' else corrected_temperature_celsius
+                
                 temperatures.append(temperature_fahrenheit)
                 app.logger.info(f"Read temperature: {temperature_fahrenheit} {'°F' if config['units']['temperature'] == 'Fahrenheit' else '°C'} from {sensor.__class__.__name__}")
             except Exception as e:
                 app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
                 temperatures.append(None)
+        
         print(f"Temperatures read: {temperatures}")
         return jsonify({'temperatures': temperatures})
     except Exception as e:
         app.logger.error(f"Error reading temperature: {e}")
         return jsonify({"error": str(e)}), 500
+
+def voltage_to_temperature(voltage):
+    # Implement this function based on the sensor and its characteristics
+    # Example for an LM35 temperature sensor: temperature_C = voltage * 100
+    # Adjust as needed for your setup
+    return voltage * 100  # Replace this with the actual conversion formula
 
 @app.route('/get_meater_temperature', methods=['GET'])
 async def get_meater_temperature():
@@ -277,17 +297,40 @@ async def save_general_settings():
 async def save_device_settings():
     try:
         form_data = await request.form
-        temp_offset = form_data.get('temp_offset')
-        sensor_type = form_data.get('sensor_type')
-        sensor_count = form_data.get('sensor_count')
+        enable_max31865 = form_data.get('enable_max31865') == 'on'
+        enable_max31855 = form_data.get('enable_max31855') == 'on'
+        enable_ads1115 = form_data.get('enable_ads1115') == 'on'
 
-        if not sensor_type or not sensor_count:
-            raise ValueError("Sensor type and count are required.")
+        # Get the temperature offset if needed
+        temp_offset = form_data.get('temp_offset', 0.0)
 
+        # Load existing configuration
         config = load_config()
 
         # Update config with new settings
-        config['sensors'] = [{'type': sensor_type, 'chip_select_pin': f'D{i+18}', 'channel': i} for i in range(int(sensor_count))]
+        config['sensors'] = []
+
+        if enable_max31865:
+            config['sensors'].append({
+                'type': 'MAX31865',
+                'chip_select_pin': 'D18',  # Update this as needed
+                'rtd_type': 'PT100',       # Adjust these parameters if required
+                'reference_resistor': 430.0,
+                'temp_offset': float(temp_offset)
+            })
+        if enable_max31855:
+            config['sensors'].append({
+                'type': 'MAX31855',
+                'chip_select_pin': 'D8',   # Update this as needed
+                'temp_offset': float(temp_offset)
+            })
+        if enable_ads1115:
+            config['sensors'].append({
+                'type': 'ADS1115',
+                'channel': 0,             # Example channel; update as needed
+                'address': 72,            # Example address; update as needed
+                'temp_offset': float(temp_offset)
+            })
 
         save_config(config)
 
