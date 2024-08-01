@@ -63,34 +63,50 @@
                 </div>
                 <div id="devices" class="tab-content">
                     <h2>Devices</h2>
-                    <div>
-                        <label for="temp_offset">Temperature Offset:</label>
-                        <input type="number" id="temp_offset" name="temp_offset" placeholder="Offset in degrees">
+                    <div class="sensor-management">
+                        <div class="sensor-add">
+                            <select id="sensor_type" name="sensor_type">
+                                <option value="MAX31865">MAX31865</option>
+                                <option value="MAX31855">MAX31855</option>
+                                <option value="ADS1115">ADS1115</option>
+                            </select>
+                            <button type="button" id="addSensor">Add Sensor</button>
+                        </div>
+                        <div class="sensor-list">
+                            <h3>Enabled Sensors</h3>
+                            <ul id="sensorList">
+                                {% for sensor in sensors %}
+                                    <li>
+                                        <span class="sensor-info">{{ sensor.type }}</span>
+                                        <button class="edit-sensor" data-index="{{ loop.index0 }}">Edit</button>
+                                        <button class="remove-sensor" data-index="{{ loop.index0 }}">Remove</button>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
-                    <div>
-                        <label for="sensor_type">Sensor Type:</label>
-                        <select id="sensor_type" name="sensor_type">
-                            <option value="MAX31865">MAX31865</option>
-                            <option value="MAX31855">MAX31855</option>
-                            <option value="ADS1115">ADS1115</option>
-                        </select>
+                    <div id="sensorEditModal" class="modal">
+                        <div class="modal-content">
+                            <h3>Edit Sensor</h3>
+                            <form id="editSensorForm">
+                                <input type="hidden" id="editSensorIndex" name="index">
+                                <label for="editSensorCount">Number of devices:</label>
+                                <input type="number" id="editSensorCount" name="count" min="1" required>
+                                <button type="submit">Save</button>
+                                <button type="button" id="cancelEdit">Cancel</button>
+                            </form>
+                        </div>
                     </div>
-                    <div>
-                        <button type="button" id="addSensor">Add Sensor</button>
-                    </div>
-                    <div id="enabledSensors">
-                        <h3>Enabled Sensors</h3>
-                        <ul id="sensorList">
-                            {% for sensor in sensors %}
-                                <li>
-                                    {{ sensor.type }} (Offset: {{ sensor.temp_offset }})
-                                    <form method="POST" action="{{ url_for('remove_sensor', index=loop.index0) }}" style="display:inline;">
-                                        <button type="submit">Remove</button>
-                                    </form>
-                                    <button type="button" class="editSensor" data-index="{{ loop.index0 }}">Edit</button>
-                                </li>
-                            {% endfor %}
-                        </ul>
+                    <div id="sensorRemoveModal" class="modal">
+                        <div class="modal-content">
+                            <h3>Confirm Deletion</h3>
+                            <p>Are you sure you want to remove this sensor?</p>
+                            <form id="removeSensorForm" method="POST">
+                                <input type="hidden" id="removeSensorIndex" name="index">
+                                <button type="submit">Confirm</button>
+                                <button type="button" id="cancelRemove">Cancel</button>
+                            </form>
+                        </div>
                     </div>
                     <div>
                         <button type="submit">Save Device Settings</button>

@@ -154,6 +154,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const addSensorButton = document.getElementById('addSensor');
     const tempOffsetInput = document.getElementById('temp_offset');
     const sensorTypeSelect = document.getElementById('sensor_type');
+    const editModal = document.getElementById('sensorEditModal');
+    const removeModal = document.getElementById('sensorRemoveModal');
+    const editForm = document.getElementById('editSensorForm');
+    const removeForm = document.getElementById('removeSensorForm');
 
     let sensors = [];
 
@@ -491,5 +495,80 @@ document.addEventListener("DOMContentLoaded", function() {
             // Add active class to the target tab content
             document.getElementById(targetTab).classList.add('active');
         });
+    });
+
+    const addSensorButton = document.getElementById('addSensor');
+    const sensorList = document.getElementById('sensorList');
+    const sensorTypeSelect = document.getElementById('sensor_type');
+    const editModal = document.getElementById('sensorEditModal');
+    const removeModal = document.getElementById('sensorRemoveModal');
+    const editForm = document.getElementById('editSensorForm');
+    const removeForm = document.getElementById('removeSensorForm');
+
+    addSensorButton.addEventListener('click', function() {
+        const sensorType = sensorTypeSelect.value;
+        const form = new FormData();
+        form.append('sensor_type', sensorType);
+        form.append('count', 1);
+
+        fetch('/save_device_settings', {
+            method: 'POST',
+            body: form
+        }).then(() => {
+            window.location.reload();
+        });
+    });
+
+    sensorList.addEventListener('click', function(event) {
+        if (event.target.classList.contains('edit-sensor')) {
+            const index = event.target.dataset.index;
+            editForm.elements.index.value = index;
+            editModal.style.display = 'block';
+        } else if (event.target.classList.contains('remove-sensor')) {
+            const index = event.target.dataset.index;
+            removeForm.elements.index.value = index;
+            removeModal.style.display = 'block';
+        }
+    });
+
+    editForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const index = this.elements.index.value;
+        const count = this.elements.count.value;
+
+        fetch(`/edit_sensor/${index}`, {
+            method: 'POST',
+            body: new FormData(this)
+        }).then(() => {
+            window.location.reload();
+        });
+    });
+
+    removeForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const index = this.elements.index.value;
+
+        fetch(`/remove_sensor/${index}`, {
+            method: 'POST'
+        }).then(() => {
+            window.location.reload();
+        });
+    });
+
+    document.getElementById('cancelEdit').addEventListener('click', function() {
+        editModal.style.display = 'none';
+    });
+
+    document.getElementById('cancelRemove').addEventListener('click', function() {
+        removeModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target == editModal) {
+            editModal.style.display = 'none';
+        }
+        if (event.target == removeModal) {
+            removeModal.style.display = 'none';
+        }
     });
 });

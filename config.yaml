@@ -8,7 +8,13 @@ app:
   port: 5000
 
 # Sensor settings
-sensors: []
+sensors:
+  - type: MAX31865
+    count: 1
+  - type: MAX31855
+    count: 2
+  - type: ADS1115
+    count: 1
 
 # PID controller settings
 pid:

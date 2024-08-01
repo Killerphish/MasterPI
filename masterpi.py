@@ -305,24 +305,20 @@ async def save_general_settings():
 async def save_device_settings():
     try:
         form_data = await request.form
-        sensors = json.loads(form_data.get('sensors', '[]'))
+        sensor_type = form_data.get('sensor_type')
+        sensor_count = int(form_data.get('count', 1))
 
         config = load_config()
-
-        # Update config with new settings
+        sensors = config.get('sensors', [])
+        sensors.append({'type': sensor_type, 'count': sensor_count})
         config['sensors'] = sensors
-
         save_config(config)
 
-        flash('Device settings saved successfully!', 'success')
-        return redirect(url_for('settings'))
-    except ValueError as ve:
-        app.logger.error(f"Validation error: {ve}")
-        flash(f'Validation error: {ve}', 'error')
+        flash('Sensor added successfully!', 'success')
         return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error saving device settings: {e}", exc_info=True)
-        flash('Internal Server Error', 'error')
+        flash('Error adding sensor', 'error')
         return redirect(url_for('settings'))
 
 @app.route('/remove_sensor/<int:index>', methods=['POST'])
@@ -342,7 +338,30 @@ async def remove_sensor(index):
         return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error removing sensor: {e}", exc_info=True)
-        flash('Internal Server Error', 'error')
+        flash('Error removing sensor', 'error')
+        return redirect(url_for('settings'))
+
+@app.route('/edit_sensor/<int:index>', methods=['POST'])
+async def edit_sensor(index):
+    try:
+        form_data = await request.form
+        sensor_count = int(form_data.get('count', 1))
+
+        config = load_config()
+        sensors = config.get('sensors', [])
+
+        if 0 <= index < len(sensors):
+            sensors[index]['count'] = sensor_count
+            config['sensors'] = sensors
+            save_config(config)
+            flash('Sensor updated successfully!', 'success')
+        else:
+            flash('Invalid sensor index!', 'error')
+
+        return redirect(url_for('settings'))
+    except Exception as e:
+        app.logger.error(f"Error editing sensor: {e}", exc_info=True)
+        flash('Error updating sensor', 'error')
         return redirect(url_for('settings'))
 
 @app.route('/get_settings', methods=['GET'])
