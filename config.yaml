@@ -10,11 +10,17 @@ app:
 # Sensor settings
 sensors:
   - type: MAX31865
-    count: 1
+    chip_select_pin: D17
+    rtd_type: 100
+    reference_resistor: 430.0
+    temp_offset: 0.0
   - type: MAX31855
-    count: 2
+    chip_select_pin: D8
+    temp_offset: 0.0
   - type: ADS1115
-    count: 1
+    address: 0x48
+    channel: 0
+    temp_offset: 0.0
 
 # PID controller settings
 pid:
