@@ -164,7 +164,9 @@ document.addEventListener("DOMContentLoaded", function() {
             li.innerHTML = `
                 ${sensor.type} (Offset: ${sensor.temp_offset})
                 <button class="editSensor" data-index="${index}">Edit</button>
-                <button class="removeSensor" data-index="${index}">Remove</button>
+                <form method="POST" action="/remove_sensor/${index}" style="display:inline;">
+                    <button type="submit">Remove</button>
+                </form>
             `;
             sensorList.appendChild(li);
         });
@@ -187,12 +189,6 @@ document.addEventListener("DOMContentLoaded", function() {
             tempOffsetInput.value = sensor.temp_offset;
             sensors.splice(index, 1);
             renderSensors();
-        } else if (event.target.classList.contains('removeSensor')) {
-            const index = event.target.getAttribute('data-index');
-            if (confirm('Are you sure you want to remove this sensor?')) {
-                sensors.splice(index, 1);
-                renderSensors();
-            }
         }
     });
 

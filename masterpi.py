@@ -132,8 +132,10 @@ async def index():
 
 @app.route('/settings.html')
 async def settings():
+    config = load_config()
     messages = get_flashed_messages(with_categories=True)
-    return await render_template('settings.html', messages=messages)
+    sensors = config.get('sensors', [])
+    return await render_template('settings.html', messages=messages, sensors=sensors)
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
@@ -320,6 +322,26 @@ async def save_device_settings():
         return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error saving device settings: {e}", exc_info=True)
+        flash('Internal Server Error', 'error')
+        return redirect(url_for('settings'))
+
+@app.route('/remove_sensor/<int:index>', methods=['POST'])
+async def remove_sensor(index):
+    try:
+        config = load_config()
+        sensors = config.get('sensors', [])
+
+        if 0 <= index < len(sensors):
+            sensors.pop(index)
+            config['sensors'] = sensors
+            save_config(config)
+            flash('Sensor removed successfully!', 'success')
+        else:
+            flash('Invalid sensor index!', 'error')
+
+        return redirect(url_for('settings'))
+    except Exception as e:
+        app.logger.error(f"Error removing sensor: {e}", exc_info=True)
         flash('Internal Server Error', 'error')
         return redirect(url_for('settings'))
 

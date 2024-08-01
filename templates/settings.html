@@ -43,7 +43,7 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            <form id="settingsForm">
+            <form id="settingsForm" method="POST" action="{{ url_for('save_device_settings') }}">
                 <div id="general" class="tab-content active">
                     <h2>General</h2>
                     <div>
@@ -80,10 +80,20 @@
                     </div>
                     <div id="enabledSensors">
                         <h3>Enabled Sensors</h3>
-                        <ul id="sensorList"></ul>
+                        <ul id="sensorList">
+                            {% for sensor in sensors %}
+                                <li>
+                                    {{ sensor.type }} (Offset: {{ sensor.temp_offset }})
+                                    <form method="POST" action="{{ url_for('remove_sensor', index=loop.index0) }}" style="display:inline;">
+                                        <button type="submit">Remove</button>
+                                    </form>
+                                    <button type="button" class="editSensor" data-index="{{ loop.index0 }}">Edit</button>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                     <div>
-                        <button type="button" id="saveDevices">Save Device Settings</button>
+                        <button type="submit">Save Device Settings</button>
                     </div>
                 </div>
                 <div id="integrations" class="tab-content">
