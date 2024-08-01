@@ -60,7 +60,7 @@ meater_integration:
 
 # Unit settings
 units:
-  temperature: Celsius  # Options: Celsius, Fahrenheit
+  temperature: Fahrenheit  # Options: Celsius, Fahrenheit
 
 # Device settings
 device:

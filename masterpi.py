@@ -20,7 +20,10 @@ from hypercorn.config import Config
 import ssl
 import yaml
 import busio
+from adafruit_max31865 import MAX31865
 from adafruit_max31855 import MAX31855
+import adafruit_ads1x15.ads1115 as ADS
+from adafruit_ads1x15.analog_in import AnalogIn
 
 # Load configuration from config.yaml
 def load_config():
@@ -62,18 +65,39 @@ app.logger.info('Application startup')
 print("Initializing temperature sensors...")
 sensors = []
 sensor_configs = config['sensors']
+
 for sensor_config in sensor_configs:
     sensor_type = sensor_config['type']
     try:
-        if sensor_type == 'MAX31855':
+        if sensor_type == 'MAX31865':
+            # Initialize SPI bus and sensor
+            spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
+            cs_pin = getattr(board, sensor_config['chip_select_pin'])
+            cs = digitalio.DigitalInOut(cs_pin)
+            sensor = MAX31865(spi, cs, rtd_nominal=sensor_config['rtd_type'], ref_resistor=sensor_config['reference_resistor'])
+            sensors.append((sensor, sensor_config['temp_offset']))
+            app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
+        
+        elif sensor_type == 'MAX31855':
             # Initialize SPI bus and sensor
             spi = busio.SPI(clock=board.SCLK, MISO=board.MISO)
-            cs = digitalio.DigitalInOut(board.D8)  # GPIO 8 (Pin 24)
+            cs_pin = getattr(board, sensor_config['chip_select_pin'])
+            cs = digitalio.DigitalInOut(cs_pin)
             sensor = MAX31855(spi, cs)
-            sensors.append(sensor)
+            sensors.append((sensor, sensor_config['temp_offset']))
             app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
+        
+        elif sensor_type == 'ADS1115':
+            # Initialize I2C bus and sensor
+            i2c = busio.I2C(board.SCL, board.SDA)
+            ads = ADS.ADS1115(i2c, address=sensor_config['address'])
+            sensor = AnalogIn(ads, getattr(ADS, f'P{sensor_config["channel"]}'))
+            sensors.append((sensor, sensor_config['temp_offset']))
+            app.logger.info(f"Initialized {sensor_type} sensor on channel {sensor_config['channel']} with address {sensor_config['address']}")
+        
     except Exception as e:
-        app.logger.error(f"Error initializing {sensor_type}: {e}")
+        app.logger.error(f"Error initializing {sensor_type} on pin {sensor_config.get('chip_select_pin', sensor_config.get('channel', 'N/A'))}: {e}")
+
 print("Temperature sensors initialized.")
 
 # Initialize PID controller
@@ -107,15 +131,24 @@ def get_temperature():
     try:
         print("Reading temperature from sensors...")
         temperatures = []
-        for sensor in sensors:
+        for sensor, offset in sensors:
             try:
-                temperature = sensor.temperature
-                temperatures.append(temperature)
-                app.logger.info(f"Read temperature: {temperature} °C from {sensor.__class__.__name__}")
+                if isinstance(sensor, MAX31865):
+                    temperature_celsius = sensor.temperature
+                elif isinstance(sensor, MAX31855):
+                    temperature_celsius = sensor.temperature
+                elif isinstance(sensor, AnalogIn):
+                    # Assuming the ADS1115 is used to measure temperature in a specific way
+                    temperature_celsius = sensor.voltage  # Custom conversion might be needed here
+
+                corrected_temperature_celsius = temperature_celsius + offset
+                temperature_fahrenheit = (corrected_temperature_celsius * 9/5) + 32 if config['units']['temperature'] == 'Fahrenheit' else corrected_temperature_celsius
+                temperatures.append(temperature_fahrenheit)
+                app.logger.info(f"Read temperature: {temperature_fahrenheit} {'°F' if config['units']['temperature'] == 'Fahrenheit' else '°C'} from {sensor.__class__.__name__}")
             except Exception as e:
                 app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
                 temperatures.append(None)
-        print(f"Temperatures read: {temperatures} °C")
+        print(f"Temperatures read: {temperatures}")
         return jsonify({'temperatures': temperatures})
     except Exception as e:
         app.logger.error(f"Error reading temperature: {e}")
