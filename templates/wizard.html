@@ -6,7 +6,8 @@
 </head>
 <body>
     <h1>Setup Wizard</h1>
-    <form id="wizardForm" method="POST" action="/complete_wizard">
+    <form id="wizardForm" method="POST" action="{{ url_for('complete_wizard') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="device_name">Device Name:</label>
         <input type="text" id="device_name" name="device_name" required><br>
 
