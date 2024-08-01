@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages
-from quart_csrf import CSRFProtect, csrf_token
+from quart_csrf import CSRFProtect
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
@@ -66,7 +66,7 @@ app.logger.info('Application startup')
 # Context processor to inject CSRF token into templates
 @app.context_processor
 def inject_csrf_token():
-    token = csrf_token()
+    token = csrf._generate_csrf()
     app.logger.debug(f"Generated CSRF token: {token}")
     return dict(csrf_token=token)
 
@@ -144,7 +144,6 @@ async def settings():
     config = load_config()
     messages = get_flashed_messages(with_categories=True)
     sensors = config.get('sensors', [])
-    app.logger.debug(f"Rendering settings.html with messages: {messages} and sensors: {sensors}")
     return await render_template('settings.html', messages=messages, sensors=sensors)
 
 @app.route('/get_temperature', methods=['GET'])
@@ -227,7 +226,7 @@ async def favicon():
 def save_temperature():
     data = request.get_json()
     temperature = data.get('temperature')
-    if temperature is None:
+    if (temperature is None):
         return jsonify({'error': 'Temperature is required'}), 400
 
     try:
