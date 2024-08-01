@@ -312,23 +312,24 @@ async def save_general_settings():
 
 @app.route('/save_device_settings', methods=['POST'])
 async def save_device_settings():
-    try:
-        form_data = await request.form
-        sensor_type = form_data.get('sensor_type')
-        sensor_count = int(form_data.get('count', 1))
+    form_data = await request.form
+    app.logger.debug(f"Form data: {form_data}")
+    device_name = form_data.get('device_name')
+    temp_unit = form_data.get('temp_unit')
+    csrf_token = form_data.get('csrf_token')
+    app.logger.debug(f"CSRF token received: {csrf_token}")
 
-        config = load_config()
-        sensors = config.get('sensors', [])
-        sensors.append({'type': sensor_type, 'count': sensor_count})
-        config['sensors'] = sensors
-        save_config(config)
+    # Update the configuration with the new settings
+    config['device'] = {'name': device_name}
+    config['temp_unit'] = temp_unit
 
-        flash('Sensor added successfully!', 'success')
-        return redirect(url_for('settings'))
-    except Exception as e:
-        app.logger.error(f"Error saving device settings: {e}", exc_info=True)
-        flash('Error adding sensor', 'error')
-        return redirect(url_for('settings'))
+    save_config(config)  # Save the updated configuration
+
+    # Log the updated configuration
+    app.logger.info(f"Updated configuration: {config}")
+
+    # Redirect to the main page
+    return redirect(url_for('index'))
 
 @app.route('/remove_sensor/<int:index>', methods=['POST'])
 async def remove_sensor(index):
