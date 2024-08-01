@@ -64,42 +64,42 @@ app.logger.info('Application startup')
 # Initialize temperature sensors based on settings
 print("Initializing temperature sensors...")
 def initialize_sensors(config):
-sensors = []
-sensor_configs = config['sensors']
+    sensors = []
+    sensor_configs = config['sensors']
 
-for sensor_config in sensor_configs:
-    sensor_type = sensor_config['type']
-    try:
-        if sensor_type == 'MAX31865':
-            # Initialize SPI bus and sensor
-            spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
-            cs_pin = getattr(board, sensor_config['chip_select_pin'])
-            cs = digitalio.DigitalInOut(cs_pin)
-            sensor = MAX31865(spi, cs, rtd_nominal=sensor_config['rtd_type'], ref_resistor=sensor_config['reference_resistor'])
-            sensors.append((sensor, sensor_config['temp_offset']))
-            app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
-        
-        elif sensor_type == 'MAX31855':
-            # Initialize SPI bus and sensor
-            spi = busio.SPI(clock=board.SCLK, MISO=board.MISO)
-            cs_pin = getattr(board, sensor_config['chip_select_pin'])
-            cs = digitalio.DigitalInOut(cs_pin)
-            sensor = MAX31855(spi, cs)
-            sensors.append((sensor, sensor_config['temp_offset']))
-            app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
-        
-        elif sensor_type == 'ADS1115':
-            # Initialize I2C bus and sensor
-            i2c = busio.I2C(board.SCL, board.SDA)
-            ads = ADS.ADS1115(i2c, address=sensor_config['address'])
-            sensor = AnalogIn(ads, getattr(ADS, f'P{sensor_config["channel"]}'))
-            sensors.append((sensor, sensor_config['temp_offset']))
-            app.logger.info(f"Initialized {sensor_type} sensor on channel {sensor_config['channel']} with address {sensor_config['address']}")
-        
-    except Exception as e:
-        app.logger.error(f"Error initializing {sensor_type} on pin {sensor_config.get('chip_select_pin', sensor_config.get('channel', 'N/A'))}: {e}")
+    for sensor_config in sensor_configs:
+        sensor_type = sensor_config['type']
+        try:
+            if sensor_type == 'MAX31865':
+                # Initialize SPI bus and sensor
+                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
+                cs_pin = getattr(board, sensor_config['chip_select_pin'])
+                cs = digitalio.DigitalInOut(cs_pin)
+                sensor = MAX31865(spi, cs, rtd_nominal=sensor_config['rtd_type'], ref_resistor=sensor_config['reference_resistor'])
+                sensors.append((sensor, sensor_config['temp_offset']))
+                app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
+            
+            elif sensor_type == 'MAX31855':
+                # Initialize SPI bus and sensor
+                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO)
+                cs_pin = getattr(board, sensor_config['chip_select_pin'])
+                cs = digitalio.DigitalInOut(cs_pin)
+                sensor = MAX31855(spi, cs)
+                sensors.append((sensor, sensor_config['temp_offset']))
+                app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
+            
+            elif sensor_type == 'ADS1115':
+                # Initialize I2C bus and sensor
+                i2c = busio.I2C(board.SCL, board.SDA)
+                ads = ADS.ADS1115(i2c, address=sensor_config['address'])
+                sensor = AnalogIn(ads, getattr(ADS, f'P{sensor_config["channel"]}'))
+                sensors.append((sensor, sensor_config['temp_offset']))
+                app.logger.info(f"Initialized {sensor_type} sensor on channel {sensor_config['channel']} with address {sensor_config['address']}")
+            
+        except Exception as e:
+            app.logger.error(f"Error initializing {sensor_type} on pin {sensor_config.get('chip_select_pin', sensor_config.get('channel', 'N/A'))}: {e}")
 
-print("Temperature sensors initialized.")
+    print("Temperature sensors initialized.")
     return sensors
 
 # Initialize temperature sensors based on settings
