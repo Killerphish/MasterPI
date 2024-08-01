@@ -2,7 +2,7 @@ import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
 //import { Chart, registerables } from 'chart.js';
 // Chart.register(...registerables);
 
-let tempUnit = 'C'; // Default unit
+let tempUnit = 'F'; // Default unit changed to Fahrenheit
 
 document.addEventListener("DOMContentLoaded", function() {
     function updateStatus() {
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
         data: {
             labels: [],
             datasets: [{
-                label: 'Temperature (°C)',
+                label: `Temperature (°${tempUnit})`, // Update label to reflect the default unit
                 data: [],
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
@@ -71,7 +71,13 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(response => response.json())
             .then(data => {
                 const labels = data.map(point => new Date(point[0]));
-                const temperatures = data.map(point => point[1]);
+                const temperatures = data.map(point => {
+                    let temp = point[1];
+                    if (tempUnit === 'F') {
+                        temp = (temp * 9/5) + 32; // Convert to Fahrenheit
+                    }
+                    return temp;
+                });
 
                 tempChart.data.labels = labels;
                 tempChart.data.datasets[0].data = temperatures;
@@ -137,13 +143,19 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
+    // Function to get CSRF token
+    function getCsrfToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
     // Define the updateTargetTemp function
     function updateTargetTemp() {
         const targetTemp = document.getElementById('target-temp').value;
         fetch('/set_target_temperature', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()  // Include CSRF token
             },
             body: JSON.stringify({ target_temperature: targetTemp })
         })
@@ -159,7 +171,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // Define the emergencyShutdown function
     function emergencyShutdown() {
         fetch('/emergency_shutdown', {
-            method: 'POST'
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken()  // Include CSRF token
+            }
         })
         .then(response => response.json())
         .then(data => {
@@ -188,7 +203,10 @@ document.addEventListener("DOMContentLoaded", function() {
         pidAutotuneButton.addEventListener('click', function(event) {
             event.preventDefault();
             fetch('/pid_autotune', {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken()  // Include CSRF token
+                }
             })
             .then(response => response.json())
             .then(data => {

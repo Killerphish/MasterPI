@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Ensure default values are included
             const deviceName = formData.get('device_name') || 'Default Device Name';
-            const tempUnit = formData.get('temp_unit') || 'C'; // Assuming 'C' is the default unit
+            const tempUnit = formData.get('temp_unit') || 'F'; // Default unit changed to Fahrenheit
 
             formData.set('device_name', deviceName);
             formData.set('temp_unit', tempUnit);
@@ -98,221 +98,25 @@ document.addEventListener("DOMContentLoaded", function() {
         pidAutotuneButton.addEventListener('click', function(event) {
             event.preventDefault();
             fetch('/pid_autotune', {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken()  // Include CSRF token
+                }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    displayMessage('PID Autotune started! Waiting for completion...', 'success'); // Display success message
                     checkAutotuneStatus();  // Call function to check autotune status
                 } else {
-                    // No need to display message here, as it will be handled server-side
+                    displayMessage('Failed to start PID Autotune.', 'error'); // Display error message
                 }
             })
             .catch(error => {
                 console.error('Error starting PID Autotune:', error);
-                // No need to display message here, as it will be handled server-side
+                displayMessage('Error starting PID Autotune: ' + error.message, 'error'); // Display error message
             });
         });
-    }
-
-    const tempUnitSelect = document.getElementById('temp_unit');
-    if (tempUnitSelect) {
-        tempUnitSelect.addEventListener('change', function(event) {
-            // Fetch temperature data in the selected unit and update display
-            fetchTemperatureData();
-        });
-    }
-
-    function fetchTemperatureData() {
-        fetch('/get_temperature')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data.temperatures) {  // Check for 'temperatures' instead of 'temperature'
-                    throw new Error('Data format is incorrect');
-                }
-
-                let temperatures = data.temperatures;  // Adjust to match the returned data format
-                const tempUnit = document.getElementById('temp_unit').value;
-
-                if (tempUnit === 'F') {
-                    temperatures = temperatures.map(celsiusToFahrenheit);
-                }
-
-                updateTemperatureDisplay(temperatures);  // Pass the array of temperatures
-            })
-            .catch(error => {
-                console.error('Error fetching temperature data:', error);
-            });
-    }
-
-    const sensorList = document.getElementById('sensorList');
-    const addSensorButton = document.getElementById('addSensor');
-    const tempOffsetInput = document.getElementById('temp_offset');
-    const sensorTypeSelect = document.getElementById('sensor_type');
-    const editModal = document.getElementById('sensorEditModal');
-    const removeModal = document.getElementById('sensorRemoveModal');
-    const editForm = document.getElementById('editSensorForm');
-    const removeForm = document.getElementById('removeSensorForm');
-
-    let sensors = [];
-
-    function renderSensors() {
-        sensorList.innerHTML = '';
-        sensors.forEach((sensor, index) => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                ${sensor.type} (Offset: ${sensor.temp_offset})
-                <button class="editSensor" data-index="${index}">Edit</button>
-                <form method="POST" action="/remove_sensor/${index}" style="display:inline;">
-                    <button type="submit">Remove</button>
-                </form>
-            `;
-            sensorList.appendChild(li);
-        });
-    }
-
-    addSensorButton.addEventListener('click', function() {
-        const sensor = {
-            type: sensorTypeSelect.value,
-            temp_offset: parseFloat(tempOffsetInput.value)
-        };
-        sensors.push(sensor);
-        renderSensors();
-    });
-
-    sensorList.addEventListener('click', function(event) {
-        if (event.target.classList.contains('editSensor')) {
-            const index = event.target.getAttribute('data-index');
-            const sensor = sensors[index];
-            sensorTypeSelect.value = sensor.type;
-            tempOffsetInput.value = sensor.temp_offset;
-            sensors.splice(index, 1);
-            renderSensors();
-        }
-    });
-
-    document.getElementById('saveDevices').addEventListener('click', function() {
-        const formData = new FormData();
-        formData.append('sensors', JSON.stringify(sensors));
-
-        fetch('/save_device_settings', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // No need to display message here, as it will be handled server-side
-            } else {
-                // No need to display message here, as it will be handled server-side
-            }
-        })
-        .catch(error => {
-            console.error('Error saving device settings:', error);
-            // No need to display message here, as it will be handled server-side
-        });
-    });
-
-    function fetchMeaterTemperature() {
-        fetch('/get_meater_temperature')
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.temperature !== undefined) {
-                    document.getElementById('meater-temp').textContent = data.temperature + ' °C';
-                } else {
-                    console.error('Error fetching Meater temperature:', data.error);
-                    // No need to display message here, as it will be handled server-side
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching Meater temperature:', error);
-                // No need to display message here, as it will be handled server-side
-            });
-    }
-
-    function checkAutotuneStatus() {
-        fetch('/autotune_status')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    const results = data.results;
-                    // No need to display message here, as it will be handled server-side
-                } else {
-                    setTimeout(checkAutotuneStatus, 3000); // Check again after 3 seconds
-                }
-            })
-            .catch(error => {
-                console.error('Error checking autotune status:', error);
-            });
-    }
-
-    function fetchStatus() {
-        fetch('/get_status')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                const tempUnitElement = document.getElementById('temp_unit');
-                if (tempUnitElement) {
-                    const tempUnit = tempUnitElement.value;
-                    let temperature = data.temperature;
-                    if (tempUnit === 'F') {
-                        temperature = celsiusToFahrenheit(temperature);
-                    }
-                    const currentTempElement = document.getElementById('current-temp');
-                    if (currentTempElement) {
-                        currentTempElement.textContent = temperature.toFixed(2) + ` °${tempUnit}`;
-                    } else {
-                        console.error('Element with id "current-temp" not found.');
-                    }
-                } else {
-                    console.error('Element with id "temp_unit" not found.');
-                }
-                const fanStatusElement = document.getElementById('fan-status');
-                if (fanStatusElement) {
-                    fanStatusElement.textContent = data.fan_on ? 'On' : 'Off';
-                } else {
-                    console.error('Element with id "fan-status" not found.');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching status:', error);
-            });
-    }
-
-    function celsiusToFahrenheit(celsius) {
-        return (celsius * 9/5) + 32;
-    }
-
-    function updateTemperatureDisplay(temperatures) {
-        const tempDisplay = document.getElementById('current-temp');
-        if (tempDisplay) {
-            if (temperatures.length > 0) {
-                tempDisplay.textContent = temperatures.join(', ');  // Update based on your display logic
-            } else {
-                tempDisplay.textContent = 'No data available';
-            }
-        }
     }
 
     function fetchSettings() {
@@ -328,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('device_name').value = settings.device_name;
                 }
                 if (document.getElementById('temp_unit')) {
-                    document.getElementById('temp_unit').value = settings.temp_unit;
+                    document.getElementById('temp_unit').value = settings.temp_unit || 'F'; // Default unit changed to Fahrenheit
                 }
             })
             .catch(error => {
@@ -544,46 +348,8 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    removeForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const index = this.elements.index.value;
-
-        fetch(`/remove_sensor/${index}`, {
-            method: 'POST'
-        }).then(() => {
-            window.location.reload();
-        });
-    });
-
-    document.getElementById('cancelEdit').addEventListener('click', function() {
-        editModal.style.display = 'none';
-    });
-
-    document.getElementById('cancelRemove').addEventListener('click', function() {
-        removeModal.style.display = 'none';
-    });
-
-    window.addEventListener('click', function(event) {
-        if (event.target == editModal) {
-            editModal.style.display = 'none';
-        }
-        if (event.target == removeModal) {
-            removeModal.style.display = 'none';
-        }
-    });
-
     // Function to get CSRF token
     function getCsrfToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     }
-
-    // Include this in your fetch requests
-    fetch('/your-endpoint', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify(data)
-    })
 });
