@@ -48,6 +48,7 @@ config = load_config()
 nest_asyncio.apply()
 
 app = Quart(__name__)
+csrf = CSRFProtect(app)
 app.config['DEBUG'] = config['app']['debug']
 app.secret_key = 'your_secret_key'  # Add a secret key for session management
 app.config['REQUEST_TIMEOUT'] = 60  # Set request timeout to 60 seconds
@@ -61,6 +62,11 @@ file_handler.setLevel(logging.INFO)
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Application startup')
+
+# Context processor to inject CSRF token into templates
+@app.context_processor
+def inject_csrf_token():
+    return dict(csrf_token=csrf.generate_csrf)
 
 # Initialize temperature sensors based on settings
 print("Initializing temperature sensors...")
