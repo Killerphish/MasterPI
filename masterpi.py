@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages
-from quart_csrf import CSRFProtect
+from quart_csrf import CSRFProtect, generate_csrf
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
@@ -66,7 +66,7 @@ app.logger.info('Application startup')
 # Context processor to inject CSRF token into templates
 @app.context_processor
 def inject_csrf_token():
-    token = generate_csrf()
+    token = generate_csrf()  # Use generate_csrf function
     app.logger.debug(f"Generated CSRF token: {token}")
     return dict(csrf_token=token)
 
