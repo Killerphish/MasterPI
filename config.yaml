@@ -27,7 +27,7 @@ pid:
   kp: 1.0
   ki: 0.1
   kd: 0.05
-  target_temperature: 25.0  # Default target temperature in Celsius
+  target_temperature: 75.0  # Default target temperature in Fahrenheit
   sample_time: 1.0          # Time in seconds between PID calculations
 
 # Fan control settings
@@ -65,7 +65,7 @@ units:
 # Device settings
 device:
   name: My Temperature Controller
-  location: 'Server Room'
+  location: 'Outside'
 
 # Chart settings
 chart:
