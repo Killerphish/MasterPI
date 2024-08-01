@@ -477,4 +477,23 @@ document.addEventListener("DOMContentLoaded", function() {
             // No need to display message here, as it will be handled server-side
         });
     }
+
+    // Tab switching functionality
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const targetTab = this.getAttribute('data-tab');
+
+            // Remove active class from all tab contents
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Add active class to the target tab content
+            document.getElementById(targetTab).classList.add('active');
+        });
+    });
 });

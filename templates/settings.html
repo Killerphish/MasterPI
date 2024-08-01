@@ -2,9 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Include Font Awesome for icons -->
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <div class="navbar">
@@ -35,7 +44,7 @@
                 </div>
             {% endif %}
             <form id="settingsForm">
-                <div id="general" class="tab-content">
+                <div id="general" class="tab-content active">
                     <h2>General</h2>
                     <div>
                         <label for="device_name">Device Name:</label>
