@@ -66,7 +66,9 @@ app.logger.info('Application startup')
 # Context processor to inject CSRF token into templates
 @app.context_processor
 def inject_csrf_token():
-    return dict(csrf_token=csrf.generate_csrf)
+    token = csrf.generate_csrf()
+    app.logger.debug(f"Generated CSRF token: {token}")
+    return dict(csrf_token=token)
 
 # Initialize temperature sensors based on settings
 print("Initializing temperature sensors...")
@@ -142,6 +144,7 @@ async def settings():
     config = load_config()
     messages = get_flashed_messages(with_categories=True)
     sensors = config.get('sensors', [])
+    app.logger.debug(f"Rendering settings.html with messages: {messages} and sensors: {sensors}")
     return await render_template('settings.html', messages=messages, sensors=sensors)
 
 @app.route('/get_temperature', methods=['GET'])
