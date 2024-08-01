@@ -8,22 +8,7 @@ app:
   port: 5000
 
 # Sensor settings
-sensors:
-  - type: MAX31855
-    chip_select_pin: D8
-    temp_offset: 0.0
-    enabled: true
-  - type: MAX31865
-    chip_select_pin: D18
-    rtd_type: PT100
-    reference_resistor: 430.0
-    temp_offset: 0.0
-    enabled: false
-  - type: ADS1115
-    channel: 0
-    address: 0x48
-    temp_offset: 0.0
-    enabled: false
+sensors: []
 
 # PID controller settings
 pid:

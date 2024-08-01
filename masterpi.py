@@ -70,13 +70,15 @@ def initialize_sensors(config):
     for sensor_config in sensor_configs:
         sensor_type = sensor_config['type']
         try:
+            # Ensure temp_offset is a float
+            temp_offset = float(sensor_config.get('temp_offset', 0.0))
             if sensor_type == 'MAX31865':
                 # Initialize SPI bus and sensor
                 spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
                 cs_pin = getattr(board, sensor_config['chip_select_pin'])
                 cs = digitalio.DigitalInOut(cs_pin)
                 sensor = MAX31865(spi, cs, rtd_nominal=sensor_config['rtd_type'], ref_resistor=sensor_config['reference_resistor'])
-                sensors.append((sensor, sensor_config['temp_offset']))
+                sensors.append((sensor, temp_offset))  # Use temp_offset as a float
                 app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
             
             elif sensor_type == 'MAX31855':
@@ -85,7 +87,7 @@ def initialize_sensors(config):
                 cs_pin = getattr(board, sensor_config['chip_select_pin'])
                 cs = digitalio.DigitalInOut(cs_pin)
                 sensor = MAX31855(spi, cs)
-                sensors.append((sensor, sensor_config['temp_offset']))
+                sensors.append((sensor, temp_offset))  # Use temp_offset as a float
                 app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
             
             elif sensor_type == 'ADS1115':
@@ -93,7 +95,7 @@ def initialize_sensors(config):
                 i2c = busio.I2C(board.SCL, board.SDA)
                 ads = ADS.ADS1115(i2c, address=sensor_config['address'])
                 sensor = AnalogIn(ads, getattr(ADS, f'P{sensor_config["channel"]}'))
-                sensors.append((sensor, sensor_config['temp_offset']))
+                sensors.append((sensor, temp_offset))  # Use temp_offset as a float
                 app.logger.info(f"Initialized {sensor_type} sensor on channel {sensor_config['channel']} with address {sensor_config['address']}")
             
         except Exception as e:
@@ -297,40 +299,12 @@ async def save_general_settings():
 async def save_device_settings():
     try:
         form_data = await request.form
-        enable_max31865 = form_data.get('enable_max31865') == 'on'
-        enable_max31855 = form_data.get('enable_max31855') == 'on'
-        enable_ads1115 = form_data.get('enable_ads1115') == 'on'
+        sensors = json.loads(form_data.get('sensors', '[]'))
 
-        # Get the temperature offset if needed
-        temp_offset = form_data.get('temp_offset', 0.0)
-
-        # Load existing configuration
         config = load_config()
 
         # Update config with new settings
-        config['sensors'] = []
-
-        if enable_max31865:
-            config['sensors'].append({
-                'type': 'MAX31865',
-                'chip_select_pin': 'D18',  # Update this as needed
-                'rtd_type': 'PT100',       # Adjust these parameters if required
-                'reference_resistor': 430.0,
-                'temp_offset': float(temp_offset)
-            })
-        if enable_max31855:
-            config['sensors'].append({
-                'type': 'MAX31855',
-                'chip_select_pin': 'D8',   # Update this as needed
-                'temp_offset': float(temp_offset)
-            })
-        if enable_ads1115:
-            config['sensors'].append({
-                'type': 'ADS1115',
-                'channel': 0,             # Example channel; update as needed
-                'address': 72,            # Example address; update as needed
-                'temp_offset': float(temp_offset)
-            })
+        config['sensors'] = sensors
 
         save_config(config)
 
@@ -359,8 +333,8 @@ async def get_status():
             'app': 'Temperature Control System',
             'version': '1.0.0',
             'status': 'running',
-            'sensors': [sensor.__class__.__name__ for sensor in sensors],
-            'temperature': sensors[0].temperature if sensors else None  # Example temperature data
+            'sensors': [sensor[0].__class__.__name__ for sensor in sensors],  # Access the sensor object correctly
+            'temperature': sensors[0][0].temperature if sensors else None  # Access the temperature correctly
         }
         return jsonify(status)
     except Exception as e:

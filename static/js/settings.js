@@ -162,33 +162,73 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
-    // Save Device Settings
-document.getElementById('saveDevices').addEventListener('click', function() {
-    const formData = new FormData();
-    formData.append('enable_max31865', document.getElementById('enable_max31865').checked);
-    formData.append('enable_max31855', document.getElementById('enable_max31855').checked);
-    formData.append('enable_ads1115', document.getElementById('enable_ads1115').checked);
-    
-    fetch('/save_device_settings', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const messageContainer = document.getElementById('messageContainer');
-            messageContainer.textContent = 'Device settings saved successfully!';
-        } else {
-            const messageContainer = document.getElementById('messageContainer');
-            messageContainer.textContent = 'Failed to save device settings.';
-        }
-    })
-    .catch(error => {
-        console.error('Error saving device settings:', error);
-        const messageContainer = document.getElementById('messageContainer');
-        messageContainer.textContent = 'Error saving device settings: ' + error.message;
+    const sensorList = document.getElementById('sensorList');
+    const addSensorButton = document.getElementById('addSensor');
+    const tempOffsetInput = document.getElementById('temp_offset');
+    const sensorTypeSelect = document.getElementById('sensor_type');
+
+    let sensors = [];
+
+    function renderSensors() {
+        sensorList.innerHTML = '';
+        sensors.forEach((sensor, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                ${sensor.type} (Offset: ${sensor.temp_offset})
+                <button class="editSensor" data-index="${index}">Edit</button>
+                <button class="removeSensor" data-index="${index}">Remove</button>
+            `;
+            sensorList.appendChild(li);
+        });
+    }
+
+    addSensorButton.addEventListener('click', function() {
+        const sensor = {
+            type: sensorTypeSelect.value,
+            temp_offset: parseFloat(tempOffsetInput.value)
+        };
+        sensors.push(sensor);
+        renderSensors();
     });
-});
+
+    sensorList.addEventListener('click', function(event) {
+        if (event.target.classList.contains('editSensor')) {
+            const index = event.target.getAttribute('data-index');
+            const sensor = sensors[index];
+            sensorTypeSelect.value = sensor.type;
+            tempOffsetInput.value = sensor.temp_offset;
+            sensors.splice(index, 1);
+            renderSensors();
+        } else if (event.target.classList.contains('removeSensor')) {
+            const index = event.target.getAttribute('data-index');
+            if (confirm('Are you sure you want to remove this sensor?')) {
+                sensors.splice(index, 1);
+                renderSensors();
+            }
+        }
+    });
+
+    document.getElementById('saveDevices').addEventListener('click', function() {
+        const formData = new FormData();
+        formData.append('sensors', JSON.stringify(sensors));
+
+        fetch('/save_device_settings', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayMessage('Device settings saved successfully!', 'success');
+            } else {
+                displayMessage('Failed to save device settings.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving device settings:', error);
+            displayMessage('Error saving device settings: ' + error.message, 'error');
+        });
+    });
 
     function fetchMeaterTemperature() {
         fetch('/get_meater_temperature')

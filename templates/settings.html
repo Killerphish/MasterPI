@@ -52,31 +52,19 @@
                         <input type="number" id="temp_offset" name="temp_offset" placeholder="Offset in degrees">
                     </div>
                     <div>
-                        <label for="pid_autotune">PID Autotune:</label>
-                        <button id="pid_autotune">Start Autotune</button>
+                        <label for="sensor_type">Sensor Type:</label>
+                        <select id="sensor_type" name="sensor_type">
+                            <option value="MAX31865">MAX31865</option>
+                            <option value="MAX31855">MAX31855</option>
+                            <option value="ADS1115">ADS1115</option>
+                        </select>
                     </div>
                     <div>
-                        <label for="sensor_type_max31865">Enable MAX31865:</label>
-                        <input type="checkbox" id="sensor_type_max31865" name="sensor_type_max31865">
+                        <button type="button" id="addSensor">Add Sensor</button>
                     </div>
-                    <div>
-                        <label for="sensor_type_max31855">Enable MAX31855:</label>
-                        <input type="checkbox" id="sensor_type_max31855" name="sensor_type_max31855">
-                    </div>
-                    <div>
-                        <label for="sensor_type_ads1115">Enable ADS1115:</label>
-                        <input type="checkbox" id="sensor_type_ads1115" name="sensor_type_ads1115">
-                    </div>
-                    <div>
-                        <label for="sensor_count">Number of Sensors:</label>
-                        <input type="number" id="sensor_count" name="sensor_count" min="1" max="4" value="1">
-                    </div>
-                    <div>
-                        <button type="button" id="saveDevices">Save Device Settings</button>
-                    </div>
-                    <div>
-                        <label for="sensor_count">Number of Sensors:</label>
-                        <input type="number" id="sensor_count" name="sensor_count" min="1" max="4" value="1">
+                    <div id="enabledSensors">
+                        <h3>Enabled Sensors</h3>
+                        <ul id="sensorList"></ul>
                     </div>
                     <div>
                         <button type="button" id="saveDevices">Save Device Settings</button>
@@ -282,6 +270,63 @@
                     const messageContainer = document.getElementById('messageContainer');
                     messageContainer.textContent = 'Error saving integration settings: ' + error.message;
                 });
+            });
+
+            const sensorList = document.getElementById('sensorList');
+            const addSensorButton = document.getElementById('addSensor');
+            const tempOffsetInput = document.getElementById('temp_offset');
+            const sensorTypeSelect = document.getElementById('sensor_type');
+
+            // Add sensor functionality
+            addSensorButton.addEventListener('click', function() {
+                const sensorType = sensorTypeSelect.value;
+                const sensorCount = sensorList.childElementCount + 1;
+                const sensorListItem = document.createElement('li');
+                sensorListItem.textContent = `${sensorType} @ ${sensorCount}`;
+                sensorListItem.dataset.sensorType = sensorType;
+                sensorListItem.dataset.sensorCount = sensorCount;
+                sensorList.appendChild(sensorListItem);
+            });
+
+            // Edit sensor functionality
+            sensorList.addEventListener('click', function(event) {
+                if (event.target.tagName === 'LI') {
+                    const sensorType = event.target.dataset.sensorType;
+                    const sensorCount = event.target.dataset.sensorCount;
+                    const editForm = document.createElement('form');
+                    editForm.innerHTML = `
+                        <label for="sensor_count">Number of ${sensorType}:</label>
+                        <input type="number" id="sensor_count" name="sensor_count" min="1" max="4" value="${sensorCount}">
+                        <button type="submit">Save</button>
+                    `;
+                    event.target.appendChild(editForm);
+                    editForm.addEventListener('submit', function(event) {
+                        event.preventDefault();
+                        const newSensorCount = editForm.querySelector('input').value;
+                        event.target.parentNode.textContent = `${sensorType} @ ${newSensorCount}`;
+                        event.target.parentNode.dataset.sensorCount = newSensorCount;
+                        event.target.remove();
+                    });
+                }
+            });
+
+            // Remove sensor functionality
+            sensorList.addEventListener('contextmenu', function(event) {
+                event.preventDefault();
+                if (event.target.tagName === 'LI') {
+                    const sensorType = event.target.dataset.sensorType;
+                    const sensorCount = event.target.dataset.sensorCount;
+                    const removeForm = document.createElement('form');
+                    removeForm.innerHTML = `
+                        <p>Are you sure you want to remove the ${sensorType} @ ${sensorCount}?</p>
+                        <button type="submit">Yes</button>
+                    `;
+                    event.target.appendChild(removeForm);
+                    removeForm.addEventListener('submit', function(event) {
+                        event.preventDefault();
+                        event.target.parentNode.remove();
+                    });
+                }
             });
         });
     </script>
