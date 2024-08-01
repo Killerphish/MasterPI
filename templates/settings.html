@@ -44,6 +44,7 @@
                 </div>
             {% endif %}
             <form id="settingsForm" method="POST" action="{{ url_for('save_device_settings') }}">
+                {{ csrf_token() }}
                 <div id="general" class="tab-content active">
                     <h2>General</h2>
                     <div>

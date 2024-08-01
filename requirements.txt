@@ -1,4 +1,5 @@
 Quart
+Quart-CSRF
 Adafruit-Blinka
 Adafruit-PlatformDetect
 Adafruit-PureIO

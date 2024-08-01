@@ -571,4 +571,19 @@ document.addEventListener("DOMContentLoaded", function() {
             removeModal.style.display = 'none';
         }
     });
+
+    // Function to get CSRF token
+    function getCsrfToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
+    // Include this in your fetch requests
+    fetch('/your-endpoint', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify(data)
+    })
 });
