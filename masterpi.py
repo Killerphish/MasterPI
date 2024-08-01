@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for
+from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
@@ -132,7 +132,8 @@ async def index():
 
 @app.route('/settings.html')
 async def settings():
-    return await render_template('settings.html')
+    messages = get_flashed_messages(with_categories=True)
+    return await render_template('settings.html', messages=messages)
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
@@ -287,13 +288,16 @@ async def save_general_settings():
 
         save_config(config)
 
-        return jsonify({'success': True})
+        flash('General settings saved successfully!', 'success')
+        return redirect(url_for('settings'))
     except ValueError as ve:
         app.logger.error(f"Validation error: {ve}")
-        return jsonify({'success': False, 'error': str(ve)}), 400
+        flash(f'Validation error: {ve}', 'error')
+        return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error saving general settings: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+        flash('Internal Server Error', 'error')
+        return redirect(url_for('settings'))
 
 @app.route('/save_device_settings', methods=['POST'])
 async def save_device_settings():
@@ -308,13 +312,16 @@ async def save_device_settings():
 
         save_config(config)
 
-        return jsonify({'success': True})
+        flash('Device settings saved successfully!', 'success')
+        return redirect(url_for('settings'))
     except ValueError as ve:
         app.logger.error(f"Validation error: {ve}")
-        return jsonify({'success': False, 'error': str(ve)}), 400
+        flash(f'Validation error: {ve}', 'error')
+        return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error saving device settings: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+        flash('Internal Server Error', 'error')
+        return redirect(url_for('settings'))
 
 @app.route('/get_settings', methods=['GET'])
 async def get_settings():
@@ -360,10 +367,12 @@ async def save_integration_settings():
 
         save_config(config)
 
-        return jsonify({'success': True})
+        flash('Integration settings saved successfully!', 'success')
+        return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error saving integration settings: {e}", exc_info=True)
-        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+        flash('Internal Server Error', 'error')
+        return redirect(url_for('settings'))
 
 @app.route('/pid_autotune', methods=['POST'])
 async def pid_autotune():
@@ -371,10 +380,12 @@ async def pid_autotune():
         # Replace with actual logic to start PID autotune
         # For example, you might call a method on your PIDController instance
         pid.start_autotune()
-        return jsonify({'success': True})
+        flash('PID autotune started successfully!', 'success')
+        return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error starting PID autotune: {e}")
-        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+        flash('Error starting PID autotune', 'error')
+        return redirect(url_for('settings'))
 
 # Check if the wizard has been completed
 @app.before_request
