@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function updateStatus() {
         fetchStatus()
             .then(data => {
+                console.log('Status data:', data); // Debugging line
                 const currentTempElement = document.getElementById('current-temp');
                 const fanStatusElement = document.getElementById('fan-status');
 

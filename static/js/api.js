@@ -32,14 +32,12 @@ export function fetchTemperatureData() {
         });
 }
 
-export function fetchStatus() {
-    return fetch('/get_status')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        });
+export async function fetchStatus() {
+    const response = await fetch('/get_status');
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return await response.json();
 }
 
 export function updateTargetTemp(targetTemp) {
