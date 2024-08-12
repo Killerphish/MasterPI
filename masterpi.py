@@ -137,14 +137,14 @@ dht_device = adafruit_dht.DHT22(board.D18)
 
 @app.route('/')
 async def index():
-    return await render_template('index.html')
+    return await render_template('index.html', device_name=config['device']['name'])
 
 @app.route('/settings.html')
 async def settings():
     config = load_config()
     messages = get_flashed_messages(with_categories=True)
     sensors = config.get('sensors', [])
-    return await render_template('settings.html', messages=messages, sensors=sensors)
+    return await render_template('settings.html', messages=messages, sensors=sensors, device_name=config['device']['name'])
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
@@ -240,142 +240,14 @@ def save_temperature():
 @app.route('/get_temperature_data', methods=['GET'])
 def get_temperature_data():
     try:
-        minutes = request.args.get('minutes', default=1440, type=int)  # Default to 24 hours
-        data = get_temperature_data_by_range(minutes)
+        data = get_last_24_hours_temperature_data()
         return jsonify(data)
     except Exception as e:
         app.logger.error(f"Error fetching temperature data: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-def get_temperature_data_by_range(minutes):
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute('''
-        SELECT timestamp, temperature 
-        FROM temperature_data 
-        WHERE timestamp >= datetime('now', ? || ' minutes') 
-        ORDER BY timestamp ASC
-    ''', (-minutes,))
-    data = c.fetchall()
-    conn.close()
-    return data
-
-@app.route('/init_db', methods=['POST'])
-def initialize_database():
-    try:
-        init_db()
-        return jsonify({'status': 'success'})
-    except Exception as e:
-        app.logger.error(f"Error initializing database: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-async def get_meater_api_token(email, password):
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post('https://public-api.cloud.meater.com/v1/login', json={
-                'email': email,
-                'password': password
-            }) as response:
-                response.raise_for_status()
-                data = await response.json()
-                return data['data']['token']
-    except aiohttp.ClientError as e:
-        app.logger.error(f"Error fetching Meater API token: {e}")
-        raise
-
-@app.route('/save_general_settings', methods=['POST'])
-async def save_general_settings():
-    try:
-        form_data = await request.form
-        device_name = form_data.get('device_name')
-
-        if not device_name:
-            raise ValueError("Device name is required.")
-
-        config = load_config()
-
-        # Update config with new settings
-        config['device']['name'] = device_name
-
-        save_config(config)
-
-        flash('General settings saved successfully!', 'success')
-        return redirect(url_for('settings'))
-    except ValueError as ve:
-        app.logger.error(f"Validation error: {ve}")
-        flash(f'Validation error: {ve}', 'error')
-        return redirect(url_for('settings'))
-    except Exception as e:
-        app.logger.error(f"Error saving general settings: {e}", exc_info=True)
-        flash('Internal Server Error', 'error')
-        return redirect(url_for('settings'))
-
-@app.route('/save_device_settings', methods=['POST'])
-async def save_device_settings():
-    form_data = await request.form
-    app.logger.debug(f"Form data: {form_data}")
-    device_name = form_data.get('device_name')
-    temp_unit = form_data.get('temp_unit')
-    csrf_token = form_data.get('csrf_token')
-    app.logger.debug(f"CSRF token received: {csrf_token}")
-
-    # Update the configuration with the new settings
-    config['device'] = {'name': device_name}
-    config['temp_unit'] = temp_unit
-
-    save_config(config)  # Save the updated configuration
-
-    # Log the updated configuration
-    app.logger.info(f"Updated configuration: {config}")
-
-    # Redirect to the main page
-    return redirect(url_for('index'))
-
-@app.route('/remove_sensor/<int:index>', methods=['POST'])
-async def remove_sensor(index):
-    try:
-        config = load_config()
-        sensors = config.get('sensors', [])
-
-        if 0 <= index < len(sensors):
-            sensors.pop(index)
-            config['sensors'] = sensors
-            save_config(config)
-            flash('Sensor removed successfully!', 'success')
-        else:
-            flash('Invalid sensor index!', 'error')
-
-        return redirect(url_for('settings'))
-    except Exception as e:
-        app.logger.error(f"Error removing sensor: {e}", exc_info=True)
-        flash('Error removing sensor', 'error')
-        return redirect(url_for('settings'))
-
-@app.route('/edit_sensor/<int:index>', methods=['POST'])
-async def edit_sensor(index):
-    try:
-        form_data = await request.form
-        sensor_count = int(form_data.get('count', 1))
-
-        config = load_config()
-        sensors = config.get('sensors', [])
-
-        if 0 <= index < len(sensors):
-            sensors[index]['count'] = sensor_count
-            config['sensors'] = sensors
-            save_config(config)
-            flash('Sensor updated successfully!', 'success')
-        else:
-            flash('Invalid sensor index!', 'error')
-
-        return redirect(url_for('settings'))
-    except Exception as e:
-        app.logger.error(f"Error editing sensor: {e}", exc_info=True)
-        flash('Error updating sensor', 'error')
-        return redirect(url_for('settings'))
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/get_settings', methods=['GET'])
-async def get_settings():
+def get_settings():
     try:
         config = load_config()
         return jsonify(config)
@@ -383,21 +255,27 @@ async def get_settings():
         app.logger.error(f"Error fetching settings: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 
-@app.route('/get_status', methods=['GET'])
-async def get_status():
+@app.route('/save_device_settings', methods=['POST'])
+async def save_device_settings():
     try:
-        # Example status data, replace with actual status logic
-        status = {
-            'app': 'Temperature Control System',
-            'version': '1.0.0',
-            'status': 'running',
-            'sensors': [sensor[0].__class__.__name__ for sensor in sensors],  # Access the sensor object correctly
-            'temperature': sensors[0][0].temperature if sensors else None  # Access the temperature correctly
-        }
-        return jsonify(status)
+        form_data = await request.form
+        device_name = form_data.get('device_name')
+        temp_unit = form_data.get('temp_unit')
+
+        config = load_config()
+
+        # Update config with new settings
+        config['device']['name'] = device_name
+        config['units']['temperature'] = temp_unit
+
+        save_config(config)
+
+        flash('Device settings saved successfully!', 'success')
+        return redirect(url_for('settings'))
     except Exception as e:
-        app.logger.error(f"Error fetching status: {e}")
-        return jsonify({'error': 'Internal Server Error'}), 500
+        app.logger.error(f"Error saving device settings: {e}", exc_info=True)
+        flash('Internal Server Error', 'error')
+        return redirect(url_for('settings'))
 
 @app.route('/save_integration_settings', methods=['POST'])
 async def save_integration_settings():
@@ -459,7 +337,7 @@ async def complete_wizard():
 
     # Update the configuration with the new settings
     config['device'] = {'name': device_name}
-    config['temp_unit'] = temp_unit
+    config['units']['temperature'] = temp_unit
     config['app']['wizard_completed'] = True  # Set the wizard as completed
 
     save_config(config)  # Save the updated configuration

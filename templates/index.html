@@ -14,9 +14,9 @@
 <body>
     <nav>
         <div class="nav-wrapper">
-            <a href="#home" class="brand-logo">{{ device_name }}</a>
+            <a href="{{ url_for('index') }}" class="brand-logo">{{ device_name }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
-                <li><a href="settings.html">Settings</a></li>
+                <li><a href="{{ url_for('settings') }}">Settings</a></li>
             </ul>
         </div>
     </nav>
@@ -61,11 +61,11 @@
                 .then(settings => {
                     const deviceNameElement = document.getElementById('deviceName');
                     if (deviceNameElement) {
-                        deviceNameElement.textContent = settings.device_name;
+                        deviceNameElement.textContent = settings.device.name;
                     }
 
                     // Update temperature unit
-                    const tempUnit = settings.temp_unit;
+                    const tempUnit = settings.units.temperature;
                     updateTemperatureUnit(tempUnit);
                 })
                 .catch(error => {
@@ -78,9 +78,9 @@
             fetch('/get_temperature')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.temperature !== undefined) {
-                        let temperature = data.temperature;
-                        if (unit === 'F') {
+                    if (data.temperatures !== undefined) {
+                        let temperature = data.temperatures[0];
+                        if (unit === 'Fahrenheit') {
                             temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
                         }
                         document.getElementById('current-temp').textContent = `${temperature.toFixed(2)} °${unit}`;

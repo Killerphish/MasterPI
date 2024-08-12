@@ -20,9 +20,9 @@
 <body>
     <nav>
         <div class="nav-wrapper">
-            <a href="./#home" class="brand-logo">{{ device_name }}</a>
+            <a href="{{ url_for('index') }}" class="brand-logo">{{ device_name }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
-                <li><a href="settings.html">Settings</a></li>
+                <li><a href="{{ url_for('settings') }}">Settings</a></li>
             </ul>
         </div>
     </nav>
