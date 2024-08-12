@@ -3,6 +3,10 @@ import { updateStatus, handleFetchError } from './status.js';
 import { requestMeaterApiKey } from './api.js';
 
 document.addEventListener("DOMContentLoaded", function() {
+    M.AutoInit();
+    var elems = document.querySelectorAll('.tabs');
+    var instances = M.Tabs.init(elems);
+
     const form = document.getElementById('settingsForm');
     const enableMeaterIntegrationButton = document.getElementById('enableMeaterIntegration');
     const meaterModal = document.getElementById('meaterModal');
