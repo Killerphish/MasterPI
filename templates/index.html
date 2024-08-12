@@ -14,14 +14,14 @@
 <body>
     <nav>
         <div class="nav-wrapper">
-            <a href="#home" class="brand-logo">Home</a>
+            <a href="#home" class="brand-logo">{{ device_name }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li><a href="settings.html">Settings</a></li>
             </ul>
         </div>
     </nav>
     <div class="container">
-        <h1 id="deviceName" class="center-align">MasterPi Smoker</h1>
+        <h1 id="deviceName" class="center-align">{{ device_name }}</h1>
         <div class="row">
             <div class="col s12 m6">
                 <p>Current Temperature: <span id="current-temp">Current temperature will be displayed here.</span></p>
