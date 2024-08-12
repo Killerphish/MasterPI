@@ -7,6 +7,18 @@ document.addEventListener("DOMContentLoaded", function() {
     var elems = document.querySelectorAll('.tabs');
     var instances = M.Tabs.init(elems);
 
+    // Add event listeners to switch tab content
+    document.querySelectorAll('.tabs a').forEach(tab => {
+        tab.addEventListener('click', function(event) {
+            event.preventDefault();
+            const target = this.getAttribute('href').substring(1);
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(target).classList.add('active');
+        });
+    });
+
     const form = document.getElementById('settingsForm');
     const enableMeaterIntegrationButton = document.getElementById('enableMeaterIntegration');
     const meaterModal = document.getElementById('meaterModal');
