@@ -33,11 +33,17 @@ export function fetchTemperatureData() {
 }
 
 export async function fetchStatus() {
-    const response = await fetch('/get_status');
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
+    try {
+        const response = await fetch('/get_status');
+        if (!response.ok) {
+            console.error('Network response was not ok:', response.status, response.statusText);
+            throw new Error('Network response was not ok');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching status:', error);
+        throw error;
     }
-    return await response.json();
 }
 
 export function updateTargetTemp(targetTemp) {
