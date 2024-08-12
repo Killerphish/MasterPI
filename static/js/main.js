@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             // Update temperature unit
-            tempUnit = settings.temp_unit; // Set the global variable
+            tempUnit = settings.units.temperature; // Set the global variable
             updateTemperatureUnit(tempUnit);
         })
         .catch(error => {

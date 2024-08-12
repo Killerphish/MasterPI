@@ -144,7 +144,8 @@ async def settings():
     config = load_config()
     messages = get_flashed_messages(with_categories=True)
     sensors = config.get('sensors', [])
-    return await render_template('settings.html', messages=messages, sensors=sensors, device_name=config['device']['name'])
+    units = config.get('units', {})
+    return await render_template('settings.html', messages=messages, sensors=sensors, device_name=config['device']['name'], units=units)
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():

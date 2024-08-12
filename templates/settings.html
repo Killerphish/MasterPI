@@ -57,8 +57,8 @@
                         <div class="input-field">
                             <label for="temp_unit">Temperature Unit:</label>
                             <select id="temp_unit" name="temp_unit" class="browser-default">
-                                <option value="C" {% if units['temperature'] == 'C' %}selected{% endif %}>Celsius</option>
-                                <option value="F" {% if units['temperature'] == 'F' %}selected{% endif %}>Fahrenheit</option>
+                                <option value="C" {% if units.temperature == 'C' %}selected{% endif %}>Celsius</option>
+                                <option value="F" {% if units.temperature == 'F' %}selected{% endif %}>Fahrenheit</option>
                             </select>
                         </div>
                         <div>
