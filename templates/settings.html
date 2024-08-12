@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <style>
         .tab-content {
             display: none;
@@ -47,7 +47,7 @@
                     </div>
                 {% endif %}
                 <form id="settingsForm" method="POST" action="{{ url_for('save_device_settings') }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <div id="general" class="tab-content active">
                         <h2>General</h2>
                         <div class="input-field">
