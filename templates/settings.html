@@ -52,17 +52,17 @@
                         <h2>General</h2>
                         <div class="input-field">
                             <label for="device_name">Device Name:</label>
-                            <input type="text" id="device_name" name="device_name" placeholder="Device Name">
+                            <input type="text" id="device_name" name="device_name" value="{{ device_name }}" placeholder="Device Name">
                         </div>
                         <div class="input-field">
                             <label for="temp_unit">Temperature Unit:</label>
                             <select id="temp_unit" name="temp_unit" class="browser-default">
-                                <option value="C">Celsius</option>
-                                <option value="F">Fahrenheit</option>
+                                <option value="C" {% if config['units']['temperature'] == 'C' %}selected{% endif %}>Celsius</option>
+                                <option value="F" {% if config['units']['temperature'] == 'F' %}selected{% endif %}>Fahrenheit</option>
                             </select>
                         </div>
                         <div>
-                            <button type="button" id="saveGeneral" class="btn">Save General Settings</button>
+                            <button type="submit" class="btn">Save General Settings</button>
                         </div>
                     </div>
                     <div id="devices" class="tab-content">
