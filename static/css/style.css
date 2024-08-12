@@ -1,5 +1,5 @@
 body {
-    font-family: monospace, sans-serif;
+    font-family: 'Roboto', sans-serif;
     margin: 20px;
 }
 
@@ -11,6 +11,7 @@ label {
     display: inline-block;
     width: 150px;
 }
+
 .navbar {
     overflow: hidden;
     background-color: #827f7f;

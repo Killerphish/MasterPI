@@ -3,34 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <title>Setup Wizard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </head>
 <body>
-    <h1>Setup Wizard</h1>
-    <form id="wizardForm" method="POST" action="{{ url_for('complete_wizard') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <label for="device_name">Device Name:</label>
-        <input type="text" id="device_name" name="device_name" required><br>
-
-        <label for="temp_unit">Temperature Unit:</label>
-        <select id="temp_unit" name="temp_unit">
-            <option value="C">Celsius</option>
-            <option value="F">Fahrenheit</option>
-        </select><br>
-
-        <label for="sensor_type">Sensor Type:</label>
-        <select id="sensor_type" name="sensor_type" required>
-            <option value="MAX31865">MAX31865</option>
-            <option value="MAX31855">MAX31855</option>
-            <option value="ADS1115">ADS1115</option>
-        </select><br>
-
-        <label for="sensor_count">Number of Sensors:</label>
-        <input type="number" id="sensor_count" name="sensor_count" min="1" max="4" value="1" required><br>
-
-        <label for="meater_integration">Enable Meater Integration:</label>
-        <input type="checkbox" id="meater_integration" name="meater_integration"><br>
-
-        <button type="submit">Complete Setup</button>
-    </form>
+    <div class="container">
+        <h1>Setup Wizard</h1>
+        <form id="wizardForm" method="POST" action="{{ url_for('complete_wizard') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="input-field">
+                <label for="device_name">Device Name:</label>
+                <input type="text" id="device_name" name="device_name" required>
+            </div>
+            <div class="input-field">
+                <label for="temp_unit">Temperature Unit:</label>
+                <select id="temp_unit" name="temp_unit" class="browser-default">
+                    <option value="C">Celsius</option>
+                    <option value="F">Fahrenheit</option>
+                </select>
+            </div>
+            <div class="input-field">
+                <label for="sensor_type">Sensor Type:</label>
+                <select id="sensor_type" name="sensor_type" class="browser-default" required>
+                    <option value="MAX31865">MAX31865</option>
+                    <option value="MAX31855">MAX31855</option>
+                    <option value="ADS1115">ADS1115</option>
+                </select>
+            </div>
+            <div class="input-field">
+                <label for="sensor_count">Number of Sensors:</label>
+                <input type="number" id="sensor_count" name="sensor_count" min="1" max="4" value="1" required>
+            </div>
+            <div class="input-field">
+                <label for="meater_integration">Enable Meater Integration:</label>
+                <input type="checkbox" id="meater_integration" name="meater_integration">
+            </div>
+            <button type="submit" class="btn">Complete Setup</button>
+        </form>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            M.AutoInit();
+        });
+    </script>
 </body>
 </html>

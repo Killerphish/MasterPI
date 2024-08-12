@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         .tab-content {
@@ -17,127 +18,135 @@
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <a href="./#home">Home</a>
-        <a href="settings.html">Settings</a>
-        <div class="status">
-            <span id="current-temp">Temp: -- °C</span>
-            <span id="fan-status">Fan: --</span>
-        </div>
-    </div>
-    <h1 id="deviceName">MasterPi Smoker</h1>
-    <h1>Settings</h1>
-    <div class="container">
-        <div class="sidebar">
-            <ul>
-                <li><a href="#" class="tab-link" data-tab="general">General</a></li>
-                <li><a href="#" class="tab-link" data-tab="devices">Devices</a></li>
-                <li><a href="#" class="tab-link" data-tab="integrations">Integrations</a></li>
+    <nav>
+        <div class="nav-wrapper">
+            <a href="./#home" class="brand-logo">Home</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="settings.html">Settings</a></li>
             </ul>
         </div>
-        <div class="content">
-            <!-- Display messages -->
-            {% if messages %}
-                <div id="messageContainer">
-                    {% for category, message in messages %}
-                        <div class="{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <form id="settingsForm" method="POST" action="{{ url_for('save_device_settings') }}">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div id="general" class="tab-content active">
-                    <h2>General</h2>
-                    <div>
-                        <label for="device_name">Device Name:</label>
-                        <input type="text" id="device_name" name="device_name" placeholder="Device Name">
+    </nav>
+    <div class="container">
+        <h1 id="deviceName">MasterPi Smoker</h1>
+        <h1>Settings</h1>
+        <div class="row">
+            <div class="col s3">
+                <ul class="tabs">
+                    <li class="tab col s12"><a href="#general">General</a></li>
+                    <li class="tab col s12"><a href="#devices">Devices</a></li>
+                    <li class="tab col s12"><a href="#integrations">Integrations</a></li>
+                </ul>
+            </div>
+            <div class="col s9">
+                <!-- Display messages -->
+                {% if messages %}
+                    <div id="messageContainer">
+                        {% for category, message in messages %}
+                            <div class="{{ category }}">{{ message }}</div>
+                        {% endfor %}
                     </div>
-                    <div>
-                        <label for="temp_unit">Temperature Unit:</label>
-                        <select id="temp_unit" name="temp_unit">
-                            <option value="C">Celsius</option>
-                            <option value="F">Fahrenheit</option>
-                        </select>
-                    </div>
-                    <div>
-                        <button type="button" id="saveGeneral">Save General Settings</button>
-                    </div>
-                </div>
-                <div id="devices" class="tab-content">
-                    <h2>Devices</h2>
-                    <div class="sensor-management">
-                        <div class="sensor-add">
-                            <select id="sensor_type" name="sensor_type">
-                                <option value="MAX31865">MAX31865</option>
-                                <option value="MAX31855">MAX31855</option>
-                                <option value="ADS1115">ADS1115</option>
+                {% endif %}
+                <form id="settingsForm" method="POST" action="{{ url_for('save_device_settings') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div id="general" class="tab-content active">
+                        <h2>General</h2>
+                        <div class="input-field">
+                            <label for="device_name">Device Name:</label>
+                            <input type="text" id="device_name" name="device_name" placeholder="Device Name">
+                        </div>
+                        <div class="input-field">
+                            <label for="temp_unit">Temperature Unit:</label>
+                            <select id="temp_unit" name="temp_unit" class="browser-default">
+                                <option value="C">Celsius</option>
+                                <option value="F">Fahrenheit</option>
                             </select>
-                            <button type="button" id="addSensor">Add Sensor</button>
                         </div>
-                        <div class="sensor-list">
-                            <h3>Enabled Sensors</h3>
-                            <ul id="sensorList">
-                                {% for sensor in sensors %}
-                                    <li>
-                                        <span class="sensor-info">{{ sensor.type }}</span>
-                                        <button class="edit-sensor" data-index="{{ loop.index0 }}">Edit</button>
-                                        <button class="remove-sensor" data-index="{{ loop.index0 }}">Remove</button>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                        <div>
+                            <button type="button" id="saveGeneral" class="btn">Save General Settings</button>
                         </div>
                     </div>
-                    <div id="sensorEditModal" class="modal">
-                        <div class="modal-content">
-                            <h3>Edit Sensor</h3>
-                            <form id="editSensorForm">
-                                <input type="hidden" id="editSensorIndex" name="index">
-                                <label for="editSensorCount">Number of devices:</label>
-                                <input type="number" id="editSensorCount" name="count" min="1" required>
-                                <button type="submit">Save</button>
-                                <button type="button" id="cancelEdit">Cancel</button>
-                            </form>
+                    <div id="devices" class="tab-content">
+                        <h2>Devices</h2>
+                        <div class="sensor-management">
+                            <div class="sensor-add">
+                                <select id="sensor_type" name="sensor_type" class="browser-default">
+                                    <option value="MAX31865">MAX31865</option>
+                                    <option value="MAX31855">MAX31855</option>
+                                    <option value="ADS1115">ADS1115</option>
+                                </select>
+                                <button type="button" id="addSensor" class="btn">Add Sensor</button>
+                            </div>
+                            <div class="sensor-list">
+                                <h3>Enabled Sensors</h3>
+                                <ul id="sensorList" class="collection">
+                                    {% for sensor in sensors %}
+                                        <li class="collection-item">
+                                            <span class="sensor-info">{{ sensor.type }}</span>
+                                            <button class="btn-small edit-sensor" data-index="{{ loop.index0 }}">Edit</button>
+                                            <button class="btn-small red remove-sensor" data-index="{{ loop.index0 }}">Remove</button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="sensorEditModal" class="modal">
+                            <div class="modal-content">
+                                <h3>Edit Sensor</h3>
+                                <form id="editSensorForm">
+                                    <input type="hidden" id="editSensorIndex" name="index">
+                                    <div class="input-field">
+                                        <label for="editSensorCount">Number of devices:</label>
+                                        <input type="number" id="editSensorCount" name="count" min="1" required>
+                                    </div>
+                                    <button type="submit" class="btn">Save</button>
+                                    <button type="button" id="cancelEdit" class="btn red">Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div id="sensorRemoveModal" class="modal">
+                            <div class="modal-content">
+                                <h3>Confirm Deletion</h3>
+                                <p>Are you sure you want to remove this sensor?</p>
+                                <form id="removeSensorForm" method="POST">
+                                    <input type="hidden" id="removeSensorIndex" name="index">
+                                    <button type="submit" class="btn">Confirm</button>
+                                    <button type="button" id="cancelRemove" class="btn red">Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn">Save Device Settings</button>
                         </div>
                     </div>
-                    <div id="sensorRemoveModal" class="modal">
-                        <div class="modal-content">
-                            <h3>Confirm Deletion</h3>
-                            <p>Are you sure you want to remove this sensor?</p>
-                            <form id="removeSensorForm" method="POST">
-                                <input type="hidden" id="removeSensorIndex" name="index">
-                                <button type="submit">Confirm</button>
-                                <button type="button" id="cancelRemove">Cancel</button>
-                            </form>
+                    <div id="integrations" class="tab-content">
+                        <h2>Integrations</h2>
+                        <div class="input-field">
+                            <label for="meater_integration">Enable Meater Integration:</label>
+                            <input type="checkbox" id="meater_integration" name="meater_integration">
+                        </div>
+                        <div id="meaterStatus">Meater connection status will be displayed here.</div>
+                        <div id="meater-temp">Meater temperature will be displayed here.</div>
+                        <div class="input-field">
+                            <label for="meater_email">Meater Cloud Email:</label>
+                            <input type="email" id="meater_email" name="meater_email" placeholder="Meater Cloud Email">
+                        </div>
+                        <div class="input-field">
+                            <label for="meater_password">Meater Cloud Password:</label>
+                            <input type="password" id="meater_password" name="meater_password" placeholder="Meater Cloud Password">
+                        </div>
+                        <div>
+                            <button type="button" id="saveIntegrations" class="btn">Save Integration Settings</button>
                         </div>
                     </div>
-                    <div>
-                        <button type="submit">Save Device Settings</button>
-                    </div>
-                </div>
-                <div id="integrations" class="tab-content">
-                    <h2>Integrations</h2>
-                    <div>
-                        <label for="meater_integration">Enable Meater Integration:</label>
-                        <input type="checkbox" id="meater_integration" name="meater_integration">
-                    </div>
-                    <div id="meaterStatus">Meater connection status will be displayed here.</div>
-                    <div id="meater-temp">Meater temperature will be displayed here.</div>
-                    <div>
-                        <label for="meater_email">Meater Cloud Email:</label>
-                        <input type="email" id="meater_email" name="meater_email" placeholder="Meater Cloud Email">
-                    </div>
-                    <div>
-                        <label for="meater_password">Meater Cloud Password:</label>
-                        <input type="password" id="meater_password" name="meater_password" placeholder="Meater Cloud Password">
-                    </div>
-                    <div>
-                        <button type="button" id="saveIntegrations">Save Integration Settings</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-
     <script type="module" src="{{ url_for('static', filename='js/settings.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            M.AutoInit();
+        });
+    </script>
 </body>
 </html>
