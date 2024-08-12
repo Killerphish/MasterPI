@@ -21,25 +21,34 @@
         </div>
     </nav>
     <div class="container">
-        <h1 id="deviceName">MasterPi Smoker</h1>
-        <p>Current Temperature: <span id="current-temp">Current temperature will be displayed here.</span></p>
-        <p>Fan Status: <span id="fan-status">Fan status will be displayed here.</span></p>
-        <p>Target Temperature: <input type="number" id="target-temp" min="0" max="700" class="validate"> <button class="btn" onclick="updateTargetTemp()">Set</button></p>
-        <button id="emergency-shutdown-button" class="btn red" onclick="emergencyShutdown()">Emergency Shutdown</button>
-        <div class="input-field col s12">
-            <select id="time-range">
-                <option value="5">Last 5 minutes</option>
-                <option value="15">Last 15 minutes</option>
-                <option value="30">Last 30 minutes</option>
-                <option value="60">Last 1 hour</option>
-                <option value="180">Last 3 hours</option>
-                <option value="360">Last 6 hours</option>
-                <option value="720">Last 12 hours</option>
-                <option value="1440">Last 24 hours</option>
-            </select>
-            <label for="time-range">Select Time Range:</label>
+        <h1 id="deviceName" class="center-align">MasterPi Smoker</h1>
+        <div class="row">
+            <div class="col s12 m6">
+                <p>Current Temperature: <span id="current-temp">Current temperature will be displayed here.</span></p>
+                <p>Fan Status: <span id="fan-status">Fan status will be displayed here.</span></p>
+                <p>Target Temperature: 
+                    <input type="number" id="target-temp" min="0" max="700" class="validate">
+                    <button class="btn" onclick="updateTargetTemp()">Set</button>
+                </p>
+                <button id="emergency-shutdown-button" class="btn red" onclick="emergencyShutdown()">Emergency Shutdown</button>
+            </div>
+            <div class="col s12 m6">
+                <div class="input-field col s12">
+                    <select id="time-range">
+                        <option value="5">Last 5 minutes</option>
+                        <option value="15">Last 15 minutes</option>
+                        <option value="30">Last 30 minutes</option>
+                        <option value="60">Last 1 hour</option>
+                        <option value="180">Last 3 hours</option>
+                        <option value="360">Last 6 hours</option>
+                        <option value="720">Last 12 hours</option>
+                        <option value="1440">Last 24 hours</option>
+                    </select>
+                    <label for="time-range">Select Time Range:</label>
+                </div>
+                <canvas id="tempChart"></canvas>
+            </div>
         </div>
-        <canvas id="tempChart"></canvas>
     </div>
     <script src="{{ url_for('static', filename='js/api.js') }}" type="module" defer></script>
     <script src="{{ url_for('static', filename='js/main.js') }}" type="module" defer></script>
