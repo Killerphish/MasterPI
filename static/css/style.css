@@ -93,11 +93,11 @@ label {
 }
 
 .tab-content {
-    display: none;
+    display: none; /* Hide all tab content by default */
 }
 
 .tab-content.active {
-    display: block;
+    display: block; /* Show active tab content */
 }
 
 .success {
