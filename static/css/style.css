@@ -79,6 +79,7 @@ label {
 /* Additional styles for tabs */
 .container {
     display: flex;
+    flex-direction: column; /* Change to column layout */
 }
 
 .sidebar {
