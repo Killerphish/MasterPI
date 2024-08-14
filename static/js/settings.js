@@ -259,7 +259,7 @@ document.addEventListener("DOMContentLoaded", function() {
     fetchMeaterStatus();
     fetchSettings();
     fetchStatus(); // Call the defined fetchStatus function
-    fetchMeaterTemperature();
+    fetchMeaterTemperature(); // Added this line to call the new function
     setInterval(fetchStatus, 3000); // Update status every 15 seconds
 
     const saveIntegrationsButton = document.getElementById('saveIntegrations');
@@ -389,5 +389,32 @@ function fetchStatus() {
         })
         .catch(error => {
             console.error('Error fetching status:', error);
+        });
+}
+
+function fetchMeaterTemperature() {
+    fetch('/get_meater_temperature')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const meaterTempElement = document.getElementById('meater-temp');
+            if (meaterTempElement) {
+                meaterTempElement.textContent = `Meater Temperature: ${data.temperature}`;
+            } else {
+                console.error('Element with id "meater-temp" not found.');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching Meater temperature:', error);
+            const meaterTempElement = document.getElementById('meater-temp');
+            if (meaterTempElement) {
+                meaterTempElement.textContent = 'Error fetching Meater temperature';
+            } else {
+                console.error('Element with id "meater-temp" not found.');
+            }
         });
 }
