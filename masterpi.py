@@ -322,12 +322,14 @@ async def pid_autotune():
 async def check_wizard():
     # Only check if the wizard has not been completed
     if not config.get('app', {}).get('wizard_completed', False):
+        app.logger.info("Wizard not completed, redirecting to wizard setup page.")
         # Redirect to the wizard setup page if not completed
-        if request.endpoint not in ['wizard', 'complete_wizard']:
+        if request.endpoint not in ['wizard', 'complete_wizard', 'static']:
             return redirect(url_for('wizard'))
 
 @app.route('/wizard', methods=['GET'])
 async def wizard():
+    app.logger.info("Rendering wizard setup page.")
     return await render_template('wizard.html')  # Ensure wizard.html is in the templates folder
 
 @app.route('/complete_wizard', methods=['POST'])

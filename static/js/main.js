@@ -224,4 +224,38 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
     }
+
+    // Function to complete the wizard
+    function completeWizard() {
+        const deviceName = document.getElementById('device_name').value;
+        const tempUnit = document.getElementById('temp_unit').value;
+
+        fetch('/complete_wizard', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()  // Include CSRF token
+            },
+            body: JSON.stringify({ device_name: deviceName, temp_unit: tempUnit })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Wizard completed:', data);
+            window.location.href = '/';  // Redirect to the main page
+        })
+        .catch(error => {
+            console.error('Error completing wizard:', error);
+        });
+    }
+
+    // Attach the completeWizard function to the form's submit event
+    const wizardForm = document.getElementById('wizard-form');
+    if (wizardForm) {
+        wizardForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            completeWizard();
+        });
+    } else {
+        console.error('Element with id "wizard-form" not found.');
+    }
 });
