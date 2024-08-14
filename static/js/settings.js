@@ -258,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Ensure fetchStatus is called after the DOM is fully loaded
     fetchMeaterStatus();
     fetchSettings();
-    fetchStatus();
+    fetchStatus(); // Call the defined fetchStatus function
     fetchMeaterTemperature();
     setInterval(fetchStatus, 3000); // Update status every 15 seconds
 
@@ -369,3 +369,25 @@ document.addEventListener("DOMContentLoaded", function() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     }
 });
+
+function fetchStatus() {
+    fetch('/api/status')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Update the UI with the fetched status data
+            console.log('Status data:', data);
+            // Example: update a status element
+            const statusElement = document.getElementById('status');
+            if (statusElement) {
+                statusElement.textContent = `Status: ${data.status}`;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching status:', error);
+        });
+}
