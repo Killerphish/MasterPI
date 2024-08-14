@@ -351,6 +351,21 @@ async def complete_wizard():
     # Redirect to the main page
     return redirect(url_for('index'))
 
+@app.route('/api/status', methods=['GET'])
+async def get_status():
+    try:
+        # Replace with actual status fetching logic
+        status = {
+            'status': 'OK',
+            'message': 'Server is running',
+            'temperature': 75.0,  # Example temperature value
+            'fan_on': True  # Example fan status
+        }
+        return jsonify(status)
+    except Exception as e:
+        app.logger.error(f"Error fetching status: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()

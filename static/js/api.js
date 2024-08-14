@@ -34,7 +34,7 @@ export function fetchTemperatureData() {
 
 export async function fetchStatus() {
     try {
-        const response = await fetch('/get_status');
+        const response = await fetch('/api/status');
         if (!response.ok) {
             console.error('Network response was not ok:', response.status, response.statusText);
             throw new Error('Network response was not ok');
