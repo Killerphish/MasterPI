@@ -469,7 +469,12 @@ async def remove_sensor():
 
 @app.route('/view_config')
 async def view_config():
-    return await send_file('config.yaml', as_attachment=False)
+    try:
+        config = load_config()
+        return await render_template('view_config.html', config=config)
+    except Exception as e:
+        app.logger.error(f"Error loading configuration: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 if __name__ == '__main__':
     async def main():
