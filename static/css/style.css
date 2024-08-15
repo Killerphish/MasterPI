@@ -15,6 +15,7 @@ label {
 .navbar {
     overflow: hidden;
     background-color: #827f7f;
+    padding-left:15px;
 }
 
 .navbar a {
@@ -121,13 +122,13 @@ label {
 /* Ensure the label stays above the input field */
 .input-field label.active {
     transform: translateY(-14px);
-    font-size: 12px;
+    font-size: 18px;
     color: #9e9e9e;
 }
 
 /* Increase font size for labels */
 .input-field label {
-    font-size: 2em; /* Adjust the size as needed */
+    font-size: 1.2em; /* Adjust the size as needed */
 }
 
 /* Increase font size for input fields */
