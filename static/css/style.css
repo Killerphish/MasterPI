@@ -78,40 +78,6 @@ label {
     margin: 0 auto;
 }
 
-/* Additional styles for tabs */
-.container {
-    display: flex;
-}
-
-.sidebar {
-    width: 200px;
-    padding: 20px;
-    background-color: #f4f4f4;
-}
-
-.content {
-    flex-grow: 1;
-    padding: 20px;
-}
-
-.tabs {
-    display: flex;
-    flex-direction: column; /* Display tabs in a column */
-    width: 200px; /* Adjust the width as needed */
-}
-
-.tabs .tab {
-    flex: 1;
-}
-
-.tab-content {
-    display: none; /* Hide all tab content by default */
-}
-
-.tab-content.active {
-    display: block; /* Show active tab content */
-}
-
 .success {
     color: green;
     background-color: #d4edda;

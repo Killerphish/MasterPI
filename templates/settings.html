@@ -21,14 +21,7 @@
     <div class="container">
         <h1>Settings</h1>
         <div class="row">
-            <div class="col s3">
-                <ul class="tabs">
-                    <li class="tab col s12"><a href="#general" class="active">General</a></li>
-                    <li class="tab col s12"><a href="#devices">Devices</a></li>
-                    <li class="tab col s12"><a href="#integrations">Integrations</a></li>
-                </ul>
-            </div>
-            <div class="col s9">
+            <div class="col s12">
                 <!-- Display messages -->
                 {% if messages %}
                     <div id="messageContainer">
@@ -137,9 +130,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             M.AutoInit();
-            var elems = document.querySelectorAll('.tabs');
-            var instances = M.Tabs.init(elems);
-
             // Ensure labels are correctly positioned
             M.updateTextFields();
         });
