@@ -23,9 +23,9 @@
         <div class="row">
             <div class="col s3">
                 <ul class="tabs">
-                    <li class="tab col s12"><a href="#general" class="tab-link active" data-tab="general">General</a></li>
-                    <li class="tab col s12"><a href="#devices" class="tab-link" data-tab="devices">Devices</a></li>
-                    <li class="tab col s12"><a href="#integrations" class="tab-link" data-tab="integrations">Integrations</a></li>
+                    <li class="tab col s12"><a href="#general" class="active">General</a></li>
+                    <li class="tab col s12"><a href="#devices">Devices</a></li>
+                    <li class="tab col s12"><a href="#integrations">Integrations</a></li>
                 </ul>
             </div>
             <div class="col s9">
@@ -39,7 +39,7 @@
                 {% endif %}
                 <form id="settingsForm" method="POST" action="{{ url_for('save_device_settings') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                    <div id="general" class="tab-content active">
+                    <div id="general" class="col s12">
                         <h2>General</h2>
                         <div class="input-field">
                             <label for="device_name">Device Name:</label>
@@ -56,7 +56,7 @@
                             <button type="submit" class="btn">Save General Settings</button>
                         </div>
                     </div>
-                    <div id="devices" class="tab-content">
+                    <div id="devices" class="col s12">
                         <h2>Devices</h2>
                         <div class="sensor-management">
                             <div class="sensor-add">
@@ -109,7 +109,7 @@
                             <button type="submit" class="btn">Save Device Settings</button>
                         </div>
                     </div>
-                    <div id="integrations" class="tab-content">
+                    <div id="integrations" class="col s12">
                         <h2>Integrations</h2>
                         <div class="input-field">
                             <label for="meater_integration">Enable Meater Integration:</label>
@@ -142,26 +142,6 @@
 
             // Ensure labels are correctly positioned
             M.updateTextFields();
-
-            // Add event listeners to switch tab content
-            document.querySelectorAll('.tabs a').forEach(tab => {
-                tab.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const target = this.getAttribute('href').substring(1);
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    document.getElementById(target).classList.add('active');
-
-                    // Remove active class from all tabs
-                    document.querySelectorAll('.tabs a').forEach(tab => {
-                        tab.classList.remove('active');
-                    });
-
-                    // Add active class to the clicked tab
-                    this.classList.add('active');
-                });
-            });
         });
     </script>
 </body>
