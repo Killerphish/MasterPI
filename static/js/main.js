@@ -104,11 +104,32 @@ document.addEventListener("DOMContentLoaded", function() {
         updateTargetTemp(targetTemp)
             .then(data => {
                 console.log('Success:', data);
+                // Clear the input value after setting the target temperature
+                this.value = '';
             })
             .catch(error => {
                 console.error('Error:', error);
             });
     });
+
+    // Define the updateTargetTemp function
+    function updateTargetTemp(targetTemp) {
+        return fetch('/set_target_temperature', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()  // Include CSRF token
+            },
+            body: JSON.stringify({ target_temperature: targetTemp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Target temperature updated:', data);
+        })
+        .catch(error => {
+            console.error('Error updating target temperature:', error);
+        });
+    }
 
     fetch('/get_settings')
         .then(response => response.json())
@@ -147,26 +168,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // Function to get CSRF token
     function getCsrfToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    }
-
-    // Define the updateTargetTemp function
-    function updateTargetTemp() {
-        const targetTemp = document.getElementById('target-temp').value;
-        fetch('/set_target_temperature', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCsrfToken()  // Include CSRF token
-            },
-            body: JSON.stringify({ target_temperature: targetTemp })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Target temperature updated:', data);
-        })
-        .catch(error => {
-            console.error('Error updating target temperature:', error);
-        });
     }
 
     // Define the emergencyShutdown function

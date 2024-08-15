@@ -136,3 +136,7 @@ label {
 .input-field select {
     font-size: 1.2em; /* Adjust the size as needed */
 }
+
+#target-temp {
+    width: 150px; /* Adjust the width as needed */
+}

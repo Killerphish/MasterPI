@@ -27,7 +27,7 @@
                 <p>Current Temperature: <span id="current-temp">Current temperature will be displayed here.</span></p>
                 <p>Fan Status: <span id="fan-status">Fan status will be displayed here.</span></p>
                 <p>Target Temperature: 
-                    <input list="temp-options" id="target-temp" min="0" max="700" class="validate">
+                    <input list="temp-options" id="target-temp" min="0" max="700" class="validate" style="width: 150px;">
                     <datalist id="temp-options">
                         <option value="Off"></option>
                         {% for temp in range(150, 701, 5) %}
