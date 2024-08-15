@@ -78,41 +78,33 @@ def initialize_sensors(config):
 
     for sensor_config in sensor_configs:
         sensor_type = sensor_config['type']
+        enabled = sensor_config.get('enabled', True)  # Default to True if not specified
         try:
-            # Ensure temp_offset is a float
             temp_offset = float(sensor_config.get('temp_offset', 0.0))
             if sensor_type == 'MAX31865':
-                # Initialize SPI bus and sensor
                 spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
                 cs_pin = getattr(board, sensor_config['chip_select_pin'])
                 cs = digitalio.DigitalInOut(cs_pin)
                 sensor = MAX31865(spi, cs, rtd_nominal=sensor_config['rtd_type'], ref_resistor=sensor_config['reference_resistor'])
-                sensors.append((sensor, temp_offset))  # Use temp_offset as a float
+                sensors.append((sensor, temp_offset, enabled))
                 app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
-            
             elif sensor_type == 'MAX31855':
-                # Initialize SPI bus and sensor
                 spi = busio.SPI(clock=board.SCLK, MISO=board.MISO)
                 cs_pin = getattr(board, sensor_config['chip_select_pin'])
                 cs = digitalio.DigitalInOut(cs_pin)
                 sensor = MAX31855(spi, cs)
-                sensors.append((sensor, temp_offset))  # Use temp_offset as a float
+                sensors.append((sensor, temp_offset, enabled))
                 app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
-            
             elif sensor_type == 'ADS1115':
-                # Initialize I2C bus and sensor
                 i2c = busio.I2C(board.SCL, board.SDA)
                 ads = ADS.ADS1115(i2c, address=sensor_config['address'])
                 sensor = AnalogIn(ads, getattr(ADS, f'P{sensor_config["channel"]}'))
-                sensors.append((sensor, temp_offset))  # Use temp_offset as a float
+                sensors.append((sensor, temp_offset, enabled))
                 app.logger.info(f"Initialized {sensor_type} sensor on channel {sensor_config['channel']} with address {sensor_config['address']}")
-            
             elif sensor_type == 'DHT22':
-                # Initialize DHT22 sensor
                 sensor = adafruit_dht.DHT22(getattr(board, sensor_config['pin']))
-                sensors.append((sensor, temp_offset))  # Use temp_offset as a float
+                sensors.append((sensor, temp_offset, enabled))
                 app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['pin']}")
-            
         except Exception as e:
             app.logger.error(f"Error initializing {sensor_type} on pin {sensor_config.get('chip_select_pin', sensor_config.get('channel', 'N/A'))}: {e}")
 
@@ -380,9 +372,7 @@ async def get_status():
 
 async def get_current_temperature():
     try:
-        # Replace with actual logic to fetch the current temperature from your sensor
-        # Example: Read temperature from a sensor
-        temperature = await read_sensor_temperature()  # Replace this with actual sensor reading function
+        temperature = await read_sensor_temperature()
         return temperature
     except Exception as e:
         app.logger.error(f"Error fetching current temperature: {e}", exc_info=True)
@@ -391,20 +381,18 @@ async def get_current_temperature():
 async def read_sensor_temperature():
     try:
         temperatures = []
-        for sensor, offset in sensors:
+        for sensor, offset, enabled in sensors:
+            if not enabled:
+                continue  # Skip disabled sensors
+
             if isinstance(sensor, MAX31865):
-                # Read temperature from MAX31865 sensor
                 temperature_celsius = sensor.temperature
             elif isinstance(sensor, MAX31855):
-                # Read temperature from MAX31855 sensor
                 temperature_celsius = sensor.temperature
             elif isinstance(sensor, AnalogIn):
-                # Read voltage from ADS1115 sensor
                 voltage = sensor.voltage
-                # Convert voltage to temperature; you need to implement the correct formula here
                 temperature_celsius = voltage_to_temperature(voltage)
             elif isinstance(sensor, adafruit_dht.DHT22):
-                # Read temperature from DHT22 sensor
                 temperature_celsius = sensor.temperature
             else:
                 raise ValueError("Unsupported sensor type")
@@ -412,7 +400,6 @@ async def read_sensor_temperature():
             corrected_temperature_celsius = temperature_celsius + offset
             temperatures.append(corrected_temperature_celsius)
         
-        # For simplicity, return the average temperature
         if temperatures:
             return sum(temperatures) / len(temperatures)
         else:
