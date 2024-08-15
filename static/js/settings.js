@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const data = Object.fromEntries(formData.entries());
 
             try {
-                const response = await fetch('{{ url_for("save_device_settings") }}', {
+                const response = await fetch(saveDeviceSettingsUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
