@@ -29,8 +29,10 @@
                 <p>Target Temperature: 
                     <input list="temp-options" id="target-temp" min="0" max="700" class="validate">
                     <datalist id="temp-options">
-                        <option value="Off">
-                        {{ range(150, 701, 5) | map('string') | join(' ') | replace(' ', '</option><option value="') | safe }}
+                        <option value="Off"></option>
+                        {% for temp in range(150, 701, 5) %}
+                            <option value="{{ temp }}"></option>
+                        {% endfor %}
                     </datalist>
                     <button class="btn" onclick="updateTargetTemp()">Set</button>
                 </p>
