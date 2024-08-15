@@ -20,6 +20,7 @@
     <div class="container">
         <h1>Configuration</h1>
         <pre>{{ config | tojson(indent=2) }}</pre>
+        <a href="{{ url_for('edit_config') }}" class="btn">Edit Configuration</a>
     </div>
 </body>
 </html>

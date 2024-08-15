@@ -481,6 +481,29 @@ async def view_config():
         app.logger.error(f"Error loading configuration: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 
+@app.route('/edit_config')
+async def edit_config():
+    try:
+        config = load_config()
+        return await render_template('edit_config.html', config=config)
+    except Exception as e:
+        app.logger.error(f"Error loading configuration: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+@app.route('/save_config', methods=['POST'])
+async def save_config_route():
+    try:
+        form_data = await request.form
+        config_content = form_data.get('configContent')
+        config = yaml.safe_load(config_content)
+        save_config(config)
+        flash('Configuration saved successfully!', 'success')
+        return redirect(url_for('view_config'))
+    except Exception as e:
+        app.logger.error(f"Error saving configuration: {e}", exc_info=True)
+        flash('Internal Server Error', 'error')
+        return redirect(url_for('edit_config'))
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
