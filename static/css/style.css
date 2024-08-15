@@ -137,18 +137,17 @@ label {
     font-size: 1.2em; /* Adjust the size as needed */
 }
 
-#target-temp {
-    width: 75px !important; /* Use !important to override any other styles */
-    padding-right: 25px; /* Add padding to make space for the icon */
-}
-
-.fas.fa-caret-down {
-    color: #000; /* Adjust the color as needed */
-}
-
 .input-container {
     position: relative;
     display: inline-block;
+}
+
+#target-temp {
+    width: 75px; /* Adjust the width as needed */
+    padding-right: 25px; /* Add padding to make space for the icon */
+    -webkit-appearance: none; /* Hide the default dropdown arrow in WebKit browsers */
+    -moz-appearance: textfield; /* Hide the default dropdown arrow in Firefox */
+    appearance: none; /* Hide the default dropdown arrow in other browsers */
 }
 
 .input-container .fa-caret-down {
