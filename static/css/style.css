@@ -138,5 +138,10 @@ label {
 }
 
 #target-temp {
-    width: auto  !important;
+    width: 75px !important; /* Use !important to override any other styles */
+    padding-right: 25px; /* Add padding to make space for the icon */
+}
+
+.fas.fa-caret-down {
+    color: #000; /* Adjust the color as needed */
 }
