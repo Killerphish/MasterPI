@@ -81,7 +81,6 @@ label {
 /* Additional styles for tabs */
 .container {
     display: flex;
-    flex-direction: column; /* Change to column layout */
 }
 
 .sidebar {
@@ -97,7 +96,7 @@ label {
 
 .tabs {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Display tabs in a row */
 }
 
 .tabs .tab {
