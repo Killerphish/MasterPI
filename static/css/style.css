@@ -127,7 +127,7 @@ label {
 
 /* Increase font size for labels */
 .input-field label {
-    font-size: 1.2em; /* Adjust the size as needed */
+    font-size: 2em; /* Adjust the size as needed */
 }
 
 /* Increase font size for input fields */
