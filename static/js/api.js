@@ -1,4 +1,16 @@
 // api.js - Centralized API calls
+
+// Function to get CSRF token
+function getCsrfToken() {
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfTokenMeta) {
+        return csrfTokenMeta.getAttribute('content');
+    } else {
+        console.error('CSRF token not found');
+        return '';
+    }
+}
+
 export function fetchTemperatureData() {
     return fetch('/get_temperature')
         .then(response => {
@@ -47,12 +59,13 @@ export async function fetchStatus() {
 }
 
 export function updateTargetTemp(targetTemp) {
-    return fetch('/update_target_temperature', {
+    return fetch('/set_target_temperature', {  // Ensure the endpoint matches your Quart route
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()  // Include CSRF token
         },
-        body: JSON.stringify({ target_temp: targetTemp }),
+        body: JSON.stringify({ target_temperature: targetTemp }),  // Ensure the key matches your Quart route
     })
     .then(response => {
         if (!response.ok) {

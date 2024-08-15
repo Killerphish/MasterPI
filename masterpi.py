@@ -354,17 +354,26 @@ async def complete_wizard():
 @app.route('/api/status', methods=['GET'])
 async def get_status():
     try:
-        # Replace with actual status fetching logic
+        # Fetch the current temperature from your sensor
+        current_temperature = await get_current_temperature()
+        fan_status = fan_controller.is_fan_on()
+
         status = {
             'status': 'OK',
             'message': 'Server is running',
-            'temperature': 75.0,  # Example temperature value
-            'fan_on': True  # Example fan status
+            'temperature': current_temperature,  # Dynamic temperature value
+            'fan_on': fan_status  # Dynamic fan status
         }
         return jsonify(status)
     except Exception as e:
         app.logger.error(f"Error fetching status: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
+
+async def get_current_temperature():
+    # Replace with actual logic to fetch the current temperature from your sensor
+    # Example: Read temperature from a sensor
+    temperature = 75.0  # Replace this with actual sensor reading
+    return temperature
 
 @app.route('/set_target_temperature', methods=['POST'])
 async def set_target_temperature():

@@ -389,6 +389,14 @@ function fetchStatus() {
             if (statusElement) {
                 statusElement.textContent = `Status: ${data.status}`;
             }
+            const temperatureElement = document.getElementById('current-temp');
+            if (temperatureElement) {
+                temperatureElement.textContent = `Current Temperature: ${data.temperature} °F`;
+            }
+            const fanStatusElement = document.getElementById('fan-status');
+            if (fanStatusElement) {
+                fanStatusElement.textContent = `Fan Status: ${data.fan_on ? 'On' : 'Off'}`;
+            }
         })
         .catch(error => {
             console.error('Error fetching status:', error);
