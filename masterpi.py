@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages
+from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages, send_file
 from quart_csrf import CSRFProtect, generate_csrf
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
@@ -462,6 +462,10 @@ async def remove_sensor():
         app.logger.error(f"Error removing sensor: {e}", exc_info=True)
         flash('Internal Server Error', 'error')
         return redirect(url_for('settings'))
+
+@app.route('/view_config')
+async def view_config():
+    return await send_file('config.yaml', as_attachment=False)
 
 if __name__ == '__main__':
     async def main():
