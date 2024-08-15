@@ -96,7 +96,7 @@ label {
 
 .tabs {
     display: flex;
-    flex-direction: row; /* Display tabs in a row */
+    flex-direction: column; /* Display tabs in a column */
 }
 
 .tabs .tab {
