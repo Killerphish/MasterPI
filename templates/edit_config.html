@@ -20,7 +20,7 @@
     <div class="container">
         <h1>Edit Configuration</h1>
         <form id="editConfigForm" method="POST" action="{{ url_for('save_config_route') }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <div class="input-field">
                 <textarea id="configContent" name="configContent" class="materialize-textarea">{{ config | tojson(indent=2) }}</textarea>
                 <label for="configContent">Configuration</label>

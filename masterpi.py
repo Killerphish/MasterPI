@@ -485,7 +485,8 @@ async def view_config():
 async def edit_config():
     try:
         config = load_config()
-        return await render_template('edit_config.html', config=config)
+        csrf_token = generate_csrf()  # Generate CSRF token
+        return await render_template('edit_config.html', config=config, csrf_token=csrf_token)
     except Exception as e:
         app.logger.error(f"Error loading configuration: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
