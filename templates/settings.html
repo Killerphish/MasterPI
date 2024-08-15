@@ -46,7 +46,7 @@
                             <input type="text" id="device_name" name="device_name" value="{{ device_name }}" placeholder="Device Name">
                         </div>
                         <div class="input-field">
-                            <label for="temp_unit">Temperature Unit:</label>
+                            <label for="temp_unit" class="active">Temperature Unit:</label>
                             <select id="temp_unit" name="temp_unit" class="browser-default">
                                 <option value="C" {% if units.temperature == 'C' %}selected{% endif %}>Celsius</option>
                                 <option value="F" {% if units.temperature == 'F' %}selected{% endif %}>Fahrenheit</option>

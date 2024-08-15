@@ -19,6 +19,7 @@ label {
 
 .navbar a {
     float: left;
+    padding-left;: 15px
     display: block;
     color: #f2f2f2;
     text-align: center;
@@ -115,4 +116,11 @@ label {
     border: 1px solid #f5c6cb;
     padding: 10px;
     margin-bottom: 10px;
+}
+
+/* Ensure the label stays above the input field */
+.input-field label.active {
+    transform: translateY(-14px);
+    font-size: 12px;
+    color: #9e9e9e;
 }

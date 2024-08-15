@@ -7,6 +7,9 @@ document.addEventListener("DOMContentLoaded", function() {
     var elems = document.querySelectorAll('.tabs');
     var instances = M.Tabs.init(elems);
 
+    // Ensure labels are correctly positioned
+    M.updateTextFields();
+
     // Add event listeners to switch tab content
     document.querySelectorAll('.tabs a').forEach(tab => {
         tab.addEventListener('click', function(event) {
