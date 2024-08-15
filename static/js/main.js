@@ -108,13 +108,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.log('Success:', data);
                 // Clear the input value after setting the target temperature
                 this.value = '';
-                // Re-focus the input to allow for new selection
-                this.blur();
-                this.focus();
             })
             .catch(error => {
                 console.error('Error:', error);
             });
+    });
+
+    targetTempInput.addEventListener('blur', function() {
+        // Re-focus the input to allow for new selection
+        this.focus();
     });
 
     // Define the updateTargetTemp function
