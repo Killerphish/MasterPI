@@ -92,6 +92,7 @@
                                 <h3>Confirm Deletion</h3>
                                 <p>Are you sure you want to remove this sensor?</p>
                                 <form id="removeSensorForm" method="POST" action="{{ url_for('remove_sensor') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" id="removeSensorIndex" name="index">
                                     <button type="submit" class="btn">Confirm</button>
                                     <button type="button" id="cancelRemove" class="btn red">Cancel</button>
