@@ -107,6 +107,12 @@ def initialize_sensors(config):
                 sensors.append((sensor, temp_offset))  # Use temp_offset as a float
                 app.logger.info(f"Initialized {sensor_type} sensor on channel {sensor_config['channel']} with address {sensor_config['address']}")
             
+            elif sensor_type == 'DHT22':
+                # Initialize DHT22 sensor
+                sensor = adafruit_dht.DHT22(getattr(board, sensor_config['pin']))
+                sensors.append((sensor, temp_offset))  # Use temp_offset as a float
+                app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['pin']}")
+            
         except Exception as e:
             app.logger.error(f"Error initializing {sensor_type} on pin {sensor_config.get('chip_select_pin', sensor_config.get('channel', 'N/A'))}: {e}")
 
@@ -165,6 +171,9 @@ def get_temperature():
                     voltage = sensor.voltage
                     # Convert voltage to temperature; you need to implement the correct formula here
                     temperature_celsius = voltage_to_temperature(voltage)
+                elif isinstance(sensor, adafruit_dht.DHT22):
+                    # Read temperature from DHT22 sensor
+                    temperature_celsius = sensor.temperature
                 else:
                     raise ValueError("Unsupported sensor type")
 
@@ -370,26 +379,64 @@ async def get_status():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 async def get_current_temperature():
-    # Replace with actual logic to fetch the current temperature from your sensor
-    # Example: Read temperature from a sensor
-    temperature = 75.0  # Replace this with actual sensor reading
-    return temperature
+    try:
+        # Replace with actual logic to fetch the current temperature from your sensor
+        # Example: Read temperature from a sensor
+        temperature = await read_sensor_temperature()  # Replace this with actual sensor reading function
+        return temperature
+    except Exception as e:
+        app.logger.error(f"Error fetching current temperature: {e}", exc_info=True)
+        return 75.0  # Return a default value or handle the error appropriately
+
+async def read_sensor_temperature():
+    try:
+        temperatures = []
+        for sensor, offset in sensors:
+            if isinstance(sensor, MAX31865):
+                # Read temperature from MAX31865 sensor
+                temperature_celsius = sensor.temperature
+            elif isinstance(sensor, MAX31855):
+                # Read temperature from MAX31855 sensor
+                temperature_celsius = sensor.temperature
+            elif isinstance(sensor, AnalogIn):
+                # Read voltage from ADS1115 sensor
+                voltage = sensor.voltage
+                # Convert voltage to temperature; you need to implement the correct formula here
+                temperature_celsius = voltage_to_temperature(voltage)
+            elif isinstance(sensor, adafruit_dht.DHT22):
+                # Read temperature from DHT22 sensor
+                temperature_celsius = sensor.temperature
+            else:
+                raise ValueError("Unsupported sensor type")
+
+            corrected_temperature_celsius = temperature_celsius + offset
+            temperatures.append(corrected_temperature_celsius)
+        
+        # For simplicity, return the average temperature
+        if temperatures:
+            return sum(temperatures) / len(temperatures)
+        else:
+            raise ValueError("No temperatures read from sensors")
+    except Exception as e:
+        app.logger.error(f"Error reading sensor temperature: {e}", exc_info=True)
+        raise
 
 @app.route('/set_target_temperature', methods=['POST'])
 async def set_target_temperature():
-    data = await request.get_json()
-    target_temperature = data.get('target_temperature')
-    if target_temperature is None:
-        return jsonify({'error': 'Target temperature is required'}), 400
-
     try:
+        data = await request.get_json()
+        target_temperature = data.get('target_temperature')
+        if target_temperature is None:
+            app.logger.error('Target temperature is required')
+            return jsonify({'error': 'Target temperature is required'}), 400
+
         # Update the target temperature in your PID controller or other relevant component
         pid.setpoint = float(target_temperature)
         fan_controller.target_temperature = float(target_temperature)
         app.logger.info(f"Target temperature set to: {target_temperature}")
         return jsonify({'status': 'success'})
     except Exception as e:
-        app.logger.error(f"Error setting target temperature: {e}")
+        app.logger.error(f"Error setting target temperature: {e}", exc_info=True)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
