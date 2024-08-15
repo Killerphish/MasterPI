@@ -385,23 +385,31 @@ async def read_sensor_temperature():
             if not enabled:
                 continue  # Skip disabled sensors
 
-            if isinstance(sensor, MAX31865):
-                temperature_celsius = sensor.temperature
-            elif isinstance(sensor, MAX31855):
-                temperature_celsius = sensor.temperature
-            elif isinstance(sensor, AnalogIn):
-                voltage = sensor.voltage
-                temperature_celsius = voltage_to_temperature(voltage)
-            elif isinstance(sensor, adafruit_dht.DHT22):
-                temperature_celsius = sensor.temperature
-            else:
-                raise ValueError("Unsupported sensor type")
+            try:
+                if isinstance(sensor, MAX31865):
+                    temperature_celsius = sensor.temperature
+                elif isinstance(sensor, MAX31855):
+                    temperature_celsius = sensor.temperature
+                elif isinstance(sensor, AnalogIn):
+                    voltage = sensor.voltage
+                    temperature_celsius = voltage_to_temperature(voltage)
+                elif isinstance(sensor, adafruit_dht.DHT22):
+                    temperature_celsius = sensor.temperature
+                else:
+                    raise ValueError("Unsupported sensor type")
 
-            corrected_temperature_celsius = temperature_celsius + offset
-            temperatures.append(corrected_temperature_celsius)
-        
+                corrected_temperature_celsius = temperature_celsius + offset
+                temperatures.append(corrected_temperature_celsius)
+            except RuntimeError as e:
+                app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
+                temperatures.append(None)  # Append None or a default value in case of error
+
         if temperatures:
-            return sum(temperatures) / len(temperatures)
+            valid_temperatures = [temp for temp in temperatures if temp is not None]
+            if valid_temperatures:
+                return sum(valid_temperatures) / len(valid_temperatures)
+            else:
+                raise ValueError("No valid temperatures read from sensors")
         else:
             raise ValueError("No temperatures read from sensors")
     except Exception as e:
