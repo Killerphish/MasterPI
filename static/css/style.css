@@ -15,12 +15,12 @@ label {
 .navbar {
     overflow: hidden;
     background-color: #827f7f;
-    padding-left:15px;
+    padding-left: 15px;
 }
 
 .navbar a {
     float: left;
-    padding-left;: 15px
+    padding-left: 15px;
     display: block;
     color: #f2f2f2;
     text-align: center;
@@ -93,6 +93,15 @@ label {
 .content {
     flex-grow: 1;
     padding: 20px;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: column;
+}
+
+.tabs .tab {
+    flex: 1;
 }
 
 .tab-content {
