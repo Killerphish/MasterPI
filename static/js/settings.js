@@ -75,6 +75,8 @@ document.addEventListener("DOMContentLoaded", function() {
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
 
+            console.log(data);  // Add this line to print form data
+
             try {
                 const response = await fetch(saveDeviceSettingsUrl, {
                     method: 'POST',

@@ -39,8 +39,13 @@ def load_config():
         raise
 
 def save_config(config):
-    with open('config.yaml', 'w') as config_file:
-        yaml.safe_dump(config, config_file)
+    try:
+        with open('config.yaml', 'w') as config_file:
+            yaml.safe_dump(config, config_file)
+        app.logger.info("Configuration saved successfully.")
+    except Exception as e:
+        app.logger.error(f"Error saving configuration: {e}")
+        raise
 
 config = load_config()
 
