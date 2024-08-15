@@ -366,6 +366,23 @@ async def get_status():
         app.logger.error(f"Error fetching status: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
 
+@app.route('/set_target_temperature', methods=['POST'])
+async def set_target_temperature():
+    data = await request.get_json()
+    target_temperature = data.get('target_temperature')
+    if target_temperature is None:
+        return jsonify({'error': 'Target temperature is required'}), 400
+
+    try:
+        # Update the target temperature in your PID controller or other relevant component
+        pid.setpoint = float(target_temperature)
+        fan_controller.target_temperature = float(target_temperature)
+        app.logger.info(f"Target temperature set to: {target_temperature}")
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        app.logger.error(f"Error setting target temperature: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()
