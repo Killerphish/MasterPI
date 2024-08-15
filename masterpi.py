@@ -439,6 +439,30 @@ async def set_target_temperature():
         app.logger.error(f"Error setting target temperature: {e}", exc_info=True)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+# Add this route to handle the removal of a sensor
+@app.route('/remove_sensor', methods=['POST'])
+async def remove_sensor():
+    try:
+        form_data = await request.form
+        sensor_index = int(form_data.get('index'))
+
+        # Load the current configuration
+        config = load_config()
+
+        # Remove the sensor from the configuration
+        if 'sensors' in config and 0 <= sensor_index < len(config['sensors']):
+            del config['sensors'][sensor_index]
+            save_config(config)
+            flash('Sensor removed successfully!', 'success')
+        else:
+            flash('Invalid sensor index.', 'error')
+
+        return redirect(url_for('settings'))
+    except Exception as e:
+        app.logger.error(f"Error removing sensor: {e}", exc_info=True)
+        flash('Internal Server Error', 'error')
+        return redirect(url_for('settings'))
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()

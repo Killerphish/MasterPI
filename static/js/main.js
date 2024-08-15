@@ -277,4 +277,39 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         console.error('Element with id "wizard-form" not found.');
     }
+
+    M.AutoInit();
+
+    const removeForm = document.getElementById('removeSensorForm');
+    const sensorList = document.getElementById('sensorList');
+    const removeModal = document.getElementById('sensorRemoveModal');
+
+    sensorList.addEventListener('click', function(event) {
+        if (event.target.classList.contains('remove-sensor')) {
+            const index = event.target.dataset.index;
+            removeForm.elements.index.value = index;
+            removeModal.style.display = 'block';
+        }
+    });
+
+    removeForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(removeForm);
+
+        fetch('/remove_sensor', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCsrfToken()  // Include CSRF token
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                console.error('Failed to remove sensor');
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    });
 });
