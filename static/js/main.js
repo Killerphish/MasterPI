@@ -119,8 +119,8 @@ document.addEventListener("DOMContentLoaded", function() {
         this.focus();
     });
 
-    // Define the updateTargetTemp function
-    function updateTargetTemp(targetTemp) {
+    // Define the updateTargetTemp function in the global scope
+    window.updateTargetTemp = function(targetTemp) {
         return fetch('/set_target_temperature', {
             method: 'POST',
             headers: {
@@ -136,6 +136,17 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(error => {
             console.error('Error updating target temperature:', error);
         });
+    }
+
+    // Function to get CSRF token
+    function getCsrfToken() {
+        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+        if (csrfTokenMeta) {
+            return csrfTokenMeta.getAttribute('content');
+        } else {
+            console.error('CSRF token not found');
+            return '';
+        }
     }
 
     fetch('/get_settings')
@@ -170,11 +181,6 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => {
                 console.error('Error fetching temperature:', error);
             });
-    }
-
-    // Function to get CSRF token
-    function getCsrfToken() {
-        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     }
 
     // Define the emergencyShutdown function

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>Temperature Control Dashboard</title>
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -38,7 +39,7 @@
                             <option value="{{ temp }}"></option>
                         {% endfor %}
                     </datalist>
-                    <button class="btn" onclick="updateTargetTemp()">Set</button>
+                    <button class="btn" onclick="updateTargetTemp(document.getElementById('target-temp').value)">Set</button>
                 </p>
                 <button id="emergency-shutdown-button" class="btn red" onclick="emergencyShutdown()">Emergency Shutdown</button>
             </div>
