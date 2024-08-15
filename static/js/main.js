@@ -99,13 +99,18 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initial chart update
     updateChart(timeRangeSelect.value);
 
-    document.getElementById('target-temp').addEventListener('change', function() {
+    const targetTempInput = document.getElementById('target-temp');
+
+    targetTempInput.addEventListener('input', function() {
         const targetTemp = this.value;
         updateTargetTemp(targetTemp)
             .then(data => {
                 console.log('Success:', data);
                 // Clear the input value after setting the target temperature
                 this.value = '';
+                // Re-focus the input to allow for new selection
+                this.blur();
+                this.focus();
             })
             .catch(error => {
                 console.error('Error:', error);
