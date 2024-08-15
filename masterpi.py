@@ -264,11 +264,19 @@ async def save_device_settings():
         device_name = form_data.get('device_name')
         temp_unit = form_data.get('temp_unit')
 
+        app.logger.debug(f"Received device_name: {device_name}")
+        app.logger.debug(f"Received temp_unit: {temp_unit}")
+
+        if not device_name:
+            raise ValueError("Device name is required")
+
         config = load_config()
 
         # Update config with new settings
         config['device']['name'] = device_name
         config['units']['temperature'] = temp_unit
+
+        app.logger.debug(f"Updated config: {config}")
 
         save_config(config)
 
