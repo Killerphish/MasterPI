@@ -28,9 +28,9 @@
                 <p>Current Temperature: <span id="current-temp">Current temperature will be displayed here.</span></p>
                 <p>Fan Status: <span id="fan-status">Fan status will be displayed here.</span></p>
                 <p>Target Temperature: 
-                    <div style="display: inline-flex; align-items: center;">
-                        <input list="temp-options" id="target-temp" min="0" max="700" class="validate" style="width: 150px;">
-                        <i class="fas fa-caret-down" style="margin-left: -25px; pointer-events: none;"></i>
+                    <div class="input-container">
+                        <input list="temp-options" id="target-temp" min="0" max="700" class="validate">
+                        <i class="fas fa-caret-down"></i>
                     </div>
                     <datalist id="temp-options">
                         <option value="Off"></option>

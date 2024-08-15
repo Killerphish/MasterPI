@@ -145,3 +145,17 @@ label {
 .fas.fa-caret-down {
     color: #000; /* Adjust the color as needed */
 }
+
+.input-container {
+    position: relative;
+    display: inline-block;
+}
+
+.input-container .fa-caret-down {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Ensure the icon doesn't interfere with input events */
+    color: #000; /* Adjust the color as needed */
+}
