@@ -69,46 +69,31 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (form) {
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', async function(event) {
             event.preventDefault();
-            const formData = new FormData(form);
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
 
-            // Ensure default values are included
-            const deviceName = formData.get('device_name') || 'Default Device Name';
-            const tempUnit = formData.get('temp_unit') || 'F'; // Default unit changed to Fahrenheit
+            try {
+                const response = await fetch('{{ url_for("save_device_settings") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
 
-            formData.set('device_name', deviceName);
-            formData.set('temp_unit', tempUnit);
-
-            fetch('/save_settings', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error('Network response was not ok: ' + response.status + ' ' + response.statusText + ' - ' + text);
-                    });
-                }
-                return response.json();  // Get response as JSON
-            })
-            .then(data => {
-                console.log('Response data:', data); // Debugging line
-                if (data.success) {
-                    // Update the device name on the page
-                    const deviceNameElement = document.getElementById('deviceName');
-                    if (deviceNameElement) {
-                        console.log('Updating device name to:', deviceName); // Debugging line
-                        deviceNameElement.textContent = deviceName;
-                    }
+                if (response.ok) {
+                    M.toast({html: 'Settings saved successfully!'});
                 } else {
-                    // No need to display message here, as it will be handled server-side
+                    const errorData = await response.json();
+                    M.toast({html: `Error: ${errorData.message}`});
                 }
-            })
-            .catch(error => {
-                console.error('Error saving settings:', error);
-                // No need to display message here, as it will be handled server-side
-            });
+            } catch (error) {
+                M.toast({html: `Error: ${error.message}`});
+            }
         });
     }
 
