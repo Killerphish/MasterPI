@@ -27,7 +27,11 @@
                 <p>Current Temperature: <span id="current-temp">Current temperature will be displayed here.</span></p>
                 <p>Fan Status: <span id="fan-status">Fan status will be displayed here.</span></p>
                 <p>Target Temperature: 
-                    <input type="number" id="target-temp" min="0" max="700" class="validate">
+                    <input list="temp-options" id="target-temp" min="0" max="700" class="validate">
+                    <datalist id="temp-options">
+                        <option value="Off">
+                        {{ range(150, 701, 5) | map('string') | join(' ') | replace(' ', '</option><option value="') | safe }}
+                    </datalist>
                     <button class="btn" onclick="updateTargetTemp()">Set</button>
                 </p>
                 <button id="emergency-shutdown-button" class="btn red" onclick="emergencyShutdown()">Emergency Shutdown</button>
