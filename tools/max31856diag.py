@@ -16,17 +16,17 @@ def read_max31856_temperature():
         sensor = adafruit_max31856.MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)
         
         # Check for faults
-        fault = sensor.read_fault()
+        fault = sensor.fault
         if fault:
             print(f"Fault detected: {fault}")
             return
         
         # Read cold junction temperature
-        cj_temperature = sensor.read_cj_temperature()
+        cj_temperature = sensor.cold_junction_temperature
         print(f"Cold Junction Temperature: {cj_temperature:.2f} °C")
         
         # Read temperature in Celsius
-        temperature_c = sensor.read_thermocouple_temperature()
+        temperature_c = sensor.temperature
         print(f"Thermocouple Temperature: {temperature_c:.2f} °C")
         
         # Convert to Fahrenheit
