@@ -277,7 +277,7 @@ def get_settings():
 @app.route('/save_device_settings', methods=['POST'])
 async def save_device_settings():
     try:
-        form_data = await request.form
+        form_data = await request.get_json()  # Use get_json() to parse JSON data
         app.logger.debug(f"Received raw form data: {form_data}")  # Add this line to print raw form data
 
         device_name = form_data.get('device_name')
