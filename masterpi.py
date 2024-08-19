@@ -278,10 +278,11 @@ def get_settings():
 async def save_device_settings():
     try:
         form_data = await request.form
+        app.logger.debug(f"Received raw form data: {form_data}")  # Add this line to print raw form data
+
         device_name = form_data.get('device_name')
         temp_unit = form_data.get('temp_unit')
 
-        app.logger.debug(f"Received form data: {form_data}")  # Add this line to print form data
         app.logger.debug(f"Received device_name: {device_name}")
         app.logger.debug(f"Received temp_unit: {temp_unit}")
 
