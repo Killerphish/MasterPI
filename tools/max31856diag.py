@@ -13,7 +13,7 @@ def read_max31856_temperature():
         cs = digitalio.DigitalInOut(board.D5)  # Change to your actual CS pin
         
         # Initialize MAX31856 sensor
-        sensor = adafruit_max31856.MAX31856(spi, cs)
+        sensor = adafruit_max31856.MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)
         
         # Check for faults
         if sensor.fault:
