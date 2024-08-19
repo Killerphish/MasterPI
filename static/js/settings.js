@@ -89,6 +89,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 if (response.ok) {
                     M.toast({html: 'Settings saved successfully!'});
+
+                    // Update the displayed device name and other settings dynamically
+                    document.querySelector('.brand-logo').textContent = data.device_name;
+                    document.getElementById('device_name').value = data.device_name;
+                    document.getElementById('temp_unit').value = data.temp_unit;
+                    M.updateTextFields();  // Ensure labels are correctly positioned
                 } else {
                     const errorData = await response.json();
                     M.toast({html: `Error: ${errorData.message}`});
