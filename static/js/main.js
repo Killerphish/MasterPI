@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(settings => {
             const deviceNameElement = document.getElementById('deviceName');
             if (deviceNameElement) {
-                deviceNameElement.textContent = settings.device_name;
+                deviceNameElement.textContent = settings.device.name;  // Set default device name
             }
 
             // Update temperature unit

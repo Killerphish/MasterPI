@@ -135,10 +135,10 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(settings => {
                 if (document.getElementById('device_name')) {
-                    document.getElementById('device_name').value = settings.device_name;
+                    document.getElementById('device_name').value = settings.device.name;  // Set default device name
                 }
                 if (document.getElementById('temp_unit')) {
-                    document.getElementById('temp_unit').value = settings.temp_unit || 'F'; // Default unit changed to Fahrenheit
+                    document.getElementById('temp_unit').value = settings.units.temperature || 'F'; // Default unit changed to Fahrenheit
                 }
             })
             .catch(error => {
