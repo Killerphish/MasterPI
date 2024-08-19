@@ -3,7 +3,7 @@ app:
   name: Temperature Control System
   version: 1.0.0
   debug: true
-  wizard_completed: false
+  wizard_completed: true
   host: 0.0.0.0
   port: 5000
 
@@ -14,7 +14,7 @@ sensors:
     rtd_type: 100
     reference_resistor: 430.0
     temp_offset: 0.0
-  - type: MAX31856
+  - type: MAX31856  # Updated sensor type
     chip_select_pin: D8
     temp_offset: 0.0
   - type: ADS1115
@@ -64,8 +64,7 @@ units:
 
 # Device settings
 device:
-  name: My Temperature Controller
-  location: 'Outside'
+  name: smokin
 
 # Chart settings
 chart:
