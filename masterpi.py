@@ -106,6 +106,7 @@ def initialize_sensors(config):
                 cs_pin = getattr(board, sensor_config['chip_select_pin'])
                 cs = digitalio.DigitalInOut(cs_pin)
                 sensor = MAX31856(spi, cs)
+                sensor.temperature_unit = MAX31856.TEMPERATURE_CELSIUS  # Ensure the temperature unit is set correctly
                 sensors.append((sensor, temp_offset, enabled))
                 app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
             elif sensor_type == 'ADS1115':
@@ -170,21 +171,15 @@ def get_temperature():
 
             try:
                 if isinstance(sensor, MAX31865):
-                    # Read temperature from MAX31865 sensor
                     temperature_celsius = sensor.temperature
                 elif isinstance(sensor, MAX31855):
-                    # Read temperature from MAX31855 sensor
                     temperature_celsius = sensor.temperature
                 elif isinstance(sensor, MAX31856):
-                    # Read temperature from MAX31856 sensor
                     temperature_celsius = sensor.temperature
                 elif isinstance(sensor, AnalogIn):
-                    # Read voltage from ADS1115 sensor
                     voltage = sensor.voltage
-                    # Convert voltage to temperature; you need to implement the correct formula here
                     temperature_celsius = voltage_to_temperature(voltage)
                 elif isinstance(sensor, adafruit_dht.DHT22):
-                    # Read temperature from DHT22 sensor
                     temperature_celsius = sensor.temperature
                 else:
                     raise ValueError("Unsupported sensor type")
