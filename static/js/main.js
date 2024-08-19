@@ -158,8 +158,14 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(settings => {
             const deviceNameElement = document.getElementById('deviceName');
+            const brandLogoElement = document.getElementById('brand-logo'); // Add this line
+
             if (deviceNameElement) {
                 deviceNameElement.textContent = settings.device.name;  // Set default device name
+            }
+
+            if (brandLogoElement) {  // Add this block
+                brandLogoElement.textContent = settings.device.name;
             }
 
             // Update temperature unit
