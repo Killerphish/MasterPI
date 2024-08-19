@@ -22,7 +22,7 @@ import ssl
 import yaml
 import busio
 from adafruit_max31865 import MAX31865
-from adafruit_max31855 import MAX31855
+from adafruit_max31856 import MAX31856
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
@@ -100,6 +100,13 @@ def initialize_sensors(config):
                 sensor = MAX31855(spi, cs)
                 sensors.append((sensor, temp_offset, enabled))
                 app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
+            elif sensor_type == 'MAX31856':
+                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
+                cs_pin = getattr(board, sensor_config['chip_select_pin'])
+                cs = digitalio.DigitalInOut(cs_pin)
+                sensor = MAX31856(spi, cs)
+                sensors.append((sensor, temp_offset, enabled))
+                app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
             elif sensor_type == 'ADS1115':
                 i2c = busio.I2C(board.SCL, board.SDA)
                 ads = ADS.ADS1115(i2c, address=sensor_config['address'])
@@ -162,6 +169,9 @@ def get_temperature():
                     temperature_celsius = sensor.temperature
                 elif isinstance(sensor, MAX31855):
                     # Read temperature from MAX31855 sensor
+                    temperature_celsius = sensor.temperature
+                elif isinstance(sensor, MAX31856):
+                    # Read temperature from MAX31856 sensor
                     temperature_celsius = sensor.temperature
                 elif isinstance(sensor, AnalogIn):
                     # Read voltage from ADS1115 sensor
@@ -403,6 +413,8 @@ async def read_sensor_temperature():
                 if isinstance(sensor, MAX31865):
                     temperature_celsius = sensor.temperature
                 elif isinstance(sensor, MAX31855):
+                    temperature_celsius = sensor.temperature
+                elif isinstance(sensor, MAX31856):
                     temperature_celsius = sensor.temperature
                 elif isinstance(sensor, AnalogIn):
                     voltage = sensor.voltage

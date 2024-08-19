@@ -315,6 +315,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const editForm = document.getElementById('editSensorForm');
     const removeForm = document.getElementById('removeSensorForm');
 
+    if (sensorTypeSelect) {
+        sensorTypeSelect.innerHTML = `
+            <option value="MAX31865">MAX31865</option>
+            <option value="MAX31856">MAX31856</option>
+            <option value="ADS1115">ADS1115</option>
+        `;
+    }
+
     addSensorButton.addEventListener('click', function() {
         const sensorType = sensorTypeSelect.value;
         const form = new FormData();
