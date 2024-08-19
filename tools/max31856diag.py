@@ -22,7 +22,7 @@ def read_max31856_temperature():
      #       return
         
         # Read cold junction temperature
-        cj_temperature = sensor.cold_junction_temperature
+        cj_temperature = sensor.cj_temperature
         print(f"Cold Junction Temperature: {cj_temperature:.2f} °C")
         
         # Read temperature in Celsius
