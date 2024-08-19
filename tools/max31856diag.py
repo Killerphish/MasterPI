@@ -32,6 +32,9 @@ def read_max31856_temperature():
         temperature_f = (temperature_c * 9/5) + 32
         print(f"Temperature: {temperature_f:.2f} °F")
         
+        # Print raw data for debugging
+        print(f"Raw Data: {sensor._read_register(0x0C, 3)}")
+        
     except Exception as e:
         print(f"Error reading temperature: {e}")
 
