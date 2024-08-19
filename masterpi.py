@@ -298,11 +298,11 @@ async def save_device_settings():
 
         save_config(config)
 
-        flash('Device settings saved successfully!', 'success')
+        await flash('Device settings saved successfully!', 'success')
         return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error saving device settings: {e}", exc_info=True)
-        flash('Internal Server Error', 'error')
+        await flash('Internal Server Error', 'error')
         return redirect(url_for('settings'))
 
 @app.route('/save_integration_settings', methods=['POST'])
@@ -324,11 +324,11 @@ async def save_integration_settings():
 
         save_config(config)
 
-        flash('Integration settings saved successfully!', 'success')
+        await flash('Integration settings saved successfully!', 'success')
         return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error saving integration settings: {e}", exc_info=True)
-        flash('Internal Server Error', 'error')
+        await flash('Internal Server Error', 'error')
         return redirect(url_for('settings'))
 
 @app.route('/pid_autotune', methods=['POST'])
@@ -337,11 +337,11 @@ async def pid_autotune():
         # Replace with actual logic to start PID autotune
         # For example, you might call a method on your PIDController instance
         pid.start_autotune()
-        flash('PID autotune started successfully!', 'success')
+        await flash('PID autotune started successfully!', 'success')
         return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error starting PID autotune: {e}")
-        flash('Error starting PID autotune', 'error')
+        await flash('Error starting PID autotune', 'error')
         return redirect(url_for('settings'))
 
 # Check if the wizard has been completed
@@ -476,14 +476,14 @@ async def remove_sensor():
         if 'sensors' in config and 0 <= sensor_index < len(config['sensors']):
             del config['sensors'][sensor_index]
             save_config(config)
-            flash('Sensor removed successfully!', 'success')
+            await flash('Sensor removed successfully!', 'success')
         else:
-            flash('Invalid sensor index.', 'error')
+            await flash('Invalid sensor index.', 'error')
 
         return redirect(url_for('settings'))
     except Exception as e:
         app.logger.error(f"Error removing sensor: {e}", exc_info=True)
-        flash('Internal Server Error', 'error')
+        await flash('Internal Server Error', 'error')
         return redirect(url_for('settings'))
 
 @app.route('/view_config')
@@ -512,11 +512,11 @@ async def save_config_route():
         config_content = form_data.get('configContent')
         config = yaml.safe_load(config_content)
         save_config(config)
-        flash('Configuration saved successfully!', 'success')
+        await flash('Configuration saved successfully!', 'success')
         return redirect(url_for('view_config'))
     except Exception as e:
         app.logger.error(f"Error saving configuration: {e}", exc_info=True)
-        flash('Internal Server Error', 'error')
+        await flash('Internal Server Error', 'error')
         return redirect(url_for('edit_config'))
 
 if __name__ == '__main__':
