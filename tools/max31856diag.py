@@ -21,7 +21,7 @@ def read_max31856_temperature():
      #       return
         
         # Read cold junction temperature
-        cj_temperature = sensor.cold_junction_temperature
+        cj_temperature = sensor.cold_junction
         print(f"Cold Junction Temperature: {cj_temperature:.2f} °C")
         
         # Read temperature in Celsius
@@ -33,7 +33,8 @@ def read_max31856_temperature():
         print(f"Temperature: {temperature_f:.2f} °F")
         
         # Print raw data for debugging
-        print(f"Raw Data: {sensor._read_register(0x0C, 3)}")
+        raw_data = sensor.read_register(0x0C, 3)
+        print(f"Raw Data: {raw_data}")
         
     except Exception as e:
         print(f"Error reading temperature: {e}")
