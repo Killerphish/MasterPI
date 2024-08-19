@@ -158,7 +158,6 @@ async def settings():
     units = config.get('units', {})
     device_name = config['device']['name']  # Get device name from config
     return await render_template('settings.html', messages=messages, sensors=sensors, device_name=device_name, units=units)
-    return await render_template('settings.html', messages=messages, sensors=sensors, device_name=device_name, units=units)
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
