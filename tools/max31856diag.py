@@ -15,15 +15,17 @@ def read_max31856_temperature():
         # Initialize MAX31856 sensor
         sensor = adafruit_max31856.MAX31856(spi, cs)
         
+        # Check for faults
+        if sensor.fault:
+            print(f"Fault detected: {sensor.fault}")
+            return
+        
         # Read temperature in Celsius
         temperature_c = sensor.temperature
         
         # Convert to Fahrenheit
         temperature_f = (temperature_c * 9/5) + 32
         print(f"Temperature: {temperature_f:.2f} °F")
-        
-    except Exception as e:
-        print(f"Error reading temperature: {e}")
         
     except Exception as e:
         print(f"Error reading temperature: {e}")
