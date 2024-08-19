@@ -164,7 +164,10 @@ def get_temperature():
     try:
         print("Reading temperature from sensors...")
         temperatures = []
-        for sensor, offset in sensors:
+        for sensor, offset, enabled in sensors:
+            if not enabled:
+                continue  # Skip disabled sensors
+
             try:
                 if isinstance(sensor, MAX31865):
                     # Read temperature from MAX31865 sensor
