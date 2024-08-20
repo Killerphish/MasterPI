@@ -14,13 +14,16 @@ sensors:
     rtd_type: 100
     reference_resistor: 430.0
     temp_offset: 0.0
-  - type: MAX31856  # Updated sensor type
+    label: "Probe 1"
+  - type: MAX31856
     chip_select_pin: D8
     temp_offset: 0.0
+    label: "Probe 2"
   - type: ADS1115
     address: 0x48
     channel: 0
     temp_offset: 0.0
+    label: "Probe 3"
 
 # PID controller settings
 pid:
@@ -65,6 +68,8 @@ units:
 # Device settings
 device:
   name: smokin
+  cs_pin: D17  # Added CS pin assignment
+  probe_label: "Probe 1"  # Added probe label
 
 # Chart settings
 chart:

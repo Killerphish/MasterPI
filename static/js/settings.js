@@ -326,6 +326,8 @@ document.addEventListener("DOMContentLoaded", function() {
             <option value="MAX31865">MAX31865</option>
             <option value="MAX31856">MAX31856</option>
             <option value="ADS1115">ADS1115</option>
+            <option value="DHT22">DHT22</option>
+            <option value="MAX31855">MAX31855</option>
         `;
     }
 
@@ -359,10 +361,18 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         const index = this.elements.index.value;
         const count = this.elements.count.value;
+        const csPin = this.elements.cs_pin.value;
+        const label = this.elements.label.value;
+
+        const formData = new FormData();
+        formData.append('index', index);
+        formData.append('count', count);
+        formData.append('cs_pin', csPin);
+        formData.append('label', label);
 
         fetch(`/edit_sensor/${index}`, {
             method: 'POST',
-            body: new FormData(this)
+            body: formData
         }).then(() => {
             window.location.reload();
         });

@@ -61,6 +61,8 @@
                                     <option value="MAX31865">MAX31865</option>
                                     <option value="MAX31856">MAX31856</option>
                                     <option value="ADS1115">ADS1115</option>
+                                    <option value="DHT22">DHT22</option>
+                                    <option value="MAX31855">MAX31855</option>
                                 </select>
                                 <button type="button" id="addSensor" class="btn">Add Sensor</button>
                             </div>
@@ -69,7 +71,7 @@
                                 <ul id="sensorList" class="collection">
                                     {% for sensor in sensors %}
                                         <li class="collection-item">
-                                            <span class="sensor-info">{{ sensor.type }}</span>
+                                            <span class="sensor-info">{{ sensor.type }} - {{ sensor.label }}</span>
                                             <button class="btn-small edit-sensor" data-index="{{ loop.index0 }}">Edit</button>
                                             <button class="btn-small red remove-sensor" data-index="{{ loop.index0 }}">Remove</button>
                                         </li>
@@ -85,6 +87,14 @@
                                     <div class="input-field">
                                         <label for="editSensorCount">Number of devices:</label>
                                         <input type="number" id="editSensorCount" name="count" min="1">
+                                    </div>
+                                    <div class="input-field">
+                                        <label for="editSensorCsPin">CS Pin:</label>
+                                        <input type="text" id="editSensorCsPin" name="cs_pin">
+                                    </div>
+                                    <div class="input-field">
+                                        <label for="editSensorLabel">Probe Label:</label>
+                                        <input type="text" id="editSensorLabel" name="label">
                                     </div>
                                     <button type="submit" class="btn">Save</button>
                                     <button type="button" id="cancelEdit" class="btn red">Cancel</button>
