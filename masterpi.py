@@ -442,6 +442,7 @@ async def read_sensor_temperature():
     except Exception as e:
         app.logger.error(f"Error reading sensor temperature: {e}", exc_info=True)
         raise
+        raise
 
 @app.route('/set_target_temperature', methods=['POST'])
 async def set_target_temperature():
