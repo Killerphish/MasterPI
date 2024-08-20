@@ -158,8 +158,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 method: 'POST',
                 body: new FormData(this)
             }).then(() => {
+                const modal = document.getElementById(`editSensorModal-${index}`);
+                const instance = M.Modal.getInstance(modal);
+                instance.close();
                 window.location.reload();
             });
+        });
+    });
+
+    document.querySelectorAll('.modal-close').forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            const instance = M.Modal.getInstance(modal);
+            instance.close();
         });
     });
 
