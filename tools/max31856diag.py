@@ -42,7 +42,6 @@ def read_max31856_temperature():
         
         # Additional diagnostics
         print("\nAdditional Diagnostics:")
-        print(f"Raw data: {sensor.read_register(0x0C, 4)}")  # Read 4 bytes from register 0x0C
         
     except Exception as e:
         print(f"Error initializing or communicating with MAX31856: {e}")
