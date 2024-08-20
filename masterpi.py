@@ -427,6 +427,7 @@ async def read_sensor_temperature():
 
                 corrected_temperature_celsius = temperature_celsius + offset
                 temperatures.append(corrected_temperature_celsius)
+                app.logger.info(f"Read temperature: {corrected_temperature_celsius} °C from {sensor.__class__.__name__}")
             except RuntimeError as e:
                 app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
                 temperatures.append(None)  # Append None or a default value in case of error
