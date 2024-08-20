@@ -15,38 +15,33 @@ def read_max31856_temperature():
         # Initialize MAX31856 sensor
         sensor = adafruit_max31856.MAX31856(spi, cs)
         
-        # Check for faults
-        fault = sensor.fault
-        if fault:
-            print("Fault detected:")
-            for fault_type, is_active in fault.items():
-                print(f"  {fault_type}: {'Yes' if is_active else 'No'}")
+        # Attempt to read temperature regardless of fault status
+        try:
+            temperature_c = sensor.temperature
+            print(f"Thermocouple Temperature: {temperature_c:.2f} °C")
             
-            # Additional diagnostic information
-            try:
-                print(f"\nCold-junction temperature: {sensor.reference_temperature:.2f}°C")
-            except AttributeError:
-                print("\nCold-junction temperature: Not available")
-            
-            return
-        
-        # Read temperature in Celsius
-        temperature_c = sensor.temperature
-        print(f"Thermocouple Temperature: {temperature_c:.2f} °C")
-        
-        # Convert to Fahrenheit
-        temperature_f = (temperature_c * 9/5) + 32
-        print(f"Temperature: {temperature_f:.2f} °F")
+            temperature_f = (temperature_c * 9/5) + 32
+            print(f"Temperature: {temperature_f:.2f} °F")
+        except Exception as temp_error:
+            print(f"Error reading thermocouple temperature: {temp_error}")
         
         # Try to read cold-junction temperature
         try:
             cj_temp = sensor.reference_temperature
             print(f"Cold-junction Temperature: {cj_temp:.2f} °C")
-        except AttributeError:
-            print("Cold-junction Temperature: Not available")
+        except Exception as cj_error:
+            print(f"Error reading cold-junction temperature: {cj_error}")
+        
+        # Check for faults after attempting to read temperatures
+        fault = sensor.fault
+        if any(fault.values()):
+            print("\nFault detected:")
+            for fault_type, is_active in fault.items():
+                if is_active:
+                    print(f"  {fault_type}: Yes")
         
     except Exception as e:
-        print(f"Error reading temperature: {e}")
+        print(f"Error initializing or communicating with MAX31856: {e}")
         print("\nDiagnostic information:")
         print(f"SPI configuration: CLK={board.SCLK}, MISO={board.MISO}, MOSI={board.MOSI}")
         print(f"Chip Select pin: {board.D8}")
