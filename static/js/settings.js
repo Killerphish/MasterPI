@@ -146,6 +146,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (document.getElementById('temp_unit')) {
                     document.getElementById('temp_unit').value = settings.units.temperature || 'F'; // Default unit changed to Fahrenheit
                 }
+                updateSensorTemperatures(settings.sensors); // Update sensor temperatures
             })
             .catch(error => {
                 console.error('Error fetching settings:', error);
@@ -285,12 +286,11 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.success) {
                 // No need to display message here, as it will be handled server-side
             } else {
-                // No need to display message here, as it will be handled server-side
+                console.error('Failed to save integration settings:', data.message);
             }
         })
         .catch(error => {
             console.error('Error saving integration settings:', error);
-            // No need to display message here, as it will be handled server-side
         });
     }
 
@@ -361,18 +361,10 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         const index = this.elements.index.value;
         const count = this.elements.count.value;
-        const csPin = this.elements.cs_pin.value;
-        const label = this.elements.label.value;
-
-        const formData = new FormData();
-        formData.append('index', index);
-        formData.append('count', count);
-        formData.append('cs_pin', csPin);
-        formData.append('label', label);
 
         fetch(`/edit_sensor/${index}`, {
             method: 'POST',
-            body: formData
+            body: new FormData(this)
         }).then(() => {
             window.location.reload();
         });
@@ -381,6 +373,15 @@ document.addEventListener("DOMContentLoaded", function() {
     // Function to get CSRF token
     function getCsrfToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
+    function updateSensorTemperatures(sensors) {
+        sensors.forEach((sensor, index) => {
+            const sensorTempElement = document.getElementById(`sensor-temp-${index}`);
+            if (sensorTempElement) {
+                sensorTempElement.textContent = `Temperature: ${sensor.temperature} °${sensor.unit}`;
+            }
+        });
     }
 });
 

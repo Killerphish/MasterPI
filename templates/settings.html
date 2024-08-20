@@ -72,6 +72,7 @@
                                     {% for sensor in sensors %}
                                         <li class="collection-item">
                                             <span class="sensor-info">{{ sensor.type }} - {{ sensor.label }}</span>
+                                            <span class="sensor-temp" id="sensor-temp-{{ loop.index0 }}">Temperature: --</span>
                                             <button class="btn-small edit-sensor" data-index="{{ loop.index0 }}">Edit</button>
                                             <button class="btn-small red remove-sensor" data-index="{{ loop.index0 }}">Remove</button>
                                         </li>
