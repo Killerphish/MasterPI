@@ -10,7 +10,7 @@ def read_max31856_temperature():
         spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
         
         # Initialize chip select pin
-        cs = digitalio.DigitalInOut(board.D8)  # Using GPIO8 for CS
+        cs = digitalio.DigitalInOut(board.D5)  # Using GPIO5 for CS
         
         # Initialize MAX31856 sensor with explicit thermocouple type
         sensor = adafruit_max31856.MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)
@@ -48,7 +48,7 @@ def read_max31856_temperature():
         print(f"Error initializing or communicating with MAX31856: {e}")
         print("\nDiagnostic information:")
         print(f"SPI configuration: CLK={board.SCLK}, MISO={board.MISO}, MOSI={board.MOSI}")
-        print(f"Chip Select pin: {board.D8}")
+        print(f"Chip Select pin: {board.D5}")
         print("Please verify these pin assignments are correct for your wiring.")
 
 if __name__ == "__main__":
