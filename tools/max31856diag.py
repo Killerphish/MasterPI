@@ -18,7 +18,15 @@ def read_max31856_temperature():
         # Check for faults
         fault = sensor.fault
         if fault:
-            print(f"Fault detected: {fault}")
+            print("Fault detected:")
+            for fault_type, is_active in fault.items():
+                print(f"  {fault_type}: {'Yes' if is_active else 'No'}")
+            
+            # Additional diagnostic information
+            print(f"\nThermocouple type: {sensor.thermocouple_type}")
+            print(f"Noise filter: {sensor.noise_filter}")
+            print(f"Conversion mode: {sensor.conversion_mode}")
+            
             return
         
         # Read cold junction temperature
