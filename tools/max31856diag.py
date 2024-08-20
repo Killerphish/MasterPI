@@ -23,9 +23,10 @@ def read_max31856_temperature():
                 print(f"  {fault_type}: {'Yes' if is_active else 'No'}")
             
             # Additional diagnostic information
-            print(f"\nNoise filter: {sensor.noise_filter}")
-            print(f"Conversion mode: {sensor.conversion_mode}")
-            print(f"Cold-junction temperature: {sensor.reference_temperature:.2f}°C")
+            try:
+                print(f"\nCold-junction temperature: {sensor.reference_temperature:.2f}°C")
+            except AttributeError:
+                print("\nCold-junction temperature: Not available")
             
             return
         
@@ -36,6 +37,13 @@ def read_max31856_temperature():
         # Convert to Fahrenheit
         temperature_f = (temperature_c * 9/5) + 32
         print(f"Temperature: {temperature_f:.2f} °F")
+        
+        # Try to read cold-junction temperature
+        try:
+            cj_temp = sensor.reference_temperature
+            print(f"Cold-junction Temperature: {cj_temp:.2f} °C")
+        except AttributeError:
+            print("Cold-junction Temperature: Not available")
         
     except Exception as e:
         print(f"Error reading temperature: {e}")
