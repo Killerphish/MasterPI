@@ -71,7 +71,7 @@
                                 <ul id="sensorList" class="collection">
                                     {% for sensor in sensors %}
                                         <li class="collection-item">
-                                            <span class="sensor-info">{{ sensor.type }} - {{ sensor.label }}</span>
+                                            <span class="sensor-info">{{ sensor.type }} - {{ sensor.label }} (CS Pin: {{ sensor.chip_select_pin }})</span>
                                             <span class="sensor-temp" id="sensor-temp-{{ loop.index0 }}">Temperature: --</span>
                                             <button class="btn-small edit-sensor" data-index="{{ loop.index0 }}" data-target="editSensorModal-{{ loop.index0 }}" data-cs-pin="{{ sensor.chip_select_pin }}" data-label="{{ sensor.label }}">Edit</button>
                                             <button class="btn-small red remove-sensor" data-index="{{ loop.index0 }}">Remove</button>
