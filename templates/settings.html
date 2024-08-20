@@ -73,35 +73,34 @@
                                         <li class="collection-item">
                                             <span class="sensor-info">{{ sensor.type }} - {{ sensor.label }}</span>
                                             <span class="sensor-temp" id="sensor-temp-{{ loop.index0 }}">Temperature: --</span>
-                                            <button class="btn-small edit-sensor" data-index="{{ loop.index0 }}">Edit</button>
+                                            <button class="btn-small edit-sensor" data-index="{{ loop.index0 }}" data-target="editSensorModal-{{ loop.index0 }}">Edit</button>
                                             <button class="btn-small red remove-sensor" data-index="{{ loop.index0 }}">Remove</button>
                                         </li>
                                     {% endfor %}
                                 </ul>
                             </div>
                         </div>
-                        <div id="sensorEditModal" class="modal">
+                        {% for sensor in sensors %}
+                        <div id="editSensorModal-{{ loop.index0 }}" class="modal">
                             <div class="modal-content">
                                 <h3>Edit Sensor</h3>
-                                <form id="editSensorForm">
-                                    <input type="hidden" id="editSensorIndex" name="index">
+                                <form id="editSensorForm-{{ loop.index0 }}" method="POST" action="{{ url_for('save_device_settings') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
                                     <div class="input-field">
-                                        <label for="editSensorCount">Number of devices:</label>
-                                        <input type="number" id="editSensorCount" name="count" min="1">
+                                        <label for="editSensorCsPin-{{ loop.index0 }}">CS Pin:</label>
+                                        <input type="text" id="editSensorCsPin-{{ loop.index0 }}" name="cs_pin" value="{{ sensor.chip_select_pin }}">
                                     </div>
                                     <div class="input-field">
-                                        <label for="editSensorCsPin">CS Pin:</label>
-                                        <input type="text" id="editSensorCsPin" name="cs_pin">
-                                    </div>
-                                    <div class="input-field">
-                                        <label for="editSensorLabel">Probe Label:</label>
-                                        <input type="text" id="editSensorLabel" name="label">
+                                        <label for="editSensorLabel-{{ loop.index0 }}">Probe Label:</label>
+                                        <input type="text" id="editSensorLabel-{{ loop.index0 }}" name="label" value="{{ sensor.label }}">
                                     </div>
                                     <button type="submit" class="btn">Save</button>
-                                    <button type="button" id="cancelEdit" class="btn red">Cancel</button>
+                                    <button type="button" class="btn red modal-close">Cancel</button>
                                 </form>
                             </div>
                         </div>
+                        {% endfor %}
                         <div id="sensorRemoveModal" class="modal">
                             <div class="modal-content">
                                 <h3>Confirm Deletion</h3>
@@ -110,7 +109,7 @@
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" id="removeSensorIndex" name="index">
                                     <button type="submit" class="btn">Confirm</button>
-                                    <button type="button" id="cancelRemove" class="btn red">Cancel</button>
+                                    <button type="button" class="btn red modal-close">Cancel</button>
                                 </form>
                             </div>
                         </div>

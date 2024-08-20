@@ -348,12 +348,14 @@ document.addEventListener("DOMContentLoaded", function() {
     sensorList.addEventListener('click', function(event) {
         if (event.target.classList.contains('edit-sensor')) {
             const index = event.target.dataset.index;
-            editForm.elements.index.value = index;
-            editModal.style.display = 'block';
+            const modal = document.getElementById(`editSensorModal-${index}`);
+            const instance = M.Modal.init(modal);
+            instance.open();
         } else if (event.target.classList.contains('remove-sensor')) {
             const index = event.target.dataset.index;
             removeForm.elements.index.value = index;
-            removeModal.style.display = 'block';
+            const instance = M.Modal.init(removeModal);
+            instance.open();
         }
     });
 
