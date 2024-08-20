@@ -170,6 +170,15 @@ document.addEventListener("DOMContentLoaded", function() {
         button.addEventListener('click', function() {
             const modal = this.closest('.modal');
             const instance = M.Modal.getInstance(modal);
+            const csPinInput = modal.querySelector('input[name="cs_pin"]');
+            const labelInput = modal.querySelector('input[name="label"]');
+            const originalCsPin = button.dataset.csPin;
+            const originalLabel = button.dataset.label;
+
+            // Revert changes
+            csPinInput.value = originalCsPin;
+            labelInput.value = originalLabel;
+
             instance.close();
         });
     });
