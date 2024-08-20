@@ -518,6 +518,30 @@ async def save_config_route():
         await flash('Internal Server Error', 'error')
         return redirect(url_for('edit_config'))
 
+@app.route('/save_sensor_settings', methods=['POST'])
+async def save_sensor_settings():
+    try:
+        form_data = await request.form
+        index = int(form_data.get('index'))
+        cs_pin = form_data.get('cs_pin')
+        label = form_data.get('label')
+
+        config = load_config()
+
+        if 'sensors' in config and 0 <= index < len(config['sensors']):
+            config['sensors'][index]['chip_select_pin'] = cs_pin
+            config['sensors'][index]['label'] = label
+            save_config(config)
+            await flash('Sensor settings saved successfully!', 'success')
+        else:
+            await flash('Invalid sensor index.', 'error')
+
+        return redirect(url_for('settings'))
+    except Exception as e:
+        app.logger.error(f"Error saving sensor settings: {e}", exc_info=True)
+        await flash('Internal Server Error', 'error')
+        return redirect(url_for('settings'))
+
 if __name__ == '__main__':
     async def main():
         await create_aiohttp_session()

@@ -84,7 +84,7 @@
                         <div id="editSensorModal-{{ loop.index0 }}" class="modal">
                             <div class="modal-content">
                                 <h3>Edit Sensor</h3>
-                                <form id="editSensorForm-{{ loop.index0 }}" method="POST" action="{{ url_for('save_device_settings') }}">
+                                <form id="editSensorForm-{{ loop.index0 }}" method="POST" action="{{ url_for('save_sensor_settings') }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" name="index" value="{{ loop.index0 }}">
                                     <div class="input-field">
