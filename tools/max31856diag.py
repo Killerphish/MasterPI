@@ -12,7 +12,7 @@ def read_max31856_temperature():
         # Initialize chip select pin
         cs = digitalio.DigitalInOut(board.D8)  # Using GPIO8 for CS
         
-        # Initialize MAX31856 sensor
+        # Initialize MAX31856 sensor with explicit thermocouple type
         sensor = adafruit_max31856.MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)
         
         # Attempt to read temperature regardless of fault status
@@ -39,6 +39,10 @@ def read_max31856_temperature():
             for fault_type, is_active in fault.items():
                 if is_active:
                     print(f"  {fault_type}: Yes")
+        
+        # Additional diagnostics
+        print("\nAdditional Diagnostics:")
+        print(f"Raw data: {sensor.read_register(0x0C, 4)}")  # Read 4 bytes from register 0x0C
         
     except Exception as e:
         print(f"Error initializing or communicating with MAX31856: {e}")
