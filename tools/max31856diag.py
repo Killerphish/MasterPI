@@ -13,7 +13,7 @@ def read_max31856_temperature():
         cs = digitalio.DigitalInOut(board.D8)  # Using GPIO8 for CS
         
         # Initialize MAX31856 sensor
-        sensor = adafruit_max31856.MAX31856(spi, cs)
+        sensor = adafruit_max31856.MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)
         
         # Attempt to read temperature regardless of fault status
         try:
