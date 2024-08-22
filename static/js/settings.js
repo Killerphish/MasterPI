@@ -131,10 +131,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 count: 1
             };
 
+            // Fetch the CSRF token from the meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
             fetch('/save_device_settings', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken  // Include the CSRF token in the headers
                 },
                 body: JSON.stringify(data)
             }).then(response => {
