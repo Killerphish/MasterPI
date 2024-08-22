@@ -282,29 +282,37 @@ async def save_device_settings():
 
         device_name = form_data.get('device_name')
         temp_unit = form_data.get('temp_unit')
+        sensor_type = form_data.get('sensor_type')
+        count = form_data.get('count')
 
         app.logger.debug(f"Received device_name: {device_name}")
         app.logger.debug(f"Received temp_unit: {temp_unit}")
+        app.logger.debug(f"Received sensor_type: {sensor_type}")
+        app.logger.debug(f"Received count: {count}")
 
-        if not device_name:
-            raise ValueError("Device name is required")
+        if not sensor_type:
+            raise ValueError("Sensor type is required")
 
         config = load_config()
 
-        # Update config with new settings
-        config['device']['name'] = device_name
-        config['units']['temperature'] = temp_unit
+        # Add new sensor to the config
+        new_sensor = {
+            'type': sensor_type,
+            'chip_select_pin': 'D17',  # Default value, adjust as needed
+            'temp_offset': 0.0,
+            'label': f"Probe {len(config['sensors']) + 1}"
+        }
+        config['sensors'].append(new_sensor)
 
         app.logger.debug(f"Updated config: {config}")
 
         save_config(config)
 
-        await flash('Device settings saved successfully!', 'success')
-        return redirect(url_for('settings'))
+        await flash('Sensor added successfully!', 'success')
+        return jsonify({"message": "Sensor added successfully"}), 200
     except Exception as e:
         app.logger.error(f"Error saving device settings: {e}", exc_info=True)
-        await flash('Internal Server Error', 'error')
-        return redirect(url_for('settings'))
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/save_integration_settings', methods=['POST'])
 async def save_integration_settings():

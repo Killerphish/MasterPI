@@ -142,10 +142,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.log("Sensor added successfully");  // Debugging statement
                     window.location.reload();
                 } else {
-                    return response.json().then(errorData => {
-                        console.error("Failed to add sensor:", errorData);  // Debugging statement
-                    }).catch(() => {
-                        console.error("Failed to parse error response as JSON");
+                    return response.text().then(errorText => {
+                        console.error("Failed to add sensor:", errorText);  // Log raw response text
                     });
                 }
             }).catch(error => {
