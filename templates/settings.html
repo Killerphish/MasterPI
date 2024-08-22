@@ -11,6 +11,7 @@
     <script>
         // Pass the URL to the JavaScript code
         const saveDeviceSettingsUrl = "{{ url_for('save_device_settings') }}";
+        const getAvailablePinsUrl = "{{ url_for('get_available_pins') }}";
     </script>
     <style>
         :root {
@@ -142,7 +143,9 @@
                                         <label for="newSensorLabel" class="active">Probe Label</label>
                                     </div>
                                     <div class="input-field col s12">
-                                        <input type="text" id="newSensorCsPin" name="chip_select_pin" placeholder="CS Pin">
+                                        <select id="newSensorCsPin" name="chip_select_pin" class="browser-default">
+                                            <!-- Options will be populated by JavaScript -->
+                                        </select>
                                         <label for="newSensorCsPin" class="active">CS Pin</label>
                                     </div>
                                     <div class="modal-footer">
@@ -245,6 +248,23 @@
                 openAddSensorModalButton.addEventListener('click', function() {
                     const instance = M.Modal.getInstance(document.getElementById('addSensorModal'));
                     instance.open();
+
+                    // Fetch available pins and populate the dropdown
+                    fetch(getAvailablePinsUrl)
+                        .then(response => response.json())
+                        .then(pins => {
+                            const csPinSelect = document.getElementById('newSensorCsPin');
+                            csPinSelect.innerHTML = '';  // Clear existing options
+                            pins.forEach(pin => {
+                                const option = document.createElement('option');
+                                option.value = pin;
+                                option.textContent = pin;
+                                csPinSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching available pins:', error);
+                        });
                 });
             }
         });

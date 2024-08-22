@@ -641,6 +641,17 @@ async def add_sensor():
 
         config = await load_config()  # Ensure this is awaited
 
+        # Map the CS pin to the correct board constant
+        cs_pin = get_board_pin(chip_select_pin)
+
+        # Initialize the sensor based on the type
+        if sensor_type == 'MAX31856':
+            try:
+                sensor = MAX31856(cs_pin)
+                sensor.temperature  # Test the sensor
+            except Exception as e:
+                raise ValueError(f"Error initializing MAX31856 on pin {chip_select_pin}: {e}")
+
         # Add the new sensor to the configuration
         new_sensor = {
             'type': sensor_type,
@@ -656,6 +667,39 @@ async def add_sensor():
     except Exception as e:
         app.logger.error(f"Error adding sensor: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
+
+@app.route('/get_available_pins', methods=['GET'])
+async def get_available_pins():
+    try:
+        config = await load_config()  # Ensure this is awaited
+        used_pins = {sensor['chip_select_pin'] for sensor in config['sensors']}
+        all_pins = {'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12', 'D13', 'D17'}  # Add other available pins as needed
+        available_pins = list(all_pins - used_pins)
+        return jsonify(available_pins), 200
+    except Exception as e:
+        app.logger.error(f"Error fetching available pins: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+# Map the CS pin to the correct board constant
+PIN_MAPPING = {
+    'D5': board.D5,
+    'D6': board.D6,
+    'D7': board.D7,
+    'D8': board.D8,
+    'D9': board.D9,
+    'D10': board.D10,
+    'D11': board.D11,
+    'D12': board.D12,
+    'D13': board.D13,
+    'D17': board.D17,
+    # Add other mappings as needed
+}
+
+def get_board_pin(pin_name):
+    try:
+        return PIN_MAPPING[pin_name]
+    except KeyError:
+        raise ValueError(f"Invalid pin name: {pin_name}")
 
 if __name__ == '__main__':
     async def main():

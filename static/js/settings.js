@@ -149,6 +149,23 @@ document.addEventListener("DOMContentLoaded", function() {
         openAddSensorModalButton.addEventListener('click', function() {
             const instance = M.Modal.getInstance(document.getElementById('addSensorModal'));
             instance.open();
+
+            // Fetch available pins and populate the dropdown
+            fetch(getAvailablePinsUrl)
+                .then(response => response.json())
+                .then(pins => {
+                    const csPinSelect = document.getElementById('newSensorCsPin');
+                    csPinSelect.innerHTML = '';  // Clear existing options
+                    pins.forEach(pin => {
+                        const option = document.createElement('option');
+                        option.value = pin;
+                        option.textContent = pin;
+                        csPinSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching available pins:', error);
+                });
         });
     }
 
