@@ -649,6 +649,37 @@ def get_board_pin(pin_name):
     except KeyError:
         raise ValueError(f"Invalid pin name: {pin_name}")
 
+def initialize_sensor(sensor_type, chip_select_pin):
+    cs_pin = get_board_pin(chip_select_pin)
+    if sensor_type == 'MAX31856':
+        try:
+            spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
+            cs = digitalio.DigitalInOut(cs_pin)
+            sensor = MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)  # Ensure thermocouple type is set
+            sensor.temperature  # Test the sensor
+            return sensor
+        except Exception as e:
+            raise ValueError(f"Error initializing MAX31856 on pin {chip_select_pin}: {e}")
+    # Add other sensor types as needed
+    return None
+
+active_sensors = []
+
+def load_active_sensors():
+    global active_sensors
+    config = load_config_sync()  # Synchronous version of load_config for initialization
+    active_sensors = []
+    for sensor in config['sensors']:
+        try:
+            initialized_sensor = initialize_sensor(sensor['type'], sensor['chip_select_pin'])
+            active_sensors.append(initialized_sensor)
+        except Exception as e:
+            app.logger.error(f"Error initializing sensor {sensor['label']}: {e}")
+
+@app.before_first_request
+def initialize_sensors():
+    load_active_sensors()
+
 @app.route('/add_sensor', methods=['POST'])
 async def add_sensor():
     try:
@@ -673,16 +704,9 @@ async def add_sensor():
 
         save_config(config)
 
-        # Initialize the sensor based on the type
-        cs_pin = get_board_pin(chip_select_pin)
-        if sensor_type == 'MAX31856':
-            try:
-                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
-                cs = digitalio.DigitalInOut(cs_pin)
-                sensor = MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)  # Ensure thermocouple type is set
-                sensor.temperature  # Test the sensor
-            except Exception as e:
-                raise ValueError(f"Error initializing MAX31856 on pin {chip_select_pin}: {e}")
+        # Initialize the sensor and update the active sensors list
+        initialized_sensor = initialize_sensor(sensor_type, chip_select_pin)
+        active_sensors.append(initialized_sensor)
 
         app.logger.info('Sensor added and initialized successfully.')
         return jsonify({"message": "Sensor added and initialized successfully"}), 200
