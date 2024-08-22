@@ -676,8 +676,8 @@ def load_active_sensors():
         except Exception as e:
             app.logger.error(f"Error initializing sensor {sensor['label']}: {e}")
 
-@app.before_first_request
-def initialize_sensors():
+@app.before_serving
+async def initialize_sensors():
     load_active_sensors()
 
 @app.route('/add_sensor', methods=['POST'])
