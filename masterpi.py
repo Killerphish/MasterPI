@@ -647,7 +647,9 @@ async def add_sensor():
         # Initialize the sensor based on the type
         if sensor_type == 'MAX31856':
             try:
-                sensor = MAX31856(cs_pin)
+                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
+                cs = digitalio.DigitalInOut(cs_pin)
+                sensor = MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)  # Ensure thermocouple type is set
                 sensor.temperature  # Test the sensor
             except Exception as e:
                 raise ValueError(f"Error initializing MAX31856 on pin {chip_select_pin}: {e}")
