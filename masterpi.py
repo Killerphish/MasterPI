@@ -594,7 +594,7 @@ async def save_config_route():
 @app.route('/save_sensor_settings', methods=['POST'])
 async def save_sensor_settings():
     try:
-        form_data = await request.form
+        form_data = await request.get_json()  # Use get_json() to parse JSON data
         index = int(form_data.get('index'))
         cs_pin = form_data.get('cs_pin')
         label = form_data.get('label')
@@ -609,11 +609,10 @@ async def save_sensor_settings():
         else:
             await flash('Invalid sensor index.', 'error')
 
-        return redirect(url_for('settings'))
+        return jsonify({"message": "Sensor settings saved successfully"}), 200
     except Exception as e:
         app.logger.error(f"Error saving sensor settings: {e}", exc_info=True)
-        await flash('Internal Server Error', 'error')
-        return redirect(url_for('settings'))
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/save_personalization_settings', methods=['POST'])
 async def save_personalization_settings():

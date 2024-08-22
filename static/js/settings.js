@@ -222,19 +222,40 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     document.querySelectorAll('[id^="editSensorForm-"]').forEach(form => {
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', async function(event) {
             event.preventDefault();
             const index = this.elements.index.value;
+            const cs_pin = this.elements.cs_pin.value;
+            const label = this.elements.label.value;
 
-            fetch(`/edit_sensor/${index}`, {
-                method: 'POST',
-                body: new FormData(this)
-            }).then(() => {
-                const modal = document.getElementById(`editSensorModal-${index}`);
-                const instance = M.Modal.getInstance(modal);
-                instance.close();
-                window.location.reload();
-            });
+            const data = {
+                index: index,
+                cs_pin: cs_pin,
+                label: label
+            };
+
+            try {
+                const response = await fetch('/save_sensor_settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken()
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const modal = document.getElementById(`editSensorModal-${index}`);
+                    const instance = M.Modal.getInstance(modal);
+                    instance.close();
+                    window.location.reload();
+                } else {
+                    const errorText = await response.text();
+                    console.error("Failed to save sensor settings:", errorText);
+                }
+            } catch (error) {
+                console.error("Error saving sensor settings:", error);
+            }
         });
     });
 
