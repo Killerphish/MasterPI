@@ -479,16 +479,21 @@ async def remove_sensor():
     try:
         form_data = await request.get_json()  # Use get_json() to parse JSON data
         sensor_index = int(form_data.get('index'))
+        app.logger.debug(f"Received request to remove sensor at index: {sensor_index}")
 
         # Load the current configuration
         config = load_config()
+        app.logger.debug(f"Current config: {config}")
 
         # Remove the sensor from the configuration
         if 'sensors' in config and 0 <= sensor_index < len(config['sensors']):
             del config['sensors'][sensor_index]
+            app.logger.debug(f"Updated config after removal: {config}")
             save_config(config)
+            app.logger.info('Sensor removed successfully.')
             await flash('Sensor removed successfully!', 'success')
         else:
+            app.logger.warning('Invalid sensor index.')
             await flash('Invalid sensor index.', 'error')
 
         return redirect(url_for('settings'))
