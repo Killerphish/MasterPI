@@ -154,6 +154,13 @@ document.addEventListener("DOMContentLoaded", function() {
             fetch(getAvailablePinsUrl)
                 .then(response => response.json())
                 .then(pins => {
+                    // Sort the pins in numerical order
+                    pins.sort((a, b) => {
+                        const numA = parseInt(a.replace(/\D/g, ''), 10);
+                        const numB = parseInt(b.replace(/\D/g, ''), 10);
+                        return numA - numB;
+                    });
+
                     const csPinSelect = document.getElementById('newSensorCsPin');
                     csPinSelect.innerHTML = '';  // Clear existing options
                     pins.forEach(pin => {
