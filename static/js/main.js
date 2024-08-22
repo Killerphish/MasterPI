@@ -62,7 +62,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 temperatures.forEach((temp, index) => {
                     const probeElement = document.getElementById(`probe-${index}`);
                     if (probeElement) {
-                        probeElement.textContent = temp !== null ? `${temp} °${tempUnit}` : 'Error reading temperature';
+                        // Format the temperature to two decimal places
+                        probeElement.textContent = temp !== null ? `${temp.toFixed(2)} °${tempUnit}` : 'Error reading temperature';
                     }
                 });
             })

@@ -211,6 +211,9 @@ def get_temperature():
                 else:
                     temperature = corrected_temperature_celsius
                 
+                # Round the temperature to two decimal places
+                temperature = round(temperature, 2)
+                
                 temperatures.append(temperature)
                 app.logger.info(f"Read temperature: {temperature} {'°F' if config['units']['temperature'] == 'Fahrenheit' else '°C'} from {sensor.__class__.__name__}")
             except Exception as e:
