@@ -59,7 +59,7 @@ label {
 }
 
 .modal-content {
-    margin: 5% auto;
+    margin: 0 auto;
     padding: 20px;
     border: 1px solid #888;
     width: auto; /* Adjust the width as needed */
@@ -69,17 +69,8 @@ label {
     border-radius: 8px;
 }
 
-.modal-header, .modal-footer {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-.modal-header {
-    border-bottom: none;
-}
-
 .modal-footer {
-    border-top: none;
+    padding: 10px;
     text-align: right;
 }
 
