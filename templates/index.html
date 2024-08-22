@@ -93,16 +93,19 @@
             fetch('/get_temperature')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.temperatures !== undefined) {
+                    if (data.temperatures && data.temperatures.length > 0 && data.temperatures[0] !== null) {
                         let temperature = data.temperatures[0];
                         if (unit === 'Fahrenheit') {
                             temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
                         }
                         document.getElementById('current-temp').textContent = `${temperature.toFixed(2)} °${unit}`;
+                    } else {
+                        document.getElementById('current-temp').textContent = 'N/A';
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching temperature:', error);
+                    document.getElementById('current-temp').textContent = 'Error';
                 });
         }
     </script>
