@@ -726,6 +726,16 @@ async def get_available_pins():
         app.logger.error(f"Error fetching available pins: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/initialize_sensors', methods=['POST'])
+async def initialize_sensors_route():
+    try:
+        load_active_sensors()
+        app.logger.info('Sensors initialized successfully.')
+        return jsonify({"message": "Sensors initialized successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"Error initializing sensors: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     async def main():
         global config

@@ -435,4 +435,29 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
+
+    // Handle the "Initialize Sensors" button click
+    const initializeSensorsButton = document.getElementById('initializeSensorsButton');
+    if (initializeSensorsButton) {
+        initializeSensorsButton.addEventListener('click', function() {
+            fetch(initializeSensorsUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCsrfToken()
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error initializing sensors:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        });
+    }
 });

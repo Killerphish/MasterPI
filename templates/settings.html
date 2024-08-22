@@ -12,6 +12,7 @@
         // Pass the URL to the JavaScript code
         const saveDeviceSettingsUrl = "{{ url_for('save_device_settings') }}";
         const getAvailablePinsUrl = "{{ url_for('get_available_pins') }}";
+        const initializeSensorsUrl = "{{ url_for('initialize_sensors') }}";
     </script>
     <style>
         :root {
@@ -157,6 +158,7 @@
                         </div>
                         <div class="col s12">
                             <button type="submit" class="btn waves-effect waves-light">Save Device Settings</button>
+                            <button type="button" id="initializeSensorsButton" class="btn waves-effect waves-light">Initialize Sensors</button>
                         </div>
                     </div>
                     <div id="integrations" class="col s12">
@@ -265,6 +267,31 @@
                         .catch(error => {
                             console.error('Error fetching available pins:', error);
                         });
+                });
+            }
+
+            // Handle the "Initialize Sensors" button click
+            const initializeSensorsButton = document.getElementById('initializeSensorsButton');
+            if (initializeSensorsButton) {
+                initializeSensorsButton.addEventListener('click', function() {
+                    fetch(initializeSensorsUrl, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': getCsrfToken()
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.message) {
+                            M.toast({html: result.message});
+                        } else {
+                            M.toast({html: `Error: ${result.error}`});
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error initializing sensors:', error);
+                        M.toast({html: `Error: ${error.message}`});
+                    });
                 });
             }
         });
