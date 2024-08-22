@@ -9,18 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
         fetchStatus()
             .then(data => {
                 console.log('Status data:', data); // Debugging line
-                const currentTempElement = document.getElementById('current-temp');
                 const fanStatusElement = document.getElementById('fan-status');
-
-                if (currentTempElement) {
-                    let temperature = data.temperature;
-                    if (tempUnit === 'F') {
-                        temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
-                    }
-                    currentTempElement.textContent = temperature.toFixed(2) + ` °${tempUnit}`;
-                } else {
-                    console.error('Element with id "current-temp" not found.');
-                }
 
                 if (fanStatusElement) {
                     fanStatusElement.textContent = data.fan_on ? 'On' : 'Off';
@@ -170,29 +159,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Update temperature unit
             tempUnit = settings.units.temperature; // Set the global variable
-            updateTemperatureUnit(tempUnit);
         })
         .catch(error => {
             console.error('Error fetching settings:', error);
         });
-
-    function updateTemperatureUnit(unit) {
-        // Fetch the current temperature and update the display
-        fetch('/get_temperature')
-            .then(response => response.json())
-            .then(data => {
-                if (data.temperature !== undefined) {
-                    let temperature = data.temperature;
-                    if (unit === 'F') {
-                        temperature = (temperature * 9/5) + 32; // Convert to Fahrenheit
-                    }
-                    document.getElementById('current-temp').textContent = `${temperature.toFixed(2)} °${unit}`;
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching temperature:', error);
-            });
-    }
 
     // Define the emergencyShutdown function
     function emergencyShutdown() {
