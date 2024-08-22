@@ -34,7 +34,7 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-                <form id="settingsForm" method="POST" action="{{ url_for('save_device_settings') }}">
+                <form id="settingsForm" method="POST" action="{{ url_for('save_device_settings') }}" class="col s12">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <div id="general" class="col s12">
                         <h2>General</h2>
@@ -50,7 +50,7 @@
                             </select>
                         </div>
                         <div>
-                            <button type="submit" class="btn">Save General Settings</button>
+                            <button type="submit" class="btn waves-effect waves-light">Save General Settings</button>
                         </div>
                     </div>
                     <div id="devices" class="col s12">
@@ -114,7 +114,7 @@
                             </div>
                         </div>
                         <div>
-                            <button type="submit" class="btn">Save Device Settings</button>
+                            <button type="submit" class="btn waves-effect waves-light">Save Device Settings</button>
                         </div>
                     </div>
                     <div id="integrations" class="col s12">
@@ -138,20 +138,26 @@
                         </div>
                     </div>
                     <h3>Personalization</h3>
-                    <form id="personalizationForm">
-                        <div>
-                            <label for="navColor">Navigation Color:</label>
-                            <input type="color" id="navColor" name="navColor" value="#827f7f">
+                    <form id="personalizationForm" class="col s12">
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <label for="navColor">Navigation Color:</label>
+                                <input type="color" id="navColor" name="navColor" value="#827f7f">
+                            </div>
                         </div>
-                        <div>
-                            <label for="buttonColor">Button Color:</label>
-                            <input type="color" id="buttonColor" name="buttonColor" value="#f2f2f2">
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <label for="buttonColor">Button Color:</label>
+                                <input type="color" id="buttonColor" name="buttonColor" value="#f2f2f2">
+                            </div>
                         </div>
-                        <div>
-                            <label for="backgroundColor">Background Color:</label>
-                            <input type="color" id="backgroundColor" name="backgroundColor" value="#ffffff">
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <label for="backgroundColor">Background Color:</label>
+                                <input type="color" id="backgroundColor" name="backgroundColor" value="#ffffff">
+                            </div>
                         </div>
-                        <button type="submit">Save Personalization Settings</button>
+                        <button type="submit" class="btn waves-effect waves-light">Save Personalization Settings</button>
                     </form>
                     <div>
                         <a href="{{ url_for('view_config') }}" target="_blank" class="btn">View Configurations</a>

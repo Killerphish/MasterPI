@@ -5,6 +5,8 @@ import { requestMeaterApiKey } from './api.js';
 let tempUnit = 'F'; // Default unit changed to Fahrenheit
 
 document.addEventListener("DOMContentLoaded", function() {
+    M.AutoInit();  // Initialize all Materialize components
+
     M.AutoInit();
     var elems = document.querySelectorAll('.tabs');
     var instances = M.Tabs.init(elems);
