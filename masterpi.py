@@ -57,7 +57,7 @@ app = Quart(__name__)
 csrf = CSRFProtect(app)
 app.config['DEBUG'] = config['app']['debug']
 app.secret_key = 'your_secret_key'  # Add a secret key for session management
-app.config['REQUEST_TIMEOUT'] = 60  # Set request timeout to 60 seconds
+app.config['REQUEST_TIMEOUT'] = 120  # Increase request timeout to 120 seconds
 
 # Setup logging
 if not os.path.exists('logs'):
@@ -154,11 +154,14 @@ async def index():
 
 @app.route('/settings.html')
 async def settings():
+    app.logger.info("Loading settings page...")
     config = load_config()
+    app.logger.info("Config loaded.")
     messages = get_flashed_messages(with_categories=True)
     sensors = config.get('sensors', [])
     units = config.get('units', {})
     device_name = config['device']['name']  # Get device name from config
+    app.logger.info("Rendering settings template.")
     return await render_template('settings.html', messages=messages, sensors=sensors, device_name=device_name, units=units)
 
 @app.route('/get_temperature', methods=['GET'])
