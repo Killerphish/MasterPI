@@ -628,6 +628,32 @@ async def save_personalization_settings():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/add_sensor', methods=['POST'])
+async def add_sensor():
+    try:
+        form_data = await request.get_json()  # Use get_json() to parse JSON data
+        sensor_type = form_data.get('sensor_type')
+        count = form_data.get('count', 1)
+
+        config = await load_config()  # Ensure this is awaited
+
+        # Add the new sensor to the configuration
+        for _ in range(count):
+            new_sensor = {
+                'type': sensor_type,
+                'chip_select_pin': 'D0',  # Default value, should be updated by user
+                'temp_offset': 0.0,
+                'label': f"New {sensor_type} Sensor"
+            }
+            config['sensors'].append(new_sensor)
+
+        save_config(config)
+        app.logger.info('Sensor added successfully.')
+        return jsonify({"message": "Sensor added successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"Error adding sensor: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     async def main():
         global config

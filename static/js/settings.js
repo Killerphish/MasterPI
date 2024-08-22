@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function() {
             // Fetch the CSRF token from the meta tag
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            fetch('/save_device_settings', {
+            fetch('/add_sensor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
