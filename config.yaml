@@ -1,6 +1,6 @@
 # General application settings...
 app:
-  name: Temperature Control System
+  name: MasterPI
   version: 1.0.0
   debug: true
   wizard_completed: true
@@ -41,7 +41,7 @@ fan:
 
 # Web dashboard settings
 dashboard:
-  title: Temperature Monitoring Dashboard
+  title: MasterPI
   refresh_interval: 5       # Time in seconds between data refresh
 
 # Logging settings
