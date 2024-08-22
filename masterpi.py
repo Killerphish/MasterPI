@@ -106,7 +106,6 @@ def initialize_sensors(config):
                 cs_pin = getattr(board, sensor_config['chip_select_pin'])
                 cs = digitalio.DigitalInOut(cs_pin)
                 sensor = MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)  # Ensure thermocouple type is set
-                sensor.temperature_unit = MAX31856.TEMPERATURE_CELSIUS  # Ensure the temperature unit is set correctly
                 sensors.append((sensor, temp_offset, enabled))
                 app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
             elif sensor_type == 'ADS1115':
