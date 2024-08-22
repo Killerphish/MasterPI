@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': getCsrfToken()
                 },
-                body: JSON.stringify({ index })
+                body: JSON.stringify({ index })  // Ensure the data is sent as JSON
             });
 
             if (response.ok) {

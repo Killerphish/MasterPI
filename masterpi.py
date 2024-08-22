@@ -520,16 +520,13 @@ async def remove_sensor():
             app.logger.debug(f"Updated config after removal: {config}")
             save_config(config)
             app.logger.info('Sensor removed successfully.')
-            await flash('Sensor removed successfully!', 'success')
+            return jsonify({"message": "Sensor removed successfully"}), 200
         else:
             app.logger.warning('Invalid sensor index.')
-            await flash('Invalid sensor index.', 'error')
-
-        return redirect(url_for('settings'))
+            return jsonify({"error": "Invalid sensor index."}), 400
     except Exception as e:
         app.logger.error(f"Error removing sensor: {e}", exc_info=True)
-        await flash('Internal Server Error', 'error')
-        return redirect(url_for('settings'))
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/view_config')
 async def view_config():
