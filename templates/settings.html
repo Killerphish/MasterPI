@@ -138,22 +138,25 @@
                         </div>
                     </div>
                     <h3>Personalization</h3>
+                    <form id="personalizationForm">
+                        <div>
+                            <label for="navColor">Navigation Color:</label>
+                            <input type="color" id="navColor" name="navColor" value="#827f7f">
+                        </div>
+                        <div>
+                            <label for="buttonColor">Button Color:</label>
+                            <input type="color" id="buttonColor" name="buttonColor" value="#f2f2f2">
+                        </div>
+                        <div>
+                            <label for="backgroundColor">Background Color:</label>
+                            <input type="color" id="backgroundColor" name="backgroundColor" value="#ffffff">
+                        </div>
+                        <button type="submit">Save Personalization Settings</button>
+                    </form>
                     <div>
-                        <label for="navColor">Navigation Color:</label>
-                        <input type="color" id="navColor" name="navColor" value="#827f7f">
-                    </div>
-                    <div>
-                        <label for="buttonColor">Button Color:</label>
-                        <input type="color" id="buttonColor" name="buttonColor" value="#f2f2f2">
-                    </div>
-                    <div>
-                        <label for="backgroundColor">Background Color:</label>
-                        <input type="color" id="backgroundColor" name="backgroundColor" value="#ffffff">
+                        <a href="{{ url_for('view_config') }}" target="_blank" class="btn">View Configurations</a>
                     </div>
                 </form>
-                <div>
-                    <a href="{{ url_for('view_config') }}" target="_blank" class="btn">View Configurations</a>
-                </div>
             </div>
         </div>
     </div>

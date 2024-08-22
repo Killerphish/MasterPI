@@ -330,4 +330,42 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
     }
+
+    const personalizationForm = document.getElementById('personalizationForm');
+
+    if (personalizationForm) {
+        personalizationForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            console.log("Personalization form data before sending:", data);  // Add this line to print form data
+
+            try {
+                const response = await fetch('/save_personalization_settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    M.toast({html: 'Personalization settings saved successfully!'});
+
+                    // Apply the new color scheme
+                    document.documentElement.style.setProperty('--nav-color', data.navColor);
+                    document.documentElement.style.setProperty('--button-color', data.buttonColor);
+                    document.documentElement.style.setProperty('--background-color', data.backgroundColor);
+                } else {
+                    const errorData = await response.json();
+                    M.toast({html: `Error: ${errorData.message}`});
+                }
+            } catch (error) {
+                M.toast({html: `Error: ${error.message}`});
+            }
+        });
+    }
 });
