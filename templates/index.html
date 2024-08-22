@@ -42,7 +42,7 @@
                 <button id="emergency-shutdown-button" class="btn red" onclick="emergencyShutdown()">Emergency Shutdown</button>
                 <div id="probe-labels">
                     {% for sensor in sensors %}
-                        <p>{{ sensor.label }}: <span id="probe-{{ loop.index0 }}">Temperature will be displayed here.</span></p>
+                        <p>{{ sensor.label }}: <span id="probe-{{ loop.index0 }}">{{ sensor.label }}: Temperature will be displayed here.</span></p>
                     {% endfor %}
                 </div>
             </div>
