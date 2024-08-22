@@ -291,13 +291,17 @@ def get_temperature_data():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/get_settings', methods=['GET'])
-def get_settings():
+async def get_settings():
     try:
-        config = load_config_sync()
-        return jsonify(config)
+        config = await load_config()  # Load the configuration to get the settings
+        settings = {
+            'units': config['units'],
+            'device': config['device']
+        }
+        return jsonify(settings)
     except Exception as e:
         app.logger.error(f"Error fetching settings: {e}")
-        return jsonify({'error': 'Internal Server Error'}), 500
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/save_device_settings', methods=['POST'])
 async def save_device_settings():
