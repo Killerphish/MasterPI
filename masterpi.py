@@ -27,6 +27,7 @@ from adafruit_max31856 import MAX31856
 from adafruit_max31855 import MAX31855 
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
+import aiofiles
 
 def load_config_sync():
     try:
