@@ -28,11 +28,11 @@ from adafruit_max31855 import MAX31855
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 # Load configuration from config.yaml
-def load_config():
+async def load_config():
     try:
-        with open('config.yaml', 'r') as config_file:
+        async with aiofiles.open('config.yaml', 'r') as config_file:
             print("Config file opened successfully")
-            config = yaml.safe_load(config_file)
+            config = yaml.safe_load(await config_file.read())
             print("Config file loaded successfully")
             return config
     except Exception as e:
