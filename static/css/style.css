@@ -34,7 +34,7 @@ label {
 }
 
 .brand-logo {
-    padding-left: 8%; /* Add padding to move the logo to the right */
+    padding-left: 10px; /* Add padding to move the logo to the right */
 }
 
 .nav-wrapper .brand-logo {
