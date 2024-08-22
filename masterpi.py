@@ -531,10 +531,12 @@ async def remove_sensor():
 @app.route('/view_config')
 async def view_config():
     try:
-        config = load_config()
+        app.logger.debug("Attempting to load configuration...")
+        config = await load_config()  # Ensure this is awaited
+        app.logger.debug(f"Configuration loaded: {config}")
         return await render_template('view_config.html', config=config)
     except Exception as e:
-        app.logger.error(f"Error loading configuration: {e}")
+        app.logger.error(f"Error loading configuration: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/edit_config')
