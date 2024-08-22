@@ -170,6 +170,31 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    // Add event listener for the remove sensor form submission
+    removeForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const index = removeForm.elements.index.value;
+
+        fetch(`/remove_sensor/${index}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
+            },
+            body: JSON.stringify({ index })
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                return response.text().then(errorText => {
+                    console.error("Failed to remove sensor:", errorText);
+                });
+            }
+        }).catch(error => {
+            console.error("Error removing sensor:", error);
+        });
+    });
+
     document.querySelectorAll('[id^="editSensorForm-"]').forEach(form => {
         form.addEventListener('submit', function(event) {
             event.preventDefault();
