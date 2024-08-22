@@ -319,26 +319,30 @@ async def save_device_settings():
         app.logger.debug(f"Received sensor_type: {sensor_type}")
         app.logger.debug(f"Received count: {count}")
 
-        if not sensor_type:
-            raise ValueError("Sensor type is required")
-
         config = load_config_sync()
 
-        # Add new sensor to the config
-        new_sensor = {
-            'type': sensor_type,
-            'chip_select_pin': 'D17',  # Default value, adjust as needed
-            'temp_offset': 0.0,
-            'label': f"Probe {len(config['sensors']) + 1}"
-        }
-        config['sensors'].append(new_sensor)
+        # Update device name and temperature unit in the config
+        if device_name:
+            config['device']['name'] = device_name
+        if temp_unit:
+            config['units']['temperature'] = temp_unit
+
+        # Add new sensor to the config if sensor_type is provided
+        if sensor_type:
+            new_sensor = {
+                'type': sensor_type,
+                'chip_select_pin': 'D17',  # Default value, adjust as needed
+                'temp_offset': 0.0,
+                'label': f"Probe {len(config['sensors']) + 1}"
+            }
+            config['sensors'].append(new_sensor)
 
         app.logger.debug(f"Updated config: {config}")
 
         save_config(config)
 
-        await flash('Sensor added successfully!', 'success')
-        return jsonify({"message": "Sensor added successfully"}), 200
+        await flash('Settings saved successfully!', 'success')
+        return jsonify({"message": "Settings saved successfully"}), 200
     except Exception as e:
         app.logger.error(f"Error saving device settings: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
