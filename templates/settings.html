@@ -192,8 +192,15 @@
             <form id="addSensorForm" method="POST" action="{{ url_for('add_sensor') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="input-field col s12">
-                    <input type="text" id="newSensorType" name="sensor_type" required>
-                    <label for="newSensorType">Sensor Type</label>
+                    <select id="newSensorType" name="sensor_type" class="browser-default" required>
+                        <option value="" disabled selected>Choose sensor type</option>
+                        <option value="MAX31865">MAX31865</option>
+                        <option value="MAX31856">MAX31856</option>
+                        <option value="ADS1115">ADS1115</option>
+                        <option value="DHT22">DHT22</option>
+                        <option value="MAX31855">MAX31855</option>
+                    </select>
+                    <label for="newSensorType" class="active">Sensor Type</label>
                 </div>
                 <div class="input-field col s12">
                     <input type="text" id="newSensorLabel" name="label" required>
