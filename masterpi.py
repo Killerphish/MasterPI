@@ -633,19 +633,22 @@ async def add_sensor():
     try:
         form_data = await request.get_json()  # Use get_json() to parse JSON data
         sensor_type = form_data.get('sensor_type')
-        count = form_data.get('count', 1)
+        label = form_data.get('label')
+        chip_select_pin = form_data.get('chip_select_pin')
+
+        if not sensor_type or not label or not chip_select_pin:
+            raise ValueError("Missing required sensor data")
 
         config = await load_config()  # Ensure this is awaited
 
         # Add the new sensor to the configuration
-        for _ in range(count):
-            new_sensor = {
-                'type': sensor_type,
-                'chip_select_pin': 'D0',  # Default value, should be updated by user
-                'temp_offset': 0.0,
-                'label': f"New {sensor_type} Sensor"
-            }
-            config['sensors'].append(new_sensor)
+        new_sensor = {
+            'type': sensor_type,
+            'chip_select_pin': chip_select_pin,
+            'temp_offset': 0.0,
+            'label': label
+        }
+        config['sensors'].append(new_sensor)
 
         save_config(config)
         app.logger.info('Sensor added successfully.')

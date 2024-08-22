@@ -143,15 +143,29 @@ document.addEventListener("DOMContentLoaded", function() {
         `;
     }
 
-    if (addSensorButton) {
-        addSensorButton.addEventListener('click', function() {
-            const sensorType = sensorTypeSelect.value;
-            console.log("Adding sensor of type:", sensorType);  // Debugging statement
+    // Open the "Add Sensor" modal
+    const openAddSensorModalButton = document.getElementById('openAddSensorModal');
+    if (openAddSensorModalButton) {
+        openAddSensorModalButton.addEventListener('click', function() {
+            const instance = M.Modal.getInstance(document.getElementById('addSensorModal'));
+            instance.open();
+        });
+    }
+
+    // Handle the "Add Sensor" form submission
+    const addSensorForm = document.getElementById('addSensorForm');
+    if (addSensorForm) {
+        addSensorForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const sensorType = document.getElementById('newSensorType').value;
+            const label = document.getElementById('newSensorLabel').value;
+            const chipSelectPin = document.getElementById('newSensorCsPin').value;
 
             const data = {
                 sensor_type: sensorType,
-                label: document.getElementById('newSensorLabel').value,
-                chip_select_pin: document.getElementById('newSensorCsPin').value
+                label: label,
+                chip_select_pin: chipSelectPin
             };
 
             fetch('/add_sensor', {
