@@ -27,7 +27,18 @@ from adafruit_max31856 import MAX31856
 from adafruit_max31855 import MAX31855 
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
-# Load configuration from config.yaml
+
+def load_config_sync():
+    try:
+        with open('config.yaml', 'r') as config_file:
+            print("Config file opened successfully")
+            config = yaml.safe_load(config_file)
+            print("Config file loaded successfully")
+            return config
+    except Exception as e:
+        print(f"Error loading config file: {e}")
+        raise
+
 async def load_config():
     try:
         async with aiofiles.open('config.yaml', 'r') as config_file:
@@ -39,16 +50,7 @@ async def load_config():
         print(f"Error loading config file: {e}")
         raise
 
-def save_config(config):
-    try:
-        with open('config.yaml', 'w') as config_file:
-            yaml.safe_dump(config, config_file)
-        app.logger.info("Configuration saved successfully.")
-    except Exception as e:
-        app.logger.error(f"Error saving configuration: {e}")
-        raise
-
-config = load_config()
+config = load_config_sync()
 
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
@@ -155,7 +157,12 @@ async def index():
 @app.route('/settings.html')
 async def settings():
     app.logger.info("Loading settings page...")
-    config = load_config()
+    try:
+        config = await asyncio.wait_for(load_config(), timeout=10)  # Add timeout
+    except asyncio.TimeoutError:
+        app.logger.error("Loading config timed out")
+        return jsonify({'error': 'Loading config timed out'}), 500
+
     app.logger.info("Config loaded.")
     messages = get_flashed_messages(with_categories=True)
     sensors = config.get('sensors', [])
@@ -563,6 +570,8 @@ async def save_sensor_settings():
 
 if __name__ == '__main__':
     async def main():
+        global config
+        config = await load_config()  # Load the configuration asynchronously
         await create_aiohttp_session()
         init_db()  # Initialize the database
         config = Config()
