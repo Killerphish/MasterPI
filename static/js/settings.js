@@ -121,19 +121,30 @@ document.addEventListener("DOMContentLoaded", function() {
         `;
     }
 
-    addSensorButton.addEventListener('click', function() {
-        const sensorType = sensorTypeSelect.value;
-        const form = new FormData();
-        form.append('sensor_type', sensorType);
-        form.append('count', 1);
+    if (addSensorButton) {
+        addSensorButton.addEventListener('click', function() {
+            const sensorType = sensorTypeSelect.value;
+            console.log("Adding sensor of type:", sensorType);  // Debugging statement
 
-        fetch('/save_device_settings', {
-            method: 'POST',
-            body: form
-        }).then(() => {
-            window.location.reload();
+            const form = new FormData();
+            form.append('sensor_type', sensorType);
+            form.append('count', 1);
+
+            fetch('/save_device_settings', {
+                method: 'POST',
+                body: form
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Sensor added successfully");  // Debugging statement
+                    window.location.reload();
+                } else {
+                    console.error("Failed to add sensor");  // Debugging statement
+                }
+            }).catch(error => {
+                console.error("Error adding sensor:", error);  // Debugging statement
+            });
         });
-    });
+    }
 
     sensorList.addEventListener('click', function(event) {
         if (event.target.classList.contains('edit-sensor')) {
