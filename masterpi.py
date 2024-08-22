@@ -596,35 +596,15 @@ async def save_sensor_settings():
 @app.route('/save_personalization_settings', methods=['POST'])
 async def save_personalization_settings():
     try:
-        form_data = await request.get_json()  # Use get_json() to parse JSON data
-        app.logger.debug(f"Received raw form data: {form_data}")  # Add this line to print raw form data
-
-        nav_color = form_data.get('navColor')
-        button_color = form_data.get('buttonColor')
-        background_color = form_data.get('backgroundColor')
-
-        app.logger.debug(f"Received nav_color: {nav_color}")
-        app.logger.debug(f"Received button_color: {button_color}")
-        app.logger.debug(f"Received background_color: {background_color}")
-
-        config = load_config_sync()
-
-        # Update personalization settings
-        if nav_color:
-            config['personalization']['nav'] = nav_color
-        if button_color:
-            config['personalization']['button'] = button_color
-        if background_color:
-            config['personalization']['background'] = background_color
-
-        app.logger.debug(f"Updated config: {config}")
-
-        save_config(config)
-
-        await flash('Personalization settings saved successfully!', 'success')
-        return jsonify({"message": "Personalization settings saved successfully"}), 200
+        data = request.json
+        config['personalization'] = {
+            'navColor': data['navColor'],
+            'buttonColor': data['buttonColor'],
+            'backgroundColor': data['backgroundColor']
+        }
+        save_config(config)  # Function to save the config to a file
+        return jsonify({"message": "Settings saved successfully"}), 200
     except Exception as e:
-        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':

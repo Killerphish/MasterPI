@@ -12,17 +12,24 @@
         // Pass the URL to the JavaScript code
         const saveDeviceSettingsUrl = "{{ url_for('save_device_settings') }}";
     </script>
+    <style>
+        :root {
+            --nav-color: {{ config['personalization']['navColor'] }};
+            --button-color: {{ config['personalization']['buttonColor'] }};
+            --background-color: {{ config['personalization']['backgroundColor'] }};
+        }
+    </style>
 </head>
 <body>
     <nav>
-        <div class="nav-wrapper">
+        <div class="nav-wrapper" style="background-color: var(--nav-color);">
             <a href="{{ url_for('index') }}" class="brand-logo">{{ device_name }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li><a href="{{ url_for('settings') }}">Settings</a></li>
             </ul>
         </div>
     </nav>
-    <div class="container">
+    <div class="container" style="background-color: var(--background-color);">
         <h1>Settings</h1>
         <div class="row">
             <div class="col s12">
@@ -141,31 +148,31 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <h3>Personalization</h3>
-                    <form id="personalizationForm" class="col s12">
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="color" id="navColor" name="navColor" value="#827f7f">
-                                <label for="navColor">Navigation Color</label>
-                            </div>
+                </form>
+                <h3>Personalization</h3>
+                <form id="personalizationForm" class="col s12">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input type="color" id="navColor" name="navColor" value="{{ config['personalization']['navColor'] }}">
+                            <label for="navColor">Navigation Color</label>
                         </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="color" id="buttonColor" name="buttonColor" value="#f2f2f2">
-                                <label for="buttonColor">Button Color</label>
-                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input type="color" id="buttonColor" name="buttonColor" value="{{ config['personalization']['buttonColor'] }}">
+                            <label for="buttonColor">Button Color</label>
                         </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="color" id="backgroundColor" name="backgroundColor" value="#ffffff">
-                                <label for="backgroundColor">Background Color</label>
-                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config['personalization']['backgroundColor'] }}">
+                            <label for="backgroundColor">Background Color</label>
                         </div>
-                        <div class="col s12">
-                            <button type="submit" class="btn waves-effect waves-light">Save Personalization Settings</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="col s12">
+                        <button type="submit" class="btn waves-effect waves-light">Save Personalization Settings</button>
+                    </div>
+                </form>
                 <div class="col s12">
                     <a href="{{ url_for('view_config') }}" target="_blank" class="btn">View Configurations</a>
                 </div>
