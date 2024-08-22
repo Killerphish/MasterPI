@@ -235,69 +235,81 @@ document.addEventListener("DOMContentLoaded", function() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     }
 
-    function updateSensorTemperatures(sensors) {
-        sensors.forEach((sensor, index) => {
-            const sensorTempElement = document.getElementById(`sensor-temp-${index}`);
-            if (sensorTempElement) {
-                sensorTempElement.textContent = `Temperature: ${sensor.temperature} °${sensor.unit}`;
-            }
-        });
+    function updateSensorTemperatures() {
+        fetch('/get_temperature')
+            .then(response => response.json())
+            .then(data => {
+                const temperatures = data.temperatures;
+                temperatures.forEach((temp, index) => {
+                    const sensorTempElement = document.getElementById(`sensor-temp-${index}`);
+                    if (sensorTempElement) {
+                        sensorTempElement.textContent = temp !== null ? `Temperature: ${temp} °${tempUnit}` : 'Error reading temperature';
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching temperatures:', error);
+            });
+    }
+
+    // Initial temperature update
+    updateSensorTemperatures();
+    setInterval(updateSensorTemperatures, 5000); // Update temperatures every 5 seconds
+
+    function fetchStatus() {
+        fetch('/api/status')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update the UI with the fetched status data
+                console.log('Status data:', data);
+                // Example: update a status element
+                const statusElement = document.getElementById('status');
+                if (statusElement) {
+                    statusElement.textContent = `Status: ${data.status}`;
+                }
+                const temperatureElement = document.getElementById('current-temp');
+                if (temperatureElement) {
+                    temperatureElement.textContent = `Current Temperature: ${data.temperature} °F`;
+                }
+                const fanStatusElement = document.getElementById('fan-status');
+                if (fanStatusElement) {
+                    fanStatusElement.textContent = `Fan Status: ${data.fan_on ? 'On' : 'Off'}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching status:', error);
+            });
+    }
+
+    function fetchMeaterTemperature() {
+        fetch('/get_meater_temperature')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const meaterTempElement = document.getElementById('meater-temp');
+                if (meaterTempElement) {
+                    meaterTempElement.textContent = `Meater Temperature: ${data.temperature}`;
+                } else {
+                    console.error('Element with id "meater-temp" not found.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching Meater temperature:', error);
+                const meaterTempElement = document.getElementById('meater-temp');
+                if (meaterTempElement) {
+                    meaterTempElement.textContent = 'Error fetching Meater temperature';
+                } else {
+                    console.error('Element with id "meater-temp" not found.');
+                }
+            });
     }
 });
-
-function fetchStatus() {
-    fetch('/api/status')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Update the UI with the fetched status data
-            console.log('Status data:', data);
-            // Example: update a status element
-            const statusElement = document.getElementById('status');
-            if (statusElement) {
-                statusElement.textContent = `Status: ${data.status}`;
-            }
-            const temperatureElement = document.getElementById('current-temp');
-            if (temperatureElement) {
-                temperatureElement.textContent = `Current Temperature: ${data.temperature} °F`;
-            }
-            const fanStatusElement = document.getElementById('fan-status');
-            if (fanStatusElement) {
-                fanStatusElement.textContent = `Fan Status: ${data.fan_on ? 'On' : 'Off'}`;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching status:', error);
-        });
-}
-
-function fetchMeaterTemperature() {
-    fetch('/get_meater_temperature')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const meaterTempElement = document.getElementById('meater-temp');
-            if (meaterTempElement) {
-                meaterTempElement.textContent = `Meater Temperature: ${data.temperature}`;
-            } else {
-                console.error('Element with id "meater-temp" not found.');
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching Meater temperature:', error);
-            const meaterTempElement = document.getElementById('meater-temp');
-            if (meaterTempElement) {
-                meaterTempElement.textContent = 'Error fetching Meater temperature';
-            } else {
-                console.error('Element with id "meater-temp" not found.');
-            }
-        });
-}

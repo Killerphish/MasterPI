@@ -288,4 +288,25 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Error:', error);
         });
     });
+
+    function updateSensorTemperatures() {
+        fetch('/get_temperature')
+            .then(response => response.json())
+            .then(data => {
+                const temperatures = data.temperatures;
+                temperatures.forEach((temp, index) => {
+                    const probeElement = document.getElementById(`probe-${index}`);
+                    if (probeElement) {
+                        probeElement.textContent = temp !== null ? `${temp} °${tempUnit}` : 'Error reading temperature';
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching temperatures:', error);
+            });
+    }
+
+    // Initial temperature update
+    updateSensorTemperatures();
+    setInterval(updateSensorTemperatures, 5000); // Update temperatures every 5 seconds
 });
