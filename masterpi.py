@@ -206,10 +206,13 @@ def get_temperature():
                     raise ValueError("Unsupported sensor type")
 
                 corrected_temperature_celsius = temperature_celsius + offset
-                temperature_fahrenheit = (corrected_temperature_celsius * 9/5) + 32 if config['units']['temperature'] == 'Fahrenheit' else corrected_temperature_celsius
+                if config['units']['temperature'] == 'Fahrenheit':
+                    temperature = (corrected_temperature_celsius * 9/5) + 32
+                else:
+                    temperature = corrected_temperature_celsius
                 
-                temperatures.append(temperature_fahrenheit)
-                app.logger.info(f"Read temperature: {temperature_fahrenheit} {'°F' if config['units']['temperature'] == 'Fahrenheit' else '°C'} from {sensor.__class__.__name__}")
+                temperatures.append(temperature)
+                app.logger.info(f"Read temperature: {temperature} {'°F' if config['units']['temperature'] == 'Fahrenheit' else '°C'} from {sensor.__class__.__name__}")
             except Exception as e:
                 app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
                 temperatures.append(None)
