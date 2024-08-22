@@ -17,7 +17,7 @@ import nest_asyncio
 import asyncio
 import adafruit_dht
 from hypercorn.asyncio import serve
-from hypercorn.config import Config
+from hypercorn.config import Config as HypercornConfig
 import ssl
 import yaml
 import busio
@@ -575,10 +575,10 @@ if __name__ == '__main__':
         config = await load_config()  # Load the configuration asynchronously
         await create_aiohttp_session()
         init_db()  # Initialize the database
-        config = Config()
-        config.bind = ["127.0.0.1:5000"]  # Ensure this is correct
+        hypercorn_config = HypercornConfig()
+        hypercorn_config.bind = ["127.0.0.1:5000"]  # Ensure this is correct
         try:
-            await serve(app, config)
+            await serve(app, hypercorn_config)
         finally:
             await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
 
