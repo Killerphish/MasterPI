@@ -311,7 +311,7 @@ def get_temperature_data():
 @app.route('/get_settings', methods=['GET'])
 async def get_settings():
     try:
-        config = load_config()  # Load the configuration to get the settings
+        config = await load_config()  # Ensure this is awaited
         settings = {
             'units': config['units'],
             'device': config['device'],
@@ -340,7 +340,7 @@ async def save_device_settings():
         app.logger.debug(f"Received button_color: {button_color}")
         app.logger.debug(f"Received background_color: {background_color}")
 
-        config = load_config_sync()
+        config = await load_config()  # Ensure this is awaited
 
         # Update device name and temperature unit in the config
         if device_name:
@@ -376,7 +376,7 @@ async def save_integration_settings():
 
         app.logger.info(f"Form Data: {form_data}")  # Debugging line
 
-        config = load_config_sync()
+        config = await load_config()  # Ensure this is awaited
 
         # Update config with new settings
         config['meater_integration']['enabled'] = meater_enabled
@@ -537,7 +537,7 @@ async def remove_sensor():
         app.logger.debug(f"Received request to remove sensor at index: {sensor_index}")
 
         # Load the current configuration
-        config = load_config_sync()
+        config = await load_config()  # Ensure this is awaited
         app.logger.debug(f"Current config: {config}")
 
         # Remove the sensor from the configuration
@@ -599,7 +599,7 @@ async def save_sensor_settings():
         cs_pin = form_data.get('cs_pin')
         label = form_data.get('label')
 
-        config = load_config_sync()
+        config = await load_config()  # Ensure this is awaited
 
         if 'sensors' in config and 0 <= index < len(config['sensors']):
             config['sensors'][index]['chip_select_pin'] = cs_pin
