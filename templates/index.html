@@ -12,10 +12,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        :root {
+            --nav-color: {{ config['personalization']['navColor'] }};
+            --button-color: {{ config['personalization']['buttonColor'] }};
+            --background-color: {{ config['personalization']['backgroundColor'] }};
+        }
+    </style>
 </head>
-<body>
+<body style="background-color: var(--background-color);">
     <nav>
-        <div class="nav-wrapper">
+        <div class="nav-wrapper" style="background-color: var(--nav-color);">
             <a href="{{ url_for('index') }}" class="brand-logo">{{ device_name }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li><a href="{{ url_for('settings') }}">Settings</a></li>

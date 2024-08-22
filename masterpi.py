@@ -160,9 +160,18 @@ dht_device = adafruit_dht.DHT22(board.D18)
 
 @app.route('/')
 async def index():
-    config = await load_config()  # Load the configuration to get the sensors
-    sensors = config.get('sensors', [])  # Get the sensors from the configuration
-    return await render_template('index.html', device_name=config['device']['name'], sensors=sensors)
+    device_name = "My Device"  # Example device name
+    sensors = []  # Example sensors
+
+    # Ensure personalization settings are available
+    if 'personalization' not in config:
+        config['personalization'] = {
+            'navColor': '#827f7f',
+            'buttonColor': '#f2f2f2',
+            'backgroundColor': '#ffffff'
+        }
+
+    return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
 
 @app.route('/settings.html')
 async def settings():
