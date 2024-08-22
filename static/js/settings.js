@@ -2,6 +2,8 @@ import { showModal, hideModal } from './modal.js';
 import { updateStatus, handleFetchError } from './status.js';
 import { requestMeaterApiKey } from './api.js';
 
+let tempUnit = 'F'; // Default unit changed to Fahrenheit
+
 document.addEventListener("DOMContentLoaded", function() {
     M.AutoInit();
     var elems = document.querySelectorAll('.tabs');
@@ -9,6 +11,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Ensure labels are correctly positioned
     M.updateTextFields();
+
+    // Fetch settings to get the temperature unit
+    fetch('/get_settings')
+        .then(response => response.json())
+        .then(settings => {
+            tempUnit = settings.units.temperature;
+        })
+        .catch(error => {
+            console.error('Error fetching settings:', error);
+        });
 
     // Add event listeners to switch tab content
     document.querySelectorAll('.tabs a').forEach(tab => {
@@ -243,7 +255,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 temperatures.forEach((temp, index) => {
                     const sensorTempElement = document.getElementById(`sensor-temp-${index}`);
                     if (sensorTempElement) {
-                        sensorTempElement.textContent = temp !== null ? `Temperature: ${temp} °${tempUnit}` : 'Error reading temperature';
+                        // Format the temperature to two decimal places
+                        sensorTempElement.textContent = temp !== null ? `Temperature: ${temp.toFixed(2)} °${tempUnit}` : 'Error reading temperature';
                     }
                 });
             })
