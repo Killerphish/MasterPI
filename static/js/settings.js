@@ -150,30 +150,30 @@ document.addEventListener("DOMContentLoaded", function() {
 
             const data = {
                 sensor_type: sensorType,
-                count: 1
+                label: document.getElementById('newSensorLabel').value,
+                chip_select_pin: document.getElementById('newSensorCsPin').value
             };
-
-            // Fetch the CSRF token from the meta tag
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
             fetch('/add_sensor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken  // Include the CSRF token in the headers
+                    'X-CSRF-TOKEN': getCsrfToken()
                 },
                 body: JSON.stringify(data)
-            }).then(response => {
-                if (response.ok) {
-                    console.log("Sensor added successfully");  // Debugging statement
-                    window.location.reload();
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                    window.location.reload();  // Reload the page to reflect the new sensor
                 } else {
-                    return response.text().then(errorText => {
-                        console.error("Failed to add sensor:", errorText);  // Log raw response text
-                    });
+                    M.toast({html: `Error: ${result.error}`});
                 }
-            }).catch(error => {
-                console.error("Error adding sensor:", error);  // Debugging statement
+            })
+            .catch(error => {
+                console.error('Error adding sensor:', error);
+                M.toast({html: `Error: ${error.message}`});
             });
         });
     }

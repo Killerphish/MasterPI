@@ -69,14 +69,7 @@
                         <h2>Devices</h2>
                         <div class="sensor-management">
                             <div class="sensor-add">
-                                <select id="sensor_type" name="sensor_type" class="browser-default">
-                                    <option value="MAX31865">MAX31865</option>
-                                    <option value="MAX31856">MAX31856</option>
-                                    <option value="ADS1115">ADS1115</option>
-                                    <option value="DHT22">DHT22</option>
-                                    <option value="MAX31855">MAX31855</option>
-                                </select>
-                                <button type="button" id="addSensor" class="btn">Add Sensor</button>
+                                <button type="button" id="openAddSensorModal" class="btn">Add Sensor</button>
                             </div>
                             <div class="sensor-list">
                                 <h3>Enabled Sensors</h3>
@@ -124,6 +117,36 @@
                                     <input type="hidden" id="removeSensorIndex" name="index">
                                     <div class="modal-footer">
                                         <button type="submit" class="btn green">Confirm</button>
+                                        <button type="button" class="btn red modal-close">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div id="addSensorModal" class="modal">
+                            <div class="modal-content">
+                                <h4>New Sensor</h4>
+                                <form id="addSensorForm" method="POST" action="{{ url_for('add_sensor') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <div class="input-field col s12">
+                                        <select id="newSensorType" name="sensor_type" class="browser-default">
+                                            <option value="MAX31865">MAX31865</option>
+                                            <option value="MAX31856">MAX31856</option>
+                                            <option value="ADS1115">ADS1115</option>
+                                            <option value="DHT22">DHT22</option>
+                                            <option value="MAX31855">MAX31855</option>
+                                        </select>
+                                        <label for="newSensorType" class="active">Sensor Type</label>
+                                    </div>
+                                    <div class="input-field col s12">
+                                        <input type="text" id="newSensorLabel" name="label" placeholder="Probe Label">
+                                        <label for="newSensorLabel" class="active">Probe Label</label>
+                                    </div>
+                                    <div class="input-field col s12">
+                                        <input type="text" id="newSensorCsPin" name="chip_select_pin" placeholder="CS Pin">
+                                        <label for="newSensorCsPin" class="active">CS Pin</label>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn">Add Sensor</button>
                                         <button type="button" class="btn red modal-close">Cancel</button>
                                     </div>
                                 </form>
@@ -215,6 +238,15 @@
                     instance.open();
                 }
             });
+
+            // Open the "Add Sensor" modal
+            const openAddSensorModalButton = document.getElementById('openAddSensorModal');
+            if (openAddSensorModalButton) {
+                openAddSensorModalButton.addEventListener('click', function() {
+                    const instance = M.Modal.getInstance(document.getElementById('addSensorModal'));
+                    instance.open();
+                });
+            }
         });
     </script>
 </body>
