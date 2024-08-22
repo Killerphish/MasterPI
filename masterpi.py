@@ -149,7 +149,9 @@ dht_device = adafruit_dht.DHT22(board.D18)
 
 @app.route('/')
 async def index():
-    return await render_template('index.html', device_name=config['device']['name'])
+    config = load_config()  # Load the configuration to get the sensors
+    sensors = config.get('sensors', [])  # Get the sensors from the configuration
+    return await render_template('index.html', device_name=config['device']['name'], sensors=sensors)
 
 @app.route('/settings.html')
 async def settings():
