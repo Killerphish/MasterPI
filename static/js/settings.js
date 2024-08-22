@@ -370,4 +370,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
+
+    // Initialize modals
+    const modals = document.querySelectorAll('.modal');
+    M.Modal.init(modals);
 });

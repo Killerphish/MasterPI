@@ -90,7 +90,7 @@
                         {% for sensor in sensors %}
                         <div id="editSensorModal-{{ loop.index0 }}" class="modal">
                             <div class="modal-content">
-                                <h3>Edit Sensor</h3>
+                                <h4>Edit Sensor</h4>
                                 <form id="editSensorForm-{{ loop.index0 }}" method="POST" action="{{ url_for('save_sensor_settings') }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" name="index" value="{{ loop.index0 }}">
@@ -102,8 +102,10 @@
                                         <input type="text" id="editSensorLabel-{{ loop.index0 }}" name="label" value="{{ sensor.label }}">
                                         <label for="editSensorLabel-{{ loop.index0 }}" class="active">Probe Label</label>
                                     </div>
-                                    <button type="submit" class="btn">Save</button>
-                                    <button type="button" class="btn red modal-close">Cancel</button>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn">Save</button>
+                                        <button type="button" class="btn red modal-close">Cancel</button>
+                                    </div>
                                 </form>
                             </div>
                         </div>

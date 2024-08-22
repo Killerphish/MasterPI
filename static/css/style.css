@@ -59,11 +59,32 @@ label {
 }
 
 .modal-content {
-    background-color: #fefefe;
     margin: 5% auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+    max-width: 500px;
+    background-color: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.modal-header, .modal-footer {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.modal-header {
+    border-bottom: none;
+}
+
+.modal-footer {
+    border-top: none;
+    text-align: right;
+}
+
+.modal-footer .btn {
+    margin-left: 10px;
 }
 
 .close {
