@@ -13,6 +13,7 @@
         const saveDeviceSettingsUrl = "{{ url_for('save_device_settings') }}";
         const getAvailablePinsUrl = "{{ url_for('get_available_pins') }}";
         const initializeSensorsUrl = "{{ url_for('initialize_sensors_route') }}";
+        const powerOptionsUrl = "{{ url_for('power_options') }}";
     </script>
     <style>
         :root {
@@ -33,6 +34,7 @@
             <a href="{{ url_for('index') }}" class="brand-logo">{{ device_name }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li><a href="{{ url_for('settings') }}">Settings</a></li>
+                <li><a href="#powerOptionsModal" class="modal-trigger">Power Options</a></li>
             </ul>
         </div>
     </nav>
@@ -220,6 +222,14 @@
         </div>
     </div>
 
+    <!-- Power Options Modal -->
+    <div id="powerOptionsModal" class="modal">
+        <div class="modal-content">
+            <h4>Power Options</h4>
+            <div class="row">
+                <div class="col s12">
+                    <button id="restartRpiButton" class="btn red">Restart Raspberry Pi</button>
+                </div>
     <script type="module" src="{{ url_for('static', filename='js/settings.js') }}"></script>
 </body>
 </html>

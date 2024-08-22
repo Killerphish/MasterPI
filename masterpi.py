@@ -736,6 +736,27 @@ async def initialize_sensors_route():
         app.logger.error(f"Error initializing sensors: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/power_options', methods=['POST'])
+async def power_options():
+    try:
+        data = await request.get_json()
+        action = data.get('action')
+
+        if action == 'restart_rpi':
+            os.system('sudo reboot')
+            return jsonify({"message": "Raspberry Pi is restarting..."}), 200
+        elif action == 'restart_app':
+            os.system('sudo systemctl restart masterpi')  # Assuming the app is managed by systemd
+            return jsonify({"message": "Application is restarting..."}), 200
+        elif action == 'shutdown':
+            os.system('sudo shutdown now')
+            return jsonify({"message": "Raspberry Pi is shutting down..."}), 200
+        else:
+            return jsonify({"error": "Invalid action"}), 400
+    except Exception as e:
+        app.logger.error(f"Error handling power options: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     async def main():
         global config

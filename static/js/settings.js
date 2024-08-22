@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     if (meaterForm) {
-        meaterForm.addEventListener('submit', function(event) {
+        meaterForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             const email = document.getElementById('meater_email').value;
             const password = document.getElementById('meater_password').value;
@@ -456,6 +456,86 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(error => {
                 console.error('Error initializing sensors:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        });
+    }
+
+    // Handle power options
+    const restartRpiButton = document.getElementById('restartRpiButton');
+    const restartAppButton = document.getElementById('restartAppButton');
+    const shutdownButton = document.getElementById('shutdownButton');
+
+    if (restartRpiButton) {
+        restartRpiButton.addEventListener('click', function() {
+            fetch(powerOptionsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: JSON.stringify({ action: 'restart_rpi' })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error restarting Raspberry Pi:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        });
+    }
+
+    if (restartAppButton) {
+        restartAppButton.addEventListener('click', function() {
+            fetch(powerOptionsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: JSON.stringify({ action: 'restart_app' })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error restarting application:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        });
+    }
+
+    if (shutdownButton) {
+        shutdownButton.addEventListener('click', function() {
+            fetch(powerOptionsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: JSON.stringify({ action: 'shutdown' })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error shutting down Raspberry Pi:', error);
                 M.toast({html: `Error: ${error.message}`});
             });
         });
