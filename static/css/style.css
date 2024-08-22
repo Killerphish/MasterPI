@@ -34,7 +34,11 @@ label {
 }
 
 .brand-logo {
-    padding-left: 8%;
+    padding-left: 5px; /* Add padding to move the logo to the right */
+}
+
+.nav-wrapper .brand-logo {
+    left: auto !important; /* Override the left: 50% from Materialize */
 }
 
 /* Modal styles */
