@@ -27,7 +27,7 @@ from adafruit_max31856 import MAX31856
 from adafruit_max31855 import MAX31855 
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
-import aiofiles
+import aiofiles  # Ensure aiofiles is imported
 
 def load_config_sync():
     try:
@@ -151,7 +151,7 @@ dht_device = adafruit_dht.DHT22(board.D18)
 
 @app.route('/')
 async def index():
-    config = load_config()  # Load the configuration to get the sensors
+    config = await load_config()  # Load the configuration to get the sensors
     sensors = config.get('sensors', [])  # Get the sensors from the configuration
     return await render_template('index.html', device_name=config['device']['name'], sensors=sensors)
 
@@ -278,7 +278,7 @@ def get_temperature_data():
 @app.route('/get_settings', methods=['GET'])
 def get_settings():
     try:
-        config = load_config()
+        config = load_config_sync()
         return jsonify(config)
     except Exception as e:
         app.logger.error(f"Error fetching settings: {e}")
@@ -303,7 +303,7 @@ async def save_device_settings():
         if not sensor_type:
             raise ValueError("Sensor type is required")
 
-        config = load_config()
+        config = load_config_sync()
 
         # Add new sensor to the config
         new_sensor = {
@@ -334,7 +334,7 @@ async def save_integration_settings():
 
         app.logger.info(f"Form Data: {form_data}")  # Debugging line
 
-        config = load_config()
+        config = load_config_sync()
 
         # Update config with new settings
         config['meater_integration']['enabled'] = meater_enabled
@@ -492,7 +492,7 @@ async def remove_sensor():
         app.logger.debug(f"Received request to remove sensor at index: {sensor_index}")
 
         # Load the current configuration
-        config = load_config()
+        config = load_config_sync()
         app.logger.debug(f"Current config: {config}")
 
         # Remove the sensor from the configuration
@@ -553,7 +553,7 @@ async def save_sensor_settings():
         cs_pin = form_data.get('cs_pin')
         label = form_data.get('label')
 
-        config = load_config()
+        config = load_config_sync()
 
         if 'sensors' in config and 0 <= index < len(config['sensors']):
             config['sensors'][index]['chip_select_pin'] = cs_pin
