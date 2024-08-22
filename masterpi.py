@@ -179,7 +179,16 @@ async def settings():
     units = config.get('units', {})
     device_name = config['device']['name']  # Get device name from config
     app.logger.info("Rendering settings template.")
-    return await render_template('settings.html', messages=messages, sensors=sensors, device_name=device_name, units=units)
+
+    # Ensure personalization settings are available
+    if 'personalization' not in config:
+        config['personalization'] = {
+            'navColor': '#827f7f',
+            'buttonColor': '#f2f2f2',
+            'backgroundColor': '#ffffff'
+        }
+
+    return await render_template('settings.html', messages=messages, sensors=sensors, device_name=device_name, units=units, config=config)
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
@@ -596,7 +605,7 @@ async def save_sensor_settings():
 @app.route('/save_personalization_settings', methods=['POST'])
 async def save_personalization_settings():
     try:
-        data = request.json
+        data = await request.json
         config['personalization'] = {
             'navColor': data['navColor'],
             'buttonColor': data['buttonColor'],

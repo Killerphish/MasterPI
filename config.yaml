@@ -73,9 +73,9 @@ device:
 
 # Personalization settings
 personalization:
-  nav: '#827f7f'
-  button: '#f2f2f2'
-  background: '#ffffff'
+  navColor: "#827f7f"
+  buttonColor: "#f2f2f2"
+  backgroundColor: "#ffffff"
 
 # Chart settings
 chart:
