@@ -530,6 +530,9 @@ async def set_target_temperature():
 async def remove_sensor():
     try:
         form_data = await request.get_json()  # Use get_json() to parse JSON data
+        if form_data is None:
+            raise ValueError("No JSON data received")
+
         sensor_index = int(form_data.get('index'))
         app.logger.debug(f"Received request to remove sensor at index: {sensor_index}")
 

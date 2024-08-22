@@ -194,30 +194,32 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // Add event listener for the remove sensor form submission
-    removeForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const index = removeForm.elements.index.value;
+    if (removeForm) {
+        removeForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const index = removeForm.elements.index.value;
 
-        try {
-            const response = await fetch('/remove_sensor', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
-                },
-                body: JSON.stringify({ index })  // Ensure the data is sent as JSON
-            });
+            try {
+                const response = await fetch('/remove_sensor', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken()
+                    },
+                    body: JSON.stringify({ index })  // Ensure the data is sent as JSON
+                });
 
-            if (response.ok) {
-                window.location.reload();
-            } else {
-                const errorText = await response.text();
-                console.error("Failed to remove sensor:", errorText);
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const errorText = await response.text();
+                    console.error("Failed to remove sensor:", errorText);
+                }
+            } catch (error) {
+                console.error("Error removing sensor:", error);
             }
-        } catch (error) {
-            console.error("Error removing sensor:", error);
-        }
-    });
+        });
+    }
 
     document.querySelectorAll('[id^="editSensorForm-"]').forEach(form => {
         form.addEventListener('submit', function(event) {
