@@ -184,85 +184,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Add Sensor Modal -->
+    <div id="addSensorModal" class="modal">
+        <div class="modal-content">
+            <h4>Add Sensor</h4>
+            <form id="addSensorForm" method="POST" action="{{ url_for('add_sensor') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <div class="input-field col s12">
+                    <input type="text" id="newSensorType" name="sensor_type" required>
+                    <label for="newSensorType">Sensor Type</label>
+                </div>
+                <div class="input-field col s12">
+                    <input type="text" id="newSensorLabel" name="label" required>
+                    <label for="newSensorLabel">Label</label>
+                </div>
+                <div class="input-field col s12">
+                    <select id="newSensorCsPin" name="chip_select_pin" class="browser-default" required>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <label for="newSensorCsPin" class="active">CS Pin</label>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn">Add</button>
+                    <button type="button" class="btn red modal-close">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script type="module" src="{{ url_for('static', filename='js/settings.js') }}"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            M.AutoInit();  // Initialize all Materialize components
-
-            // Initialize modals
-            var modals = document.querySelectorAll('.modal');
-            M.Modal.init(modals);
-
-            // Ensure labels are correctly positioned
-            M.updateTextFields();
-
-            // Update the modal opening logic
-            sensorList.addEventListener('click', function(event) {
-                if (event.target.classList.contains('edit-sensor')) {
-                    const index = event.target.dataset.index;
-                    const modalId = `editSensorModal-${index}`;
-                    const modal = document.getElementById(modalId);
-                    const instance = M.Modal.getInstance(modal);
-                    instance.open();
-                } else if (event.target.classList.contains('remove-sensor')) {
-                    const index = event.target.dataset.index;
-                    removeForm.elements.index.value = index;
-                    const instance = M.Modal.getInstance(removeModal);
-                    instance.open();
-                }
-            });
-
-            // Open the "Add Sensor" modal
-            const openAddSensorModalButton = document.getElementById('openAddSensorModal');
-            if (openAddSensorModalButton) {
-                openAddSensorModalButton.addEventListener('click', function() {
-                    const instance = M.Modal.getInstance(document.getElementById('addSensorModal'));
-                    instance.open();
-
-                    // Fetch available pins and populate the dropdown
-                    fetch(getAvailablePinsUrl)
-                        .then(response => response.json())
-                        .then(pins => {
-                            const csPinSelect = document.getElementById('newSensorCsPin');
-                            csPinSelect.innerHTML = '';  // Clear existing options
-                            pins.forEach(pin => {
-                                const option = document.createElement('option');
-                                option.value = pin;
-                                option.textContent = pin;
-                                csPinSelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error fetching available pins:', error);
-                        });
-                });
-            }
-
-            // Handle the "Initialize Sensors" button click
-            const initializeSensorsButton = document.getElementById('initializeSensorsButton');
-            if (initializeSensorsButton) {
-                initializeSensorsButton.addEventListener('click', function() {
-                    fetch(initializeSensorsUrl, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': getCsrfToken()
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.message) {
-                            M.toast({html: result.message});
-                        } else {
-                            M.toast({html: `Error: ${result.error}`});
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error initializing sensors:', error);
-                        M.toast({html: `Error: ${error.message}`});
-                    });
-                });
-            }
-        });
-    </script>
 </body>
 </html>
