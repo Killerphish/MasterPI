@@ -71,8 +71,8 @@ device:
   cs_pin: D5  # Added CS pin assignment
   probe_label: "Probe 1"  # Added probe label
 
-# Color settings
-colors:
+# Personalization settings
+personalization:
   nav: '#827f7f'
   button: '#f2f2f2'
   background: '#ffffff'
