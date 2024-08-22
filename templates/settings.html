@@ -38,18 +38,18 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <div id="general" class="col s12">
                         <h2>General</h2>
-                        <div class="input-field">
-                            <label for="device_name" class="active">Device Name:</label>
+                        <div class="input-field col s12">
                             <input type="text" id="device_name" name="device_name" value="{{ device_name }}" placeholder="Device Name">
+                            <label for="device_name" class="active">Device Name</label>
                         </div>
-                        <div class="input-field">
-                            <label for="temp_unit" class="active">Temperature Unit:</label>
+                        <div class="input-field col s12">
                             <select id="temp_unit" name="temp_unit" class="browser-default">
                                 <option value="C" {% if units.temperature == 'C' %}selected{% endif %}>Celsius</option>
                                 <option value="F" {% if units.temperature == 'F' %}selected{% endif %}>Fahrenheit</option>
                             </select>
+                            <label for="temp_unit" class="active">Temperature Unit</label>
                         </div>
-                        <div>
+                        <div class="col s12">
                             <button type="submit" class="btn waves-effect waves-light">Save General Settings</button>
                         </div>
                     </div>
@@ -87,13 +87,13 @@
                                 <form id="editSensorForm-{{ loop.index0 }}" method="POST" action="{{ url_for('save_sensor_settings') }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" name="index" value="{{ loop.index0 }}">
-                                    <div class="input-field">
-                                        <label for="editSensorCsPin-{{ loop.index0 }}">CS Pin:</label>
+                                    <div class="input-field col s12">
                                         <input type="text" id="editSensorCsPin-{{ loop.index0 }}" name="cs_pin" value="{{ sensor.chip_select_pin }}">
+                                        <label for="editSensorCsPin-{{ loop.index0 }}" class="active">CS Pin</label>
                                     </div>
-                                    <div class="input-field">
-                                        <label for="editSensorLabel-{{ loop.index0 }}">Probe Label:</label>
+                                    <div class="input-field col s12">
                                         <input type="text" id="editSensorLabel-{{ loop.index0 }}" name="label" value="{{ sensor.label }}">
+                                        <label for="editSensorLabel-{{ loop.index0 }}" class="active">Probe Label</label>
                                     </div>
                                     <button type="submit" class="btn">Save</button>
                                     <button type="button" class="btn red modal-close">Cancel</button>
@@ -113,56 +113,58 @@
                                 </form>
                             </div>
                         </div>
-                        <div>
+                        <div class="col s12">
                             <button type="submit" class="btn waves-effect waves-light">Save Device Settings</button>
                         </div>
                     </div>
                     <div id="integrations" class="col s12">
                         <h2>Integrations</h2>
-                        <div class="input-field">
+                        <div class="input-field col s12">
                             <label for="meater_integration">Enable Meater Integration:</label>
                             <input type="checkbox" id="meater_integration" name="meater_integration">
                         </div>
-                        <div id="meaterStatus">Meater connection status will be displayed here.</div>
-                        <div id="meater-temp">Meater temperature will be displayed here.</div>
-                        <div class="input-field">
-                            <label for="meater_email">Meater Cloud Email:</label>
+                        <div id="meaterStatus" class="col s12">Meater connection status will be displayed here.</div>
+                        <div id="meater-temp" class="col s12">Meater temperature will be displayed here.</div>
+                        <div class="input-field col s12">
                             <input type="email" id="meater_email" name="meater_email" placeholder="Meater Cloud Email">
+                            <label for="meater_email" class="active">Meater Cloud Email</label>
                         </div>
-                        <div class="input-field">
-                            <label for="meater_password">Meater Cloud Password:</label>
+                        <div class="input-field col s12">
                             <input type="password" id="meater_password" name="meater_password" placeholder="Meater Cloud Password">
+                            <label for="meater_password" class="active">Meater Cloud Password</label>
                         </div>
-                        <div>
+                        <div class="col s12">
                             <button type="button" id="saveIntegrations" class="btn">Save Integration Settings</button>
                         </div>
                     </div>
-                    <h3>Personalization</h3>
-                    <form id="personalizationForm" class="col s12">
-                        <div class="row">
-                            <div class="input-field col s6">
-                                <input type="color" id="navColor" name="navColor" value="#827f7f">
-                                <label for="navColor" class="active">Navigation Color</label>
-                            </div>
+                </form>
+                <h3>Personalization</h3>
+                <form id="personalizationForm" class="col s12">
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <input type="color" id="navColor" name="navColor" value="#827f7f">
+                            <label for="navColor" class="active">Navigation Color</label>
                         </div>
-                        <div class="row">
-                            <div class="input-field col s6">
-                                <input type="color" id="buttonColor" name="buttonColor" value="#f2f2f2">
-                                <label for="buttonColor" class="active">Button Color</label>
-                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <input type="color" id="buttonColor" name="buttonColor" value="#f2f2f2">
+                            <label for="buttonColor" class="active">Button Color</label>
                         </div>
-                        <div class="row">
-                            <div class="input-field col s6">
-                                <input type="color" id="backgroundColor" name="backgroundColor" value="#ffffff">
-                                <label for="backgroundColor" class="active">Background Color</label>
-                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <input type="color" id="backgroundColor" name="backgroundColor" value="#ffffff">
+                            <label for="backgroundColor" class="active">Background Color</label>
                         </div>
+                    </div>
+                    <div class="col s12">
                         <button type="submit" class="btn waves-effect waves-light">Save Personalization Settings</button>
-                    </form>
-                    <div>
-                        <a href="{{ url_for('view_config') }}" target="_blank" class="btn">View Configurations</a>
                     </div>
                 </form>
+                <div class="col s12">
+                    <a href="{{ url_for('view_config') }}" target="_blank" class="btn">View Configurations</a>
+                </div>
             </div>
         </div>
     </div>
