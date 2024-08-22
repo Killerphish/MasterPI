@@ -628,60 +628,6 @@ async def save_personalization_settings():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/add_sensor', methods=['POST'])
-async def add_sensor():
-    try:
-        form_data = await request.get_json()  # Use get_json() to parse JSON data
-        sensor_type = form_data.get('sensor_type')
-        label = form_data.get('label')
-        chip_select_pin = form_data.get('chip_select_pin')
-
-        if not sensor_type or not label or not chip_select_pin:
-            raise ValueError("Missing required sensor data")
-
-        config = await load_config()  # Ensure this is awaited
-
-        # Map the CS pin to the correct board constant
-        cs_pin = get_board_pin(chip_select_pin)
-
-        # Initialize the sensor based on the type
-        if sensor_type == 'MAX31856':
-            try:
-                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
-                cs = digitalio.DigitalInOut(cs_pin)
-                sensor = MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)  # Ensure thermocouple type is set
-                sensor.temperature  # Test the sensor
-            except Exception as e:
-                raise ValueError(f"Error initializing MAX31856 on pin {chip_select_pin}: {e}")
-
-        # Add the new sensor to the configuration
-        new_sensor = {
-            'type': sensor_type,
-            'chip_select_pin': chip_select_pin,
-            'temp_offset': 0.0,
-            'label': label
-        }
-        config['sensors'].append(new_sensor)
-
-        save_config(config)
-        app.logger.info('Sensor added successfully.')
-        return jsonify({"message": "Sensor added successfully"}), 200
-    except Exception as e:
-        app.logger.error(f"Error adding sensor: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/get_available_pins', methods=['GET'])
-async def get_available_pins():
-    try:
-        config = await load_config()  # Ensure this is awaited
-        used_pins = {sensor['chip_select_pin'] for sensor in config['sensors']}
-        all_pins = {'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12', 'D13', 'D17'}  # Add other available pins as needed
-        available_pins = list(all_pins - used_pins)
-        return jsonify(available_pins), 200
-    except Exception as e:
-        app.logger.error(f"Error fetching available pins: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
 # Map the CS pin to the correct board constant
 PIN_MAPPING = {
     'D5': board.D5,
@@ -702,6 +648,59 @@ def get_board_pin(pin_name):
         return PIN_MAPPING[pin_name]
     except KeyError:
         raise ValueError(f"Invalid pin name: {pin_name}")
+
+@app.route('/add_sensor', methods=['POST'])
+async def add_sensor():
+    try:
+        form_data = await request.get_json()  # Use get_json() to parse JSON data
+        sensor_type = form_data.get('sensor_type')
+        label = form_data.get('label')
+        chip_select_pin = form_data.get('chip_select_pin')
+
+        if not sensor_type or not label or not chip_select_pin:
+            raise ValueError("Missing required sensor data")
+
+        config = await load_config()  # Ensure this is awaited
+
+        # Add the new sensor to the configuration
+        new_sensor = {
+            'type': sensor_type,
+            'chip_select_pin': chip_select_pin,
+            'temp_offset': 0.0,
+            'label': label
+        }
+        config['sensors'].append(new_sensor)
+
+        save_config(config)
+
+        # Initialize the sensor based on the type
+        cs_pin = get_board_pin(chip_select_pin)
+        if sensor_type == 'MAX31856':
+            try:
+                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
+                cs = digitalio.DigitalInOut(cs_pin)
+                sensor = MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)  # Ensure thermocouple type is set
+                sensor.temperature  # Test the sensor
+            except Exception as e:
+                raise ValueError(f"Error initializing MAX31856 on pin {chip_select_pin}: {e}")
+
+        app.logger.info('Sensor added and initialized successfully.')
+        return jsonify({"message": "Sensor added and initialized successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"Error adding sensor: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get_available_pins', methods=['GET'])
+async def get_available_pins():
+    try:
+        config = await load_config()  # Ensure this is awaited
+        used_pins = {sensor['chip_select_pin'] for sensor in config['sensors']}
+        all_pins = {'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12', 'D13', 'D17'}  # Add other available pins as needed
+        available_pins = list(all_pins - used_pins)
+        return jsonify(available_pins), 200
+    except Exception as e:
+        app.logger.error(f"Error fetching available pins: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     async def main():
