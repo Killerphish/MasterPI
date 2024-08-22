@@ -126,19 +126,25 @@ document.addEventListener("DOMContentLoaded", function() {
             const sensorType = sensorTypeSelect.value;
             console.log("Adding sensor of type:", sensorType);  // Debugging statement
 
-            const form = new FormData();
-            form.append('sensor_type', sensorType);
-            form.append('count', 1);
+            const data = {
+                sensor_type: sensorType,
+                count: 1
+            };
 
             fetch('/save_device_settings', {
                 method: 'POST',
-                body: form
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
             }).then(response => {
                 if (response.ok) {
                     console.log("Sensor added successfully");  // Debugging statement
                     window.location.reload();
                 } else {
-                    console.error("Failed to add sensor");  // Debugging statement
+                    return response.json().then(errorData => {
+                        console.error("Failed to add sensor:", errorData);  // Debugging statement
+                    });
                 }
             }).catch(error => {
                 console.error("Error adding sensor:", error);  // Debugging statement
