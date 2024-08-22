@@ -21,12 +21,12 @@ from hypercorn.config import Config
 import ssl
 import yaml
 import busio
+import adafruit_max31856 
 from adafruit_max31865 import MAX31865
 from adafruit_max31856 import MAX31856
-from adafruit_max31855 import MAX31855  # Add this import
+from adafruit_max31855 import MAX31855 
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
-
 # Load configuration from config.yaml
 def load_config():
     try:
@@ -418,6 +418,7 @@ async def read_sensor_temperature():
         temperatures = []
         for sensor, offset, enabled in sensors:
             if not enabled:
+                app.logger.debug(f"Sensor {sensor.__class__.__name__} is disabled.")
                 continue  # Skip disabled sensors
 
             try:
@@ -452,7 +453,6 @@ async def read_sensor_temperature():
             raise ValueError("No temperatures read from sensors")
     except Exception as e:
         app.logger.error(f"Error reading sensor temperature: {e}", exc_info=True)
-        raise
         raise
 
 @app.route('/set_target_temperature', methods=['POST'])
