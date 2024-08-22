@@ -1,6 +1,13 @@
+:root {
+    --nav-color: #827f7f;
+    --button-color: #f2f2f2;
+    --background-color: #ffffff;
+}
+
 body {
     font-family: 'Roboto', sans-serif;
     margin: 20px;
+    background-color: var(--background-color);
 }
 
 form div {
@@ -14,7 +21,7 @@ label {
 
 .navbar {
     overflow: hidden;
-    background-color: #827f7f;
+    background-color: var(--nav-color);
     padding-left: 15px;
 }
 
@@ -22,7 +29,7 @@ label {
     float: left;
     padding-left: 15px;
     display: block;
-    color: #f2f2f2;
+    color: var(--button-color);
     text-align: center;
     padding: 14px 20px;
     text-decoration: none;

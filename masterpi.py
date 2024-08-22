@@ -313,11 +313,17 @@ async def save_device_settings():
         temp_unit = form_data.get('temp_unit')
         sensor_type = form_data.get('sensor_type')
         count = form_data.get('count')
+        nav_color = form_data.get('navColor')
+        button_color = form_data.get('buttonColor')
+        background_color = form_data.get('backgroundColor')
 
         app.logger.debug(f"Received device_name: {device_name}")
         app.logger.debug(f"Received temp_unit: {temp_unit}")
         app.logger.debug(f"Received sensor_type: {sensor_type}")
         app.logger.debug(f"Received count: {count}")
+        app.logger.debug(f"Received nav_color: {nav_color}")
+        app.logger.debug(f"Received button_color: {button_color}")
+        app.logger.debug(f"Received background_color: {background_color}")
 
         config = load_config_sync()
 
@@ -326,6 +332,12 @@ async def save_device_settings():
             config['device']['name'] = device_name
         if temp_unit:
             config['units']['temperature'] = temp_unit
+        if nav_color:
+            config['colors']['nav'] = nav_color
+        if button_color:
+            config['colors']['button'] = button_color
+        if background_color:
+            config['colors']['background'] = background_color
 
         # Add new sensor to the config if sensor_type is provided
         if sensor_type:

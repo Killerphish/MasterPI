@@ -107,6 +107,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('device_name').value = data.device_name;
                     document.getElementById('temp_unit').value = data.temp_unit;
                     M.updateTextFields();  // Ensure labels are correctly positioned
+
+                    // Apply the new color scheme
+                    document.documentElement.style.setProperty('--nav-color', data.navColor);
+                    document.documentElement.style.setProperty('--button-color', data.buttonColor);
+                    document.documentElement.style.setProperty('--background-color', data.backgroundColor);
                 } else {
                     const errorData = await response.json();
                     M.toast({html: `Error: ${errorData.message}`});
