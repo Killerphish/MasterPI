@@ -75,4 +75,25 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initial temperature update
     updateSensorTemperatures();
     setInterval(updateSensorTemperatures, 5000); // Update temperatures every 5 seconds
+
+    M.AutoInit();
+    fetch('/get_settings')
+        .then(response => response.json())
+        .then(settings => {
+            const deviceNameElement = document.querySelector('.brand-logo');
+            if (deviceNameElement) {
+                deviceNameElement.textContent = settings.device.name;
+            }
+
+            // Update temperature unit
+            tempUnit = settings.units.temperature;
+
+            // Apply personalization settings
+            document.documentElement.style.setProperty('--nav-color', settings.personalization.navColor);
+            document.documentElement.style.setProperty('--button-color', settings.personalization.buttonColor);
+            document.documentElement.style.setProperty('--background-color', settings.personalization.backgroundColor);
+        })
+        .catch(error => {
+            console.error('Error fetching settings:', error);
+        });
 });

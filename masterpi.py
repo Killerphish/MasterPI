@@ -160,8 +160,8 @@ dht_device = adafruit_dht.DHT22(board.D18)
 
 @app.route('/')
 async def index():
-    device_name = "My Device"  # Example device name
-    sensors = []  # Example sensors
+    device_name = config['device']['name']  # Get device name from config
+    sensors = config.get('sensors', [])  # Example sensors
 
     # Ensure personalization settings are available
     if 'personalization' not in config:
@@ -311,10 +311,11 @@ def get_temperature_data():
 @app.route('/get_settings', methods=['GET'])
 async def get_settings():
     try:
-        config = await load_config()  # Load the configuration to get the settings
+        config = load_config()  # Load the configuration to get the settings
         settings = {
             'units': config['units'],
-            'device': config['device']
+            'device': config['device'],
+            'personalization': config['personalization']
         }
         return jsonify(settings)
     except Exception as e:
