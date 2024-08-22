@@ -34,8 +34,7 @@ label {
 }
 
 .nav-wrapper .brand-logo {
-    left: auto !important; /* Override the left: 50% from Materialize */
-    padding-left: 10px;
+    left: 8%;/* Override the left: 50% from Materialize */
 }
 
 /* Modal styles */
