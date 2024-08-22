@@ -542,11 +542,13 @@ async def view_config():
 @app.route('/edit_config')
 async def edit_config():
     try:
-        config = load_config()
+        app.logger.debug("Attempting to load configuration...")
+        config = await load_config()  # Ensure this is awaited
+        app.logger.debug(f"Configuration loaded: {config}")
         csrf_token = generate_csrf()  # Generate CSRF token
         return await render_template('edit_config.html', config=config, csrf_token=csrf_token)
     except Exception as e:
-        app.logger.error(f"Error loading configuration: {e}")
+        app.logger.error(f"Error loading configuration: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/save_config', methods=['POST'])
