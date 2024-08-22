@@ -12,7 +12,7 @@
         // Pass the URL to the JavaScript code
         const saveDeviceSettingsUrl = "{{ url_for('save_device_settings') }}";
         const getAvailablePinsUrl = "{{ url_for('get_available_pins') }}";
-        const initializeSensorsUrl = "{{ url_for('initialize_sensors') }}";
+        const initializeSensorsUrl = "{{ url_for('initialize_sensors_route') }}";
     </script>
     <style>
         :root {
@@ -119,38 +119,6 @@
                                     <input type="hidden" id="removeSensorIndex" name="index">
                                     <div class="modal-footer">
                                         <button type="submit" class="btn green">Confirm</button>
-                                        <button type="button" class="btn red modal-close">Cancel</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div id="addSensorModal" class="modal">
-                            <div class="modal-content">
-                                <h4>New Sensor</h4>
-                                <form id="addSensorForm" method="POST" action="{{ url_for('add_sensor') }}">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                    <div class="input-field col s12">
-                                        <select id="newSensorType" name="sensor_type" class="browser-default">
-                                            <option value="MAX31865">MAX31865</option>
-                                            <option value="MAX31856">MAX31856</option>
-                                            <option value="ADS1115">ADS1115</option>
-                                            <option value="DHT22">DHT22</option>
-                                            <option value="MAX31855">MAX31855</option>
-                                        </select>
-                                        <label for="newSensorType" class="active">Sensor Type</label>
-                                    </div>
-                                    <div class="input-field col s12">
-                                        <input type="text" id="newSensorLabel" name="label" placeholder="Probe Label">
-                                        <label for="newSensorLabel" class="active">Probe Label</label>
-                                    </div>
-                                    <div class="input-field col s12">
-                                        <select id="newSensorCsPin" name="chip_select_pin" class="browser-default">
-                                            <!-- Options will be populated by JavaScript -->
-                                        </select>
-                                        <label for="newSensorCsPin" class="active">CS Pin</label>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn">Add Sensor</button>
                                         <button type="button" class="btn red modal-close">Cancel</button>
                                     </div>
                                 </form>
