@@ -46,6 +46,8 @@ label {
 
 /* Modal styles */
 .modal {
+    max-width: 500px;
+    width: 80%;
     display: none;
     position: fixed;
     z-index: 1;
@@ -72,6 +74,10 @@ label {
 .modal-footer {
     padding: 10px;
     text-align: right;
+    background-color: #fafafa;
+    padding: 4px 6px;
+    height: 56px;
+    width: 100%;
 }
 
 .modal-footer .btn {

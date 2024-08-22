@@ -181,13 +181,14 @@ document.addEventListener("DOMContentLoaded", function() {
     sensorList.addEventListener('click', function(event) {
         if (event.target.classList.contains('edit-sensor')) {
             const index = event.target.dataset.index;
-            const modal = document.getElementById(`editSensorModal-${index}`);
-            const instance = M.Modal.init(modal);
+            const modalId = `editSensorModal-${index}`;
+            const modal = document.getElementById(modalId);
+            const instance = M.Modal.getInstance(modal);
             instance.open();
         } else if (event.target.classList.contains('remove-sensor')) {
             const index = event.target.dataset.index;
             removeForm.elements.index.value = index;
-            const instance = M.Modal.init(removeModal);
+            const instance = M.Modal.getInstance(removeModal);
             instance.open();
         }
     });

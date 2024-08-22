@@ -194,11 +194,27 @@
             M.AutoInit();  // Initialize all Materialize components
 
             // Initialize modals
-            const modals = document.querySelectorAll('.modal');
+            var modals = document.querySelectorAll('.modal');
             M.Modal.init(modals);
 
             // Ensure labels are correctly positioned
             M.updateTextFields();
+
+            // Update the modal opening logic
+            sensorList.addEventListener('click', function(event) {
+                if (event.target.classList.contains('edit-sensor')) {
+                    const index = event.target.dataset.index;
+                    const modalId = `editSensorModal-${index}`;
+                    const modal = document.getElementById(modalId);
+                    const instance = M.Modal.getInstance(modal);
+                    instance.open();
+                } else if (event.target.classList.contains('remove-sensor')) {
+                    const index = event.target.dataset.index;
+                    removeForm.elements.index.value = index;
+                    const instance = M.Modal.getInstance(removeModal);
+                    instance.open();
+                }
+            });
         });
     </script>
 </body>
