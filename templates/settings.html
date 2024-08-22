@@ -112,14 +112,16 @@
                         {% endfor %}
                         <div id="sensorRemoveModal" class="modal">
                             <div class="modal-content">
-                                <h3>Confirm Deletion</h3>
+                                <h4>Confirm Deletion</h4>
                                 <p>Are you sure you want to remove this sensor?</p>
-                                <form id="removeSensorForm" method="POST" action="{{ url_for('remove_sensor') }}">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                    <input type="hidden" id="removeSensorIndex" name="index">
-                                    <button type="submit" class="btn">Confirm</button>
-                                    <button type="button" class="btn red modal-close">Cancel</button>
-                                </form>
+                                <div class="modal-footer">
+                                    <form id="removeSensorForm" method="POST" action="{{ url_for('remove_sensor') }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <input type="hidden" id="removeSensorIndex" name="index">
+                                        <button type="submit" class="btn green">Confirm</button>
+                                        <button type="button" class="btn red modal-close">Cancel</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                         <div class="col s12">
