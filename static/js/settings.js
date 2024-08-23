@@ -256,36 +256,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Handle the "Save General Settings" form submission
-    const settingsForm = document.getElementById('settingsForm');
-    if (settingsForm) {
-        settingsForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const formData = new FormData(settingsForm);
-
-            fetch(saveDeviceSettingsUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCsrfToken()
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.message) {
-                    M.toast({html: result.message});
-                } else {
-                    M.toast({html: `Error: ${result.error}`});
-                }
-            })
-            .catch(error => {
-                console.error('Error saving general settings:', error);
-                M.toast({html: `Error: ${error.message}`});
-            });
-        });
-    }
-
     // Handle the "Save Personalization Settings" form submission
     const personalizationForm = document.getElementById('personalizationForm');
     if (personalizationForm) {
@@ -305,6 +275,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(result => {
                 if (result.message) {
                     M.toast({html: result.message});
+                    window.location.reload();
                 } else {
                     M.toast({html: `Error: ${result.error}`});
                 }

@@ -71,9 +71,6 @@
                             </select>
                             <label for="temp_unit" class="active">Temperature Unit</label>
                         </div>
-                        <div class="col s12">
-                            <button type="submit" class="btn waves-effect waves-light">Save General Settings</button>
-                        </div>
                     </div>
                     <div id="devices" class="col s12">
                         <h2>Devices</h2>
@@ -95,107 +92,45 @@
                                 </ul>
                             </div>
                         </div>
-                        {% for sensor in sensors %}
-                        <div id="editSensorModal-{{ loop.index0 }}" class="modal">
-                            <div class="modal-content">
-                                <h4>Edit Sensor</h4>
-                                <form id="editSensorForm-{{ loop.index0 }}" method="POST" action="{{ url_for('save_sensor_settings') }}">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
-                                    <div class="input-field col s12">
-                                        <input type="text" id="editSensorCsPin-{{ loop.index0 }}" name="cs_pin" value="{{ sensor.chip_select_pin }}">
-                                        <label for="editSensorCsPin-{{ loop.index0 }}" class="active">CS Pin</label>
-                                    </div>
-                                    <div class="input-field col s12">
-                                        <input type="text" id="editSensorLabel-{{ loop.index0 }}" name="label" value="{{ sensor.label }}">
-                                        <label for="editSensorLabel-{{ loop.index0 }}" class="active">Probe Label</label>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn">Save</button>
-                                        <button type="button" class="btn red modal-close">Cancel</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        <div id="sensorRemoveModal" class="modal">
-                            <div class="modal-content">
-                                <h4>Confirm Deletion</h4>
-                                <p>Are you sure you want to remove this sensor?</p>
-                                <form id="removeSensorForm" method="POST" action="{{ url_for('remove_sensor') }}">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                    <input type="hidden" id="removeSensorIndex" name="index">
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn red">Remove</button>
-                                        <button type="button" class="btn modal-close">Cancel</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="col s12">
-                            <button type="submit" class="btn waves-effect waves-light">Save Device Settings</button>
-                            <button type="button" id="initializeSensorsButton" class="btn waves-effect waves-light">Initialize Sensors</button>
-                        </div>
                     </div>
-                    <div id="integrations" class="col s12">
-                        <h2>Integrations</h2>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <label>
-                                    <input type="checkbox" id="meater_integration" name="meater_integration">
-                                    <span>Enable Meater Integration</span>
-                                </label>
+                    <div id="personalization" class="col s12">
+                        <h2>Personalization</h2>
+                        <form id="personalizationForm" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="color" id="navColor" name="navColor" value="{{ config['personalization']['navColor'] or '#000000' }}">
+                                    <label for="navColor">Navigation Color</label>
+                                </div>
                             </div>
-                            <div id="meaterStatus" class="col s12">Meater connection status will be displayed here.</div>
-                            <div id="meater-temp" class="col s12">Meater temperature will be displayed here.</div>
-                            <div class="input-field col s12">
-                                <input type="email" id="meater_email" name="meater_email">
-                                <label for="meater_email">Meater Cloud Email</label>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="color" id="navTextColor" name="navTextColor" value="{{ config['personalization']['navTextColor'] or '#ffffff' }}">
+                                    <label for="navTextColor">Navigation Text Color</label>
+                                </div>
                             </div>
-                            <div class="input-field col s12">
-                                <input type="password" id="meater_password" name="meater_password">
-                                <label for="meater_password">Meater Cloud Password</label>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="color" id="buttonColor" name="buttonColor" value="{{ config['personalization']['buttonColor'] or '#000000' }}">
+                                    <label for="buttonColor">Button Color</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config['personalization']['buttonTextColor'] or '#ffffff' }}">
+                                    <label for="buttonTextColor">Button Text Color</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config['personalization']['backgroundColor'] or '#ffffff' }}">
+                                    <label for="backgroundColor">Background Color</label>
+                                </div>
                             </div>
                             <div class="col s12">
-                                <button type="button" id="saveIntegrations" class="btn waves-effect waves-light">Save Integration Settings</button>
+                                <button type="submit" class="btn waves-effect waves-light">Save Personalization Settings</button>
                             </div>
-                        </div>
-                    </div>
-                </form>
-                <h3>Personalization</h3>
-                <form id="personalizationForm" class="col s12">
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <input type="color" id="navColor" name="navColor" value="{{ config['personalization']['navColor'] or '#000000' }}">
-                            <label for="navColor">Navigation Color</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <input type="color" id="navTextColor" name="navTextColor" value="{{ config['personalization']['navTextColor'] or '#ffffff' }}">
-                            <label for="navTextColor">Navigation Text Color</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <input type="color" id="buttonColor" name="buttonColor" value="{{ config['personalization']['buttonColor'] or '#000000' }}">
-                            <label for="buttonColor">Button Color</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config['personalization']['buttonTextColor'] or '#ffffff' }}">
-                            <label for="buttonTextColor">Button Text Color</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config['personalization']['backgroundColor'] or '#ffffff' }}">
-                            <label for="backgroundColor">Background Color</label>
-                        </div>
-                    </div>
-                    <div class="col s12">
-                        <button type="submit" class="btn waves-effect waves-light">Save Personalization Settings</button>
+                        </form>
                     </div>
                 </form>
                 <div class="col s12">
