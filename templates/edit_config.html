@@ -6,7 +6,6 @@
     <title>Edit Configuration</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </head>
 <body>
     <nav>
@@ -28,6 +27,7 @@
             <button type="submit" class="btn">Save Configuration</button>
         </form>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             M.textareaAutoResize(document.getElementById('configContent'));

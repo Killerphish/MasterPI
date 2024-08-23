@@ -514,7 +514,7 @@ async def edit_config():
     try:
         config = await load_config()
         csrf_token = generate_csrf()
-        return render_template('edit_config.html', config=config, csrf_token=csrf_token)
+        return await render_template('edit_config.html', config=config, csrf_token=csrf_token)
     except Exception as e:
         app.logger.error(f"Error loading configuration: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
@@ -523,15 +523,12 @@ async def edit_config():
 async def save_config_route():
     try:
         form_data = await request.form
-        config_content = form_data.get('configContent')
-        config = yaml.safe_load(config_content)
-        save_config(config)
-        await flash('Configuration saved successfully!', 'success')
+        new_config = yaml.safe_load(form_data['configContent'])
+        save_config(new_config)
         return redirect(url_for('view_config'))
     except Exception as e:
         app.logger.error(f"Error saving configuration: {e}", exc_info=True)
-        await flash('Internal Server Error', 'error')
-        return redirect(url_for('edit_config'))
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/save_sensor_settings', methods=['POST'])
 async def save_sensor_settings():

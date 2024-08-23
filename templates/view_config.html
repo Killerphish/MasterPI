@@ -13,12 +13,14 @@
             <a href="{{ url_for('index') }}" class="brand-logo">{{ config['device']['name'] }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li><a href="{{ url_for('settings') }}">Settings</a></li>
+                <li><a href="{{ url_for('edit_config') }}">Edit Configuration</a></li>
             </ul>
         </div>
     </nav>
     <div class="container">
         <h1>Configuration</h1>
         <pre>{{ config | tojson(indent=2) }}</pre>
+        <a href="{{ url_for('edit_config') }}" class="btn waves-effect waves-light">Edit Configuration</a>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
