@@ -15,13 +15,13 @@ document.addEventListener("DOMContentLoaded", function() {
     if (settingsForm) {
         console.log('Adding event listener to settings form');
         settingsForm.addEventListener('submit', function(event) {
-            console.log('Form submitted');
             event.preventDefault();
+            console.log('Form submitted');
 
             const formData = new FormData(settingsForm);
-
-            // Filter out non-personalization fields
             const personalizationData = new FormData();
+
+            // Filter out personalization fields
             ['navColor', 'navTextColor', 'buttonColor', 'buttonTextColor', 'backgroundColor', 'csrf_token'].forEach(key => {
                 if (formData.has(key)) {
                     personalizationData.append(key, formData.get(key));
@@ -45,7 +45,8 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(result => {
                 if (result.message) {
                     M.toast({html: result.message});
-                    window.location.reload();
+                    // Optionally reload the page or update the UI
+                    // window.location.reload();
                 } else {
                     M.toast({html: `Error: ${result.error}`});
                 }

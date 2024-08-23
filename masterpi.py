@@ -179,7 +179,7 @@ async def settings():
         app.logger.info("GET request received on /settings")
         config = await load_config()
         app.logger.debug(f"Loaded config: {config}")
-        return await render_template('settings.html', config=config)
+        return await render_template('settings.html', config=config)  # Note the 'await' here
     except Exception as e:
         app.logger.error(f"Error in settings route: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
