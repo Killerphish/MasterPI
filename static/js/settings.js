@@ -333,6 +333,7 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error('An error occurred:', message, 'at', source, 'line', lineno, 'column', colno, 'Error object:', error);
     };
 
+    // Define saveSettings in the global scope
     function saveSettings(element) {
         const setting = {
             [element.name]: element.value
