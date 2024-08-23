@@ -9,6 +9,67 @@ console.log('settings.js loaded');
 document.addEventListener("DOMContentLoaded", function() {
     console.log('DOM fully loaded');
 
+    // Log all forms on the page
+    const allForms = document.querySelectorAll('form');
+    console.log('All forms on the page:', allForms);
+
+    // Log the entire body content
+    console.log('Body content:', document.body.innerHTML);
+
+    // Try to find the personalization form
+    const personalizationForm = document.getElementById('personalizationForm');
+    console.log('Personalization form by ID:', personalizationForm);
+
+    if (!personalizationForm) {
+        // If not found by ID, try to find it by other means
+        const possibleForms = document.querySelectorAll('form');
+        console.log('All possible forms:', possibleForms);
+        
+        possibleForms.forEach((form, index) => {
+            console.log(`Form ${index}:`, form);
+            console.log(`Form ${index} innerHTML:`, form.innerHTML);
+        });
+    }
+
+    if (personalizationForm) {
+        console.log('Adding event listener to personalization form');
+        personalizationForm.addEventListener('submit', function(event) {
+            console.log('Form submitted');
+            event.preventDefault();
+
+            const formData = new FormData(personalizationForm);
+
+            console.log('Form data:', Object.fromEntries(formData));
+            console.log('Submitting to URL:', savePersonalizationSettingsUrl);
+
+            fetch(savePersonalizationSettingsUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: formData
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                    window.location.reload();
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error saving personalization settings:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        });
+    } else {
+        console.error('Personalization form not found');
+    }
+
     M.AutoInit();  // Initialize all Materialize components
 
     // Initialize modals
@@ -236,50 +297,15 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    const personalizationForm = document.getElementById('personalizationForm');
-    console.log('Personalization form:', personalizationForm);
-
-    if (personalizationForm) {
-        console.log('Adding event listener to personalization form');
-        personalizationForm.addEventListener('submit', function(event) {
-            console.log('Form submitted');
-            event.preventDefault();
-
-            const formData = new FormData(personalizationForm);
-
-            console.log('Submitting to URL:', savePersonalizationSettingsUrl);
-
-            fetch(savePersonalizationSettingsUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCsrfToken()
-                },
-                body: formData
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                return response.json();
-            })
-            .then(result => {
-                if (result.message) {
-                    M.toast({html: result.message});
-                    window.location.reload();
-                } else {
-                    M.toast({html: `Error: ${result.error}`});
-                }
-            })
-            .catch(error => {
-                console.error('Error saving personalization settings:', error);
-                M.toast({html: `Error: ${error.message}`});
-            });
-        });
-    } else {
-        console.error('Personalization form not found');
-    }
-
     // Function to get CSRF token
     function getCsrfToken() {
-        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) {
+            return metaTag.getAttribute('content');
+        } else {
+            console.error('CSRF token meta tag not found');
+            return null;
+        }
     }
 
     // Function to fetch available pins
@@ -303,3 +329,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 });
+
+// Log any errors that occur when the script runs
+window.onerror = function(message, source, lineno, colno, error) {
+    console.error('An error occurred:', message, 'at', source, 'line', lineno, 'column', colno, 'Error object:', error);
+};
