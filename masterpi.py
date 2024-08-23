@@ -567,22 +567,18 @@ async def remove_sensor():
 @app.route('/view_config')
 async def view_config():
     try:
-        app.logger.debug("Attempting to load configuration...")
-        config = await load_config()  # Ensure this is awaited
-        app.logger.debug(f"Configuration loaded: {config}")
-        return await render_template('view_config.html', config=config)
+        config = await load_config()
+        return render_template('view_config.html', config=config)
     except Exception as e:
-        app.logger.error(f"Error loading configuration: {e}", exc_info=True)
-        return jsonify({'error': 'Internal Server Error'}), 500
+        app.logger.error(f"Error viewing configuration: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/edit_config')
 async def edit_config():
     try:
-        app.logger.debug("Attempting to load configuration...")
-        config = await load_config()  # Ensure this is awaited
-        app.logger.debug(f"Configuration loaded: {config}")
-        csrf_token = generate_csrf()  # Generate CSRF token
-        return await render_template('edit_config.html', config=config, csrf_token=csrf_token)
+        config = await load_config()
+        csrf_token = generate_csrf()
+        return render_template('edit_config.html', config=config, csrf_token=csrf_token)
     except Exception as e:
         app.logger.error(f"Error loading configuration: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
@@ -604,22 +600,20 @@ async def save_config_route():
 @app.route('/save_sensor_settings', methods=['POST'])
 async def save_sensor_settings():
     try:
-        form_data = await request.get_json()  # Use get_json() to parse JSON data
-        index = int(form_data.get('index'))
-        cs_pin = form_data.get('cs_pin')
-        label = form_data.get('label')
+        data = await request.json
+        index = int(data.get('index'))
+        cs_pin = data.get('cs_pin')
+        label = data.get('label')
 
-        config = await load_config()  # Ensure this is awaited
+        config = await load_config()
 
         if 'sensors' in config and 0 <= index < len(config['sensors']):
             config['sensors'][index]['chip_select_pin'] = cs_pin
             config['sensors'][index]['label'] = label
             save_config(config)
-            await flash('Sensor settings saved successfully!', 'success')
+            return jsonify({"message": "Sensor settings saved successfully"}), 200
         else:
-            await flash('Invalid sensor index.', 'error')
-
-        return jsonify({"message": "Sensor settings saved successfully"}), 200
+            return jsonify({"error": "Invalid sensor index."}), 400
     except Exception as e:
         app.logger.error(f"Error saving sensor settings: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500

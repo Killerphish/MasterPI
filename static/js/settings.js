@@ -39,34 +39,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    const form = document.getElementById('settingsForm');
-    const enableMeaterIntegrationButton = document.getElementById('enableMeaterIntegration');
-    const meaterModal = document.getElementById('meaterModal');
-    const closeModal = document.getElementsByClassName('close')[0];
-    const meaterForm = document.getElementById('meaterForm');
-    const meaterStatus = document.getElementById('meaterStatus');
-
-    // Open the modal
-    if (enableMeaterIntegrationButton) {
-        enableMeaterIntegrationButton.addEventListener('click', function() {
-            showModal(meaterModal);
-        });
-    }
-
-    // Close the modal
-    if (closeModal) {
-        closeModal.addEventListener('click', function() {
-            hideModal(meaterModal, meaterStatus);
-        });
-    }
-
-    // Close the modal when clicking outside of it
-    window.addEventListener('click', function(event) {
-        if (event.target == meaterModal) {
-            hideModal(meaterModal, meaterStatus);
-        }
-    });
-
     // Handle the "Add Sensor" form submission
     const addSensorForm = document.getElementById('addSensorForm');
     if (addSensorForm) {
