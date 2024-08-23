@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Handle the "Edit Sensor" form submission
+    // Handle the "Edit Sensor" button clicks
     document.querySelectorAll('.edit-sensor').forEach(button => {
         button.addEventListener('click', function(event) {
             event.preventDefault();
@@ -136,55 +136,101 @@ document.addEventListener("DOMContentLoaded", function() {
             const csPin = this.getAttribute('data-cs-pin');
             const label = this.getAttribute('data-label');
 
-            const form = document.getElementById(`editSensorForm-${sensorIndex}`);
-            form.querySelector('input[name="index"]').value = sensorIndex;
-            form.querySelector('input[name="cs_pin"]').value = csPin;
-            form.querySelector('input[name="label"]').value = label;
+            // Create or update the edit form dynamically
+            let editForm = document.getElementById(`editSensorForm-${sensorIndex}`);
+            if (!editForm) {
+                editForm = createEditForm(sensorIndex, csPin, label);
+                document.body.appendChild(editForm);
+            } else {
+                updateEditForm(editForm, sensorIndex, csPin, label);
+            }
 
-            const modal = document.getElementById(`editSensorModal-${sensorIndex}`);
-            const instance = M.Modal.getInstance(modal);
+            // Open the modal
+            const modalId = `editSensorModal-${sensorIndex}`;
+            let modal = document.getElementById(modalId);
+            if (!modal) {
+                modal = createEditModal(modalId, editForm);
+                document.body.appendChild(modal);
+            }
+            const instance = M.Modal.init(modal);
             instance.open();
         });
     });
 
-    document.querySelectorAll('[id^="editSensorForm-"]').forEach(form => {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+    // Function to create edit form
+    function createEditForm(index, csPin, label) {
+        const form = document.createElement('form');
+        form.id = `editSensorForm-${index}`;
+        form.innerHTML = `
+            <input type="hidden" name="index" value="${index}">
+            <div class="input-field">
+                <input type="text" name="cs_pin" value="${csPin}" required>
+                <label for="cs_pin">CS Pin</label>
+            </div>
+            <div class="input-field">
+                <input type="text" name="label" value="${label}" required>
+                <label for="label">Label</label>
+            </div>
+            <button type="submit" class="btn">Save Changes</button>
+        `;
+        form.addEventListener('submit', handleEditFormSubmit);
+        return form;
+    }
 
-            const formData = new FormData(form);
-            const index = formData.get('index');
-            const csPin = formData.get('cs_pin');
-            const label = formData.get('label');
+    // Function to update existing edit form
+    function updateEditForm(form, index, csPin, label) {
+        form.querySelector('input[name="index"]').value = index;
+        form.querySelector('input[name="cs_pin"]').value = csPin;
+        form.querySelector('input[name="label"]').value = label;
+    }
 
-            const data = {
-                index: index,
-                cs_pin: csPin,
-                label: label
-            };
+    // Function to create edit modal
+    function createEditModal(id, form) {
+        const modal = document.createElement('div');
+        modal.id = id;
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h4>Edit Sensor</h4>
+            </div>
+        `;
+        modal.querySelector('.modal-content').appendChild(form);
+        return modal;
+    }
 
-            fetch(saveSensorSettingsUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.message) {
-                    M.toast({html: result.message});
-                    window.location.reload();  // Reload the page to reflect the edited sensor
-                } else {
-                    M.toast({html: `Error: ${result.error}`});
-                }
-            })
-            .catch(error => {
-                console.error('Error editing sensor:', error);
-                M.toast({html: `Error: ${error.message}`});
-            });
+    // Function to handle edit form submission
+    function handleEditFormSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const data = {
+            index: formData.get('index'),
+            cs_pin: formData.get('cs_pin'),
+            label: formData.get('label')
+        };
+
+        fetch(saveSensorSettingsUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.message) {
+                M.toast({html: result.message});
+                window.location.reload();  // Reload the page to reflect the edited sensor
+            } else {
+                M.toast({html: `Error: ${result.error}`});
+            }
+        })
+        .catch(error => {
+            console.error('Error editing sensor:', error);
+            M.toast({html: `Error: ${error.message}`});
         });
-    });
+    }
 
     // Handle the "Save Personalization Settings" form submission
     const personalizationForm = document.getElementById('personalizationForm');
