@@ -10,7 +10,6 @@
     <meta name="csrf-token" content="{{ csrf_token }}">
     <script>
         // Pass the URL to the JavaScript code
-        const saveDeviceSettingsUrl = "{{ url_for('save_device_settings') }}";
         const savePersonalizationSettingsUrl = "{{ url_for('save_personalization_settings') }}";
         const getAvailablePinsUrl = "{{ url_for('get_available_pins') }}";
         const initializeSensorsUrl = "{{ url_for('initialize_sensors_route') }}";
