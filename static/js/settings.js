@@ -4,7 +4,11 @@ import { requestMeaterApiKey } from './api.js';
 
 let tempUnit = 'F'; // Default unit changed to Fahrenheit
 
+console.log('settings.js loaded');
+
 document.addEventListener("DOMContentLoaded", function() {
+    console.log('DOM fully loaded');
+
     M.AutoInit();  // Initialize all Materialize components
 
     // Initialize modals
@@ -232,15 +236,18 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Handle the "Save Personalization Settings" form submission
     const personalizationForm = document.getElementById('personalizationForm');
+    console.log('Personalization form:', personalizationForm);
+
     if (personalizationForm) {
+        console.log('Adding event listener to personalization form');
         personalizationForm.addEventListener('submit', function(event) {
+            console.log('Form submitted');
             event.preventDefault();
 
             const formData = new FormData(personalizationForm);
 
-            console.log('Submitting to URL:', savePersonalizationSettingsUrl); // Add this line
+            console.log('Submitting to URL:', savePersonalizationSettingsUrl);
 
             fetch(savePersonalizationSettingsUrl, {
                 method: 'POST',
@@ -250,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 body: formData
             })
             .then(response => {
-                console.log('Response status:', response.status); // Add this line
+                console.log('Response status:', response.status);
                 return response.json();
             })
             .then(result => {
@@ -265,8 +272,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error saving personalization settings:', error);
                 M.toast({html: `Error: ${error.message}`});
             });
-            return false;  // Add this line
+            return false;
         });
+    } else {
+        console.error('Personalization form not found');
     }
 
     // Function to get CSRF token

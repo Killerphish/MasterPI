@@ -173,31 +173,40 @@ async def index():
 
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
 
-@app.route('/settings.html')
+@app.route('/settings', methods=['GET', 'POST'])
 async def settings():
-    app.logger.info("Loading settings page...")
+    if request.method == 'POST':
+        app.logger.info("POST request received on /settings")
+        # Handle POST request (this should not happen, but let's log it if it does)
+        return jsonify({"error": "POST request received on /settings"}), 405
+    else:
+        app.logger.info("GET request received on /settings")
+        # Render the settings page
+        return await render_template('settings.html')
+
+@app.route('/save_personalization_settings', methods=['POST'])
+async def save_personalization_settings():
+    app.logger.info("Save personalization settings route accessed")
     try:
-        config = await asyncio.wait_for(load_config(), timeout=10)  # Add timeout
-    except asyncio.TimeoutError:
-        app.logger.error("Loading config timed out")
-        return jsonify({'error': 'Loading config timed out'}), 500
-
-    app.logger.info("Config loaded.")
-    messages = get_flashed_messages(with_categories=True)
-    sensors = config.get('sensors', [])
-    units = config.get('units', {})
-    device_name = config['device']['name']  # Get device name from config
-    app.logger.info("Rendering settings template.")
-
-    # Ensure personalization settings are available
-    if 'personalization' not in config:
+        form_data = await request.form
+        app.logger.info(f"Received form data: {form_data}")
+        
+        # Update the configuration with the new settings
         config['personalization'] = {
-            'navColor': '#827f7f',
-            'buttonColor': '#f2f2f2',
-            'backgroundColor': '#ffffff'
+            'navColor': form_data.get('navColor'),
+            'navTextColor': form_data.get('navTextColor'),
+            'buttonColor': form_data.get('buttonColor'),
+            'buttonTextColor': form_data.get('buttonTextColor'),
+            'backgroundColor': form_data.get('backgroundColor')
         }
 
-    return await render_template('settings.html', messages=messages, sensors=sensors, device_name=device_name, units=units, config=config)
+        save_config(config)  # Save the updated configuration
+
+        app.logger.info("Personalization settings saved successfully")
+        return jsonify({"message": "Personalization settings saved successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/get_temperature', methods=['GET'])
 def get_temperature():
@@ -320,35 +329,6 @@ async def get_settings():
         return jsonify(settings)
     except Exception as e:
         app.logger.error(f"Error fetching settings: {e}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/save_personalization_settings', methods=['POST'])
-async def save_personalization_settings():
-    try:
-        form_data = await request.form  # Await the request.form to get the form data
-        nav_color = form_data.get('navColor')
-        nav_text_color = form_data.get('navTextColor')
-        button_color = form_data.get('buttonColor')
-        button_text_color = form_data.get('buttonTextColor')
-        background_color = form_data.get('backgroundColor')
-
-        config = await load_config()  # Ensure this is awaited
-
-        # Update the configuration with the new settings
-        config['personalization'] = {
-            'navColor': nav_color,
-            'navTextColor': nav_text_color,
-            'buttonColor': button_color,
-            'buttonTextColor': button_text_color,
-            'backgroundColor': background_color
-        }
-
-        save_config(config)  # Save the updated configuration
-
-        app.logger.info("Personalization settings saved successfully.")
-        return jsonify({"message": "Personalization settings saved successfully"}), 200
-    except Exception as e:
-        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/pid_autotune', methods=['POST'])
