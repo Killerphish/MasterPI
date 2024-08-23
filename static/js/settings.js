@@ -291,13 +291,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Function to get CSRF token
     function getCsrfToken() {
-        const metaTag = document.querySelector('meta[name="csrf-token"]');
-        if (metaTag) {
-            return metaTag.getAttribute('content');
-        } else {
-            console.error('CSRF token meta tag not found');
-            return null;
-        }
+        const tokenInput = document.querySelector('input[name="csrf_token"]');
+        return tokenInput ? tokenInput.value : null;
     }
 
     // Function to fetch available pins
