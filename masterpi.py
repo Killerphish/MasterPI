@@ -54,8 +54,8 @@ async def load_config():
         raise
 
 def save_config(config):
-    with open('config.json', 'w') as f:
-        json.dump(config, f, indent=4)
+    with open('config.yaml', 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
     app.logger.info("Configuration saved successfully")
 
 config = load_config_sync()
