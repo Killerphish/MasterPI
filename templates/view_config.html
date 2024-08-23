@@ -6,21 +6,30 @@
     <title>View Configurations</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+        :root {
+            --nav-color: {{ config['personalization'].get('navColor', '#827f7f') }};
+            --nav-text-color: {{ config['personalization'].get('navTextColor', '#ffffff') }};
+            --button-color: {{ config['personalization'].get('buttonColor', '#f2f2f2') }};
+            --button-text-color: {{ config['personalization'].get('buttonTextColor', '#000000') }};
+            --background-color: {{ config['personalization'].get('backgroundColor', '#ffffff') }};
+        }
+    </style>
 </head>
-<body>
-    <nav>
+<body style="background-color: var(--background-color);">
+    <nav style="background-color: var(--nav-color);">
         <div class="nav-wrapper">
-            <a href="{{ url_for('index') }}" class="brand-logo">{{ config['device']['name'] }}</a>
+            <a href="{{ url_for('index') }}" class="brand-logo" style="color: var(--nav-text-color);">{{ config['device']['name'] }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
-                <li><a href="{{ url_for('settings') }}">Settings</a></li>
-                <li><a href="{{ url_for('edit_config') }}">Edit Configuration</a></li>
+                <li><a href="{{ url_for('settings') }}" style="color: var(--nav-text-color);">Settings</a></li>
+                <li><a href="{{ url_for('edit_config') }}" style="color: var(--nav-text-color);">Edit Configuration</a></li>
             </ul>
         </div>
     </nav>
     <div class="container">
         <h1>Configuration</h1>
         <pre>{{ config | tojson(indent=2) }}</pre>
-        <a href="{{ url_for('edit_config') }}" class="btn waves-effect waves-light">Edit Configuration</a>
+        <a href="{{ url_for('edit_config') }}" class="btn waves-effect waves-light" style="background-color: var(--button-color); color: var(--button-text-color);">Edit Configuration</a>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
