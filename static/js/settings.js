@@ -6,6 +6,34 @@ let tempUnit = 'F'; // Default unit changed to Fahrenheit
 
 console.log('settings.js loaded');
 
+// Make saveSettings globally accessible
+window.saveSettings = function(element) {
+    const setting = {
+        [element.name]: element.value
+    };
+
+    fetch('/save_settings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(setting)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            M.toast({html: `${element.name} updated successfully`});
+        } else {
+            M.toast({html: `Error updating ${element.name}`});
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        M.toast({html: `Error updating ${element.name}`});
+    });
+};
+
 document.addEventListener("DOMContentLoaded", function() {
     console.log('DOM fully loaded');
 
@@ -332,34 +360,6 @@ document.addEventListener("DOMContentLoaded", function() {
     window.onerror = function(message, source, lineno, colno, error) {
         console.error('An error occurred:', message, 'at', source, 'line', lineno, 'column', colno, 'Error object:', error);
     };
-
-    // Define saveSettings in the global scope
-    window.saveSettings = function(element) {
-        const setting = {
-            [element.name]: element.value
-        };
-
-        fetch('/save_settings', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(setting)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                M.toast({html: `${element.name} updated successfully`});
-            } else {
-                M.toast({html: `Error updating ${element.name}`});
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            M.toast({html: `Error updating ${element.name}`});
-        });
-    }
 
     // Initialize Materialize select
     var elems = document.querySelectorAll('select');
