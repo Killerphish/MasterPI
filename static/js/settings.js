@@ -153,14 +153,13 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Handle the "Remove Sensor" form submission
-    document.querySelectorAll('.remove-sensor').forEach(button => {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
-
-            const sensorIndex = this.getAttribute('data-index');
-
-            fetch(removeSensorUrl, {
+    // Function to handle removing a sensor
+    function handleRemoveSensor(event) {
+        event.preventDefault();
+        const sensorIndex = this.getAttribute('data-index');
+        
+        if (confirm('Are you sure you want to remove this sensor?')) {
+            fetch('/remove_sensor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -172,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(result => {
                 if (result.message) {
                     M.toast({html: result.message});
-                    window.location.reload();  // Reload the page to reflect the removed sensor
+                    refreshSensorList();  // Refresh the sensor list after removing
                 } else {
                     M.toast({html: `Error: ${result.error}`});
                 }
@@ -181,38 +180,35 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error removing sensor:', error);
                 M.toast({html: `Error: ${error.message}`});
             });
-        });
-    });
+        }
+    }
 
-    // Handle the "Edit Sensor" button clicks
-    document.querySelectorAll('.edit-sensor').forEach(button => {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
+    // Function to handle editing a sensor
+    function handleEditSensor(event) {
+        event.preventDefault();
+        const sensorIndex = this.getAttribute('data-index');
+        const csPin = this.getAttribute('data-cs-pin');
+        const label = this.getAttribute('data-label');
 
-            const sensorIndex = this.getAttribute('data-index');
-            const csPin = this.getAttribute('data-cs-pin');
-            const label = this.getAttribute('data-label');
+        // Create or update the edit form
+        let editForm = document.getElementById(`editSensorForm-${sensorIndex}`);
+        if (!editForm) {
+            editForm = createEditForm(sensorIndex, csPin, label);
+            document.body.appendChild(editForm);
+        } else {
+            updateEditForm(editForm, sensorIndex, csPin, label);
+        }
 
-            // Create or update the edit form dynamically
-            let editForm = document.getElementById(`editSensorForm-${sensorIndex}`);
-            if (!editForm) {
-                editForm = createEditForm(sensorIndex, csPin, label);
-                document.body.appendChild(editForm);
-            } else {
-                updateEditForm(editForm, sensorIndex, csPin, label);
-            }
-
-            // Open the modal
-            const modalId = `editSensorModal-${sensorIndex}`;
-            let modal = document.getElementById(modalId);
-            if (!modal) {
-                modal = createEditModal(modalId, editForm);
-                document.body.appendChild(modal);
-            }
-            const instance = M.Modal.init(modal);
-            instance.open();
-        });
-    });
+        // Open the modal
+        const modalId = `editSensorModal-${sensorIndex}`;
+        let modal = document.getElementById(modalId);
+        if (!modal) {
+            modal = createEditModal(modalId, editForm);
+            document.body.appendChild(modal);
+        }
+        const instance = M.Modal.init(modal);
+        instance.open();
+    }
 
     // Function to create edit form
     function createEditForm(index, csPin, label) {
@@ -346,9 +342,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Call this function when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeSensorButtons();
-    });
+    initializeSensorButtons();
 });
 
 // Log any errors that occur when the script runs

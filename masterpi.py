@@ -478,15 +478,12 @@ async def set_target_temperature():
 @app.route('/remove_sensor', methods=['POST'])
 async def remove_sensor():
     try:
-        form_data = await request.get_json()  # Use get_json() to parse JSON data
-        if form_data is None:
-            raise ValueError("No JSON data received")
-
-        sensor_index = int(form_data.get('index'))
+        data = await request.get_json()
+        sensor_index = int(data.get('index'))
         app.logger.debug(f"Received request to remove sensor at index: {sensor_index}")
 
         # Load the current configuration
-        config = await load_config()  # Ensure this is awaited
+        config = await load_config()
         app.logger.debug(f"Current config: {config}")
 
         # Remove the sensor from the configuration
