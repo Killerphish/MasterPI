@@ -58,13 +58,13 @@
                     <div id="general" class="col s12">
                         <h2>General</h2>
                         <div class="input-field col s12">
-                            <input type="text" id="device_name" name="device_name" value="{{ device_name }}" placeholder="Device Name">
+                            <input type="text" id="device_name" name="device_name" value="{{ config.get('device', {}).get('name', '') }}" placeholder="Device Name">
                             <label for="device_name" class="active">Device Name</label>
                         </div>
                         <div class="input-field col s12">
                             <select id="temperatureUnit" name="temperatureUnit">
-                                <option value="C" {% if config.get('units', {}).get('temperature') == 'Celsius' %}selected{% endif %}>Celsius</option>
-                                <option value="F" {% if config.get('units', {}).get('temperature') == 'Fahrenheit' %}selected{% endif %}>Fahrenheit</option>
+                                <option value="Celsius" {% if config.get('units', {}).get('temperature') == 'Celsius' %}selected{% endif %}>Celsius</option>
+                                <option value="Fahrenheit" {% if config.get('units', {}).get('temperature') == 'Fahrenheit' %}selected{% endif %}>Fahrenheit</option>
                             </select>
                             <label for="temperatureUnit" class="active">Temperature Unit</label>
                         </div>

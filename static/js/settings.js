@@ -19,43 +19,27 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('Form submitted');
 
             const formData = new FormData(settingsForm);
-            const personalizationData = new FormData();
+            const settings = Object.fromEntries(formData);
 
-            // Filter out personalization fields
-            ['navColor', 'navTextColor', 'buttonColor', 'buttonTextColor', 'backgroundColor', 'csrf_token'].forEach(key => {
-                if (formData.has(key)) {
-                    personalizationData.append(key, formData.get(key));
-                }
-            });
-
-            console.log('Personalization data:', Object.fromEntries(personalizationData));
-            console.log('Submitting to URL:', savePersonalizationSettingsUrl);
-
-            fetch(savePersonalizationSettingsUrl, {
+            fetch('/save_settings', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': getCsrfToken(),
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify(Object.fromEntries(personalizationData))
+                body: JSON.stringify(settings)
             })
-            .then(response => {
-                console.log('Response status:', response.status);
-                return response.json();
-            })
-            .then(result => {
-                console.log('Response result:', result);
-                if (result.message) {
-                    M.toast({html: result.message});
-                    // Optionally reload the page or update the UI
-                    // window.location.reload();
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    M.toast({html: 'Settings saved successfully'});
                 } else {
-                    M.toast({html: `Error: ${result.error}`});
+                    M.toast({html: 'Error saving settings'});
                 }
             })
             .catch(error => {
-                console.error('Error saving personalization settings:', error);
-                M.toast({html: `Error: ${error.message}`});
+                console.error('Error:', error);
+                M.toast({html: 'Error saving settings'});
             });
         });
     } else {

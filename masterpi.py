@@ -682,6 +682,28 @@ async def power_options():
         app.logger.error(f"Error handling power options: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/save_settings', methods=['POST'])
+async def save_settings():
+    try:
+        data = await request.get_json()
+        config = await load_config()
+        
+        # Update device name
+        if 'device_name' in data:
+            config['device']['name'] = data['device_name']
+        
+        # Update temperature unit
+        if 'temperatureUnit' in data:
+            config['units']['temperature'] = data['temperatureUnit']
+        
+        # Save the updated config
+        save_config(config)
+        
+        return jsonify({'success': True, 'message': 'Settings saved successfully'})
+    except Exception as e:
+        app.logger.error(f"Error saving settings: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 if __name__ == '__main__':
     async def main():
         global config
