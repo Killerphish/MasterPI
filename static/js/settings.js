@@ -8,6 +8,7 @@ console.log('settings.js loaded');
 
 // Make saveSettings globally accessible
 window.saveSettings = function(element) {
+    console.log('saveSettings called for:', element.name, 'with value:', element.value);
     const setting = {
         [element.name]: element.value
     };
@@ -22,6 +23,7 @@ window.saveSettings = function(element) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Server response:', data);
         if (data.success) {
             M.toast({html: `${element.name} updated successfully`});
         } else {

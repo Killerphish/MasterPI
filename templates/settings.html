@@ -103,31 +103,19 @@
                         <h2>Personalization</h2>
                         <div class="row">
                             <div class="input-field col s12">
-                                <input type="color" id="navColor" name="navColor" value="{{ config.get('personalization', {}).get('navColor', '#000000') }}">
-                                <label for="navColor">Navigation Color</label>
+                                <input type="color" id="navColor" name="navColor" value="{{ config.get('personalization', {}).get('navColor', '#000000') }}" onchange="saveSettings(this)">
+                                <label for="navColor">Navigation Bar Color</label>
                             </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s12">
-                                <input type="color" id="navTextColor" name="navTextColor" value="{{ config.get('personalization', {}).get('navTextColor', '#ffffff') }}">
-                                <label for="navTextColor">Navigation Text Color</label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="color" id="buttonColor" name="buttonColor" value="{{ config.get('personalization', {}).get('buttonColor', '#000000') }}">
+                                <input type="color" id="buttonColor" name="buttonColor" value="{{ config.get('personalization', {}).get('buttonColor', '#000000') }}" onchange="saveSettings(this)">
                                 <label for="buttonColor">Button Color</label>
                             </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s12">
-                                <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config.get('personalization', {}).get('buttonTextColor', '#ffffff') }}">
-                                <label for="buttonTextColor">Button Text Color</label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }}">
+                                <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }}" onchange="saveSettings(this)">
                                 <label for="backgroundColor">Background Color</label>
                             </div>
                         </div>

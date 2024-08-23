@@ -53,13 +53,9 @@ async def load_config():
         raise
 
 def save_config(config):
-    try:
-        with open('config.yaml', 'w') as config_file:
-            yaml.safe_dump(config, config_file)
-            print("Config file saved successfully")
-    except Exception as e:
-        print(f"Error saving config file: {e}")
-        raise
+    with open('config.json', 'w') as f:
+        json.dump(config, f, indent=4)
+    app.logger.info("Configuration saved successfully")
 
 config = load_config_sync()
 
@@ -686,15 +682,23 @@ async def power_options():
 async def save_settings():
     try:
         data = await request.get_json()
+        app.logger.info(f"Received settings data: {data}")
         config = await load_config()
         
         if 'device_name' in data:
             config['device']['name'] = data['device_name']
         elif 'temperatureUnit' in data:
             config['units']['temperature'] = data['temperatureUnit']
+        elif data.keys() & {'navColor', 'buttonColor', 'backgroundColor'}:
+            # Handle personalization settings
+            for key in {'navColor', 'buttonColor', 'backgroundColor'}:
+                if key in data:
+                    config.setdefault('personalization', {})[key] = data[key]
         else:
+            app.logger.warning(f"Unknown setting received: {data}")
             return jsonify({'success': False, 'error': 'Invalid setting'}), 400
         
+        app.logger.info(f"Updated config: {config}")
         save_config(config)
         
         return jsonify({'success': True, 'message': 'Setting updated successfully'})
