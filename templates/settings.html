@@ -17,20 +17,7 @@
         const addSensorUrl = "{{ url_for('add_sensor') }}";
         const removeSensorUrl = "{{ url_for('remove_sensor') }}";
         const saveSensorSettingsUrl = "{{ url_for('save_sensor_settings') }}";
-    </script>
-    <style>
-        :root {
-            --nav-color: {{ config.get('personalization', {}).get('navColor', '#000000') }};
-            --button-color: {{ config.get('personalization', {}).get('buttonColor', '#000000') }};
-            --background-color: {{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }};
-        }
 
-        /* Ensure modals have a high z-index */
-        .modal {
-            z-index: 1003; /* Default Materialize z-index for modals */
-        }
-    </style>
-    <script>
         function saveSettings(element) {
             const setting = {
                 [element.name]: element.value
@@ -58,6 +45,18 @@
             });
         }
     </script>
+    <style>
+        :root {
+            --nav-color: {{ config.get('personalization', {}).get('navColor', '#000000') }};
+            --button-color: {{ config.get('personalization', {}).get('buttonColor', '#000000') }};
+            --background-color: {{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }};
+        }
+
+        /* Ensure modals have a high z-index */
+        .modal {
+            z-index: 1003; /* Default Materialize z-index for modals */
+        }
+    </style>
 </head>
 <body>
     <nav>
