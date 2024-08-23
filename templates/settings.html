@@ -82,12 +82,14 @@
                                         {% if sensor.enabled %}
                                             <li class="collection-item">
                                                 {{ sensor.label }} ({{ sensor.type }}) - Pin: {{ sensor.chip_select_pin }}
-                                                <a href="#" class="secondary-content edit-sensor" data-index="{{ loop.index0 }}" data-cs-pin="{{ sensor.chip_select_pin }}" data-label="{{ sensor.label }}">
-                                                    <i class="material-icons">edit</i>
-                                                </a>
-                                                <a href="#" class="secondary-content remove-sensor" data-index="{{ loop.index0 }}">
-                                                    <i class="material-icons">delete</i>
-                                                </a>
+                                                <div class="secondary-content">
+                                                    <button class="btn-small waves-effect waves-light edit-sensor" data-index="{{ loop.index0 }}" data-cs-pin="{{ sensor.chip_select_pin }}" data-label="{{ sensor.label }}">
+                                                        <i class="material-icons">edit</i>
+                                                    </button>
+                                                    <button class="btn-small waves-effect waves-light red remove-sensor" data-index="{{ loop.index0 }}">
+                                                        <i class="material-icons">delete</i>
+                                                    </button>
+                                                </div>
                                             </li>
                                         {% endif %}
                                     {% else %}

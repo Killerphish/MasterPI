@@ -207,3 +207,41 @@ label {
 .btn:hover, .btn-large:hover, .btn-small:hover, .btn-flat:hover {
     background-color: darken(var(--button-color), 10%) !important; /* Adjust hover color as needed */
 }
+
+/* Style for the Edit and Remove buttons in the Enabled Sensors section */
+.collection .collection-item .secondary-content .btn-small {
+    margin-left: 5px;
+    padding: 0 10px;
+    line-height: 24px;
+    height: 24px;
+}
+
+.collection .collection-item .secondary-content .btn-small i {
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.collection .collection-item .secondary-content {
+    display: flex;
+    align-items: center;
+}
+
+/* Ensure the buttons use the custom colors */
+.collection .collection-item .secondary-content .btn-small {
+    background-color: var(--button-color) !important;
+    color: var(--button-text-color) !important;
+}
+
+.collection .collection-item .secondary-content .btn-small:hover {
+    background-color: darken(var(--button-color), 10%) !important;
+}
+
+/* Style specifically for the Remove button */
+.collection .collection-item .secondary-content .btn-small.remove-sensor {
+    background-color: #f44336 !important; /* Red color for remove button */
+    color: #ffffff !important;
+}
+
+.collection .collection-item .secondary-content .btn-small.remove-sensor:hover {
+    background-color: #d32f2f !important; /* Darker red on hover */
+}
