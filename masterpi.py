@@ -175,14 +175,20 @@ async def index():
 
 @app.route('/settings', methods=['GET', 'POST'])
 async def settings():
-    if request.method == 'POST':
-        app.logger.info("POST request received on /settings")
-        # Handle POST request (this should not happen, but let's log it if it does)
-        return jsonify({"error": "POST request received on /settings"}), 405
-    else:
-        app.logger.info("GET request received on /settings")
-        # Render the settings page
-        return await render_template('settings.html')
+    try:
+        if request.method == 'POST':
+            app.logger.info("POST request received on /settings")
+            # Handle POST request (this should not happen, but let's log it if it does)
+            return jsonify({"error": "POST request received on /settings"}), 405
+        else:
+            app.logger.info("GET request received on /settings")
+            # Load the configuration
+            config = await load_config()  # Ensure this is awaited
+            # Render the settings page with the config
+            return await render_template('settings.html', config=config)
+    except Exception as e:
+        app.logger.error(f"Error in settings route: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/save_personalization_settings', methods=['POST'])
 async def save_personalization_settings():

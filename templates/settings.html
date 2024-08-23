@@ -20,11 +20,9 @@
     </script>
     <style>
         :root {
-            --nav-color: {{ config['personalization']['navColor'] or '#000000' }};
-            --nav-text-color: {{ config['personalization']['navTextColor'] or '#ffffff' }};
-            --button-color: {{ config['personalization']['buttonColor'] or '#000000' }};
-            --button-text-color: {{ config['personalization']['buttonTextColor'] or '#ffffff' }};
-            --background-color: {{ config['personalization']['backgroundColor'] or '#ffffff' }};
+            --nav-color: {{ config.get('personalization', {}).get('navColor', '#000000') }};
+            --button-color: {{ config.get('personalization', {}).get('buttonColor', '#000000') }};
+            --background-color: {{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }};
         }
 
         /* Ensure modals have a high z-index */
@@ -98,31 +96,31 @@
                             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <div class="row">
                                 <div class="input-field col s12">
-                                    <input type="color" id="navColor" name="navColor" value="{{ config['personalization']['navColor'] or '#000000' }}">
+                                    <input type="color" id="navColor" name="navColor" value="{{ config.get('personalization', {}).get('navColor', '#000000') }}">
                                     <label for="navColor">Navigation Color</label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="input-field col s12">
-                                    <input type="color" id="navTextColor" name="navTextColor" value="{{ config['personalization']['navTextColor'] or '#ffffff' }}">
+                                    <input type="color" id="navTextColor" name="navTextColor" value="{{ config.get('personalization', {}).get('navTextColor', '#ffffff') }}">
                                     <label for="navTextColor">Navigation Text Color</label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="input-field col s12">
-                                    <input type="color" id="buttonColor" name="buttonColor" value="{{ config['personalization']['buttonColor'] or '#000000' }}">
+                                    <input type="color" id="buttonColor" name="buttonColor" value="{{ config.get('personalization', {}).get('buttonColor', '#000000') }}">
                                     <label for="buttonColor">Button Color</label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="input-field col s12">
-                                    <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config['personalization']['buttonTextColor'] or '#ffffff' }}">
+                                    <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config.get('personalization', {}).get('buttonTextColor', '#ffffff') }}">
                                     <label for="buttonTextColor">Button Text Color</label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="input-field col s12">
-                                    <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config['personalization']['backgroundColor'] or '#ffffff' }}">
+                                    <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }}">
                                     <label for="backgroundColor">Background Color</label>
                                 </div>
                             </div>
