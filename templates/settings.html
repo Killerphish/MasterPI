@@ -14,13 +14,12 @@
         const getAvailablePinsUrl = "{{ url_for('get_available_pins') }}";
         const initializeSensorsUrl = "{{ url_for('initialize_sensors_route') }}";
         const powerOptionsUrl = "{{ url_for('power_options') }}";
-        const createSystemdServiceUrl = "{{ url_for('create_systemd_service') }}";
     </script>
     <style>
         :root {
-            --nav-color: {{ config['personalization']['navColor'] }};
-            --button-color: {{ config['personalization']['buttonColor'] }};
-            --background-color: {{ config['personalization']['backgroundColor'] }};
+            --nav-color: {{ config['personalization']['navColor'] or '#000000' }};
+            --button-color: {{ config['personalization']['buttonColor'] or '#000000' }};
+            --background-color: {{ config['personalization']['backgroundColor'] or '#ffffff' }};
         }
 
         /* Ensure modals have a high z-index */
@@ -161,19 +160,19 @@
                 <form id="personalizationForm" class="col s12">
                     <div class="row">
                         <div class="input-field col s12">
-                            <input type="color" id="navColor" name="navColor" value="{{ config['personalization']['navColor'] }}">
+                            <input type="color" id="navColor" name="navColor" value="{{ config['personalization']['navColor'] or '#000000' }}">
                             <label for="navColor">Navigation Color</label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="input-field col s12">
-                            <input type="color" id="buttonColor" name="buttonColor" value="{{ config['personalization']['buttonColor'] }}">
+                            <input type="color" id="buttonColor" name="buttonColor" value="{{ config['personalization']['buttonColor'] or '#000000' }}">
                             <label for="buttonColor">Button Color</label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="input-field col s12">
-                            <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config['personalization']['backgroundColor'] }}">
+                            <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config['personalization']['backgroundColor'] or '#ffffff' }}">
                             <label for="backgroundColor">Background Color</label>
                         </div>
                     </div>
@@ -236,9 +235,6 @@
                 </div>
                 <div class="col s12">
                     <button id="shutdownButton" class="btn black">Shutdown</button>
-                </div>
-                <div class="col s12">
-                    <button id="createSystemdServiceButton" class="btn blue">Create Systemd Service</button>
                 </div>
             </div>
         </div>

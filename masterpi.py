@@ -328,9 +328,9 @@ async def save_device_settings():
         data = await request.form
         device_name = data.get('device_name')
         temp_unit = data.get('temp_unit')
-        nav_color = data.get('navColor')
-        button_color = data.get('buttonColor')
-        background_color = data.get('backgroundColor')
+        nav_color = data.get('navColor') or '#000000'
+        button_color = data.get('buttonColor') or '#000000'
+        background_color = data.get('backgroundColor') or '#ffffff'
 
         # Save the settings to your configuration
         config['device']['name'] = device_name
@@ -736,37 +736,6 @@ async def power_options():
             return jsonify({"error": "Invalid action"}), 400
     except Exception as e:
         app.logger.error(f"Error handling power options: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/create_systemd_service', methods=['POST'])
-async def create_systemd_service():
-    try:
-        service_content = """
-        [Unit]
-        Description=MasterPi Application
-        After=network.target
-
-        [Service]
-        User=smoke
-        Group=smoke
-        WorkingDirectory=/home/smoke/MasterPI
-        ExecStart=/usr/bin/python3 /home/smoke/MasterPI/masterpi.py
-        Restart=no
-        Environment="PATH=/usr/bin:/usr/local/bin"
-
-        [Install]
-        WantedBy=multi-user.target
-        """
-        with open('/etc/systemd/system/masterpi.service', 'w') as service_file:
-            service_file.write(service_content)
-
-        os.system('sudo systemctl daemon-reload')
-        os.system('sudo systemctl enable masterpi.service')
-        os.system('sudo systemctl start masterpi.service')
-
-        return jsonify({"message": "Systemd service created and started successfully."}), 200
-    except Exception as e:
-        app.logger.error(f"Error creating systemd service: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':

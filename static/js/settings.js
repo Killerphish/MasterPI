@@ -136,7 +136,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const restartRpiButton = document.getElementById('restartRpiButton');
     const restartAppButton = document.getElementById('restartAppButton');
     const shutdownButton = document.getElementById('shutdownButton');
-    const createSystemdServiceButton = document.getElementById('createSystemdServiceButton');
 
     if (restartRpiButton) {
         restartRpiButton.addEventListener('click', function() {
@@ -213,14 +212,20 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    if (createSystemdServiceButton) {
-        createSystemdServiceButton.addEventListener('click', function() {
-            fetch(createSystemdServiceUrl, {
+    // Handle the "Save General Settings" form submission
+    const settingsForm = document.getElementById('settingsForm');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(settingsForm);
+
+            fetch(saveDeviceSettingsUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': getCsrfToken()
-                }
+                },
+                body: formData
             })
             .then(response => response.json())
             .then(result => {
@@ -231,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             })
             .catch(error => {
-                console.error('Error creating systemd service:', error);
+                console.error('Error saving general settings:', error);
                 M.toast({html: `Error: ${error.message}`});
             });
         });
