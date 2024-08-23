@@ -17,11 +17,109 @@
         const addSensorUrl = "{{ url_for('add_sensor') }}";
         const removeSensorUrl = "{{ url_for('remove_sensor') }}";
         const saveSensorSettingsUrl = "{{ url_for('save_sensor_settings') }}";
+
+        // Define saveSettings in the global scope
+        window.saveSettings = function(element) {
+            console.log('saveSettings called for:', element.name, 'with value:', element.value);
+            const setting = {
+                [element.name]: element.value
+            };
+
+            fetch('/save_settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(setting)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                if (data.success) {
+                    M.toast({html: `${element.name} updated successfully`});
+                    // Apply the color change immediately
+                    applyColorChange(element.name, element.value);
+                } else {
+                    M.toast({html: `Error updating ${element.name}: ${data.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                M.toast({html: `Error updating ${element.name}`});
+            });
+        }
+
+        function applyColorChange(settingName, value) {
+            switch(settingName) {
+                case 'navColor':
+                    document.documentElement.style.setProperty('--nav-color', value);
+                    break;
+                case 'navTextColor':
+                    document.documentElement.style.setProperty('--nav-text-color', value);
+                    break;
+                case 'buttonColor':
+                    document.documentElement.style.setProperty('--button-color', value);
+                    break;
+                case 'buttonTextColor':
+                    document.documentElement.style.setProperty('--button-text-color', value);
+                    break;
+                case 'backgroundColor':
+                    document.documentElement.style.setProperty('--background-color', value);
+                    break;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Materialize select
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+
+            // Add event listeners for power options
+            document.getElementById('restartRpiButton').addEventListener('click', function() {
+                handlePowerOption('restart_rpi');
+            });
+
+            document.getElementById('restartAppButton').addEventListener('click', function() {
+                handlePowerOption('restart_app');
+            });
+
+            document.getElementById('shutdownButton').addEventListener('click', function() {
+                handlePowerOption('shutdown');
+            });
+
+            // ... other initialization code ...
+        });
+
+        function handlePowerOption(action) {
+            if (confirm(`Are you sure you want to ${action.replace('_', ' ')}?`)) {
+                fetch(powerOptionsUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ action: action })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    M.toast({html: data.message});
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    M.toast({html: 'An error occurred'});
+                });
+            }
+        }
+
+        // ... other functions ...
     </script>
     <style>
         :root {
             --nav-color: {{ config.get('personalization', {}).get('navColor', '#000000') }};
+            --nav-text-color: {{ config.get('personalization', {}).get('navTextColor', '#ffffff') }};
             --button-color: {{ config.get('personalization', {}).get('buttonColor', '#000000') }};
+            --button-text-color: {{ config.get('personalization', {}).get('buttonTextColor', '#ffffff') }};
             --background-color: {{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }};
         }
 
@@ -101,23 +199,25 @@
                     </div>
                     <div id="personalization" class="col s12">
                         <h2>Personalization</h2>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="color" id="navColor" name="navColor" value="{{ config.get('personalization', {}).get('navColor', '#000000') }}" onchange="saveSettings(this)">
-                                <label for="navColor">Navigation Bar Color</label>
-                            </div>
+                        <div class="input-field col s12">
+                            <input type="color" id="navColor" name="navColor" value="{{ config.get('personalization', {}).get('navColor', '#000000') }}" onchange="saveSettings(this)">
+                            <label for="navColor">Navigation Bar Color</label>
                         </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="color" id="buttonColor" name="buttonColor" value="{{ config.get('personalization', {}).get('buttonColor', '#000000') }}" onchange="saveSettings(this)">
-                                <label for="buttonColor">Button Color</label>
-                            </div>
+                        <div class="input-field col s12">
+                            <input type="color" id="navTextColor" name="navTextColor" value="{{ config.get('personalization', {}).get('navTextColor', '#ffffff') }}" onchange="saveSettings(this)">
+                            <label for="navTextColor">Navigation Bar Text Color</label>
                         </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }}" onchange="saveSettings(this)">
-                                <label for="backgroundColor">Background Color</label>
-                            </div>
+                        <div class="input-field col s12">
+                            <input type="color" id="buttonColor" name="buttonColor" value="{{ config.get('personalization', {}).get('buttonColor', '#000000') }}" onchange="saveSettings(this)">
+                            <label for="buttonColor">Button Color</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config.get('personalization', {}).get('buttonTextColor', '#ffffff') }}" onchange="saveSettings(this)">
+                            <label for="buttonTextColor">Button Text Color</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }}" onchange="saveSettings(this)">
+                            <label for="backgroundColor">Background Color</label>
                         </div>
                     </div>
                 </form>

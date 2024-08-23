@@ -26,8 +26,10 @@ window.saveSettings = function(element) {
         console.log('Server response:', data);
         if (data.success) {
             M.toast({html: `${element.name} updated successfully`});
+            // Apply the color change immediately
+            applyColorChange(element.name, element.value);
         } else {
-            M.toast({html: `Error updating ${element.name}`});
+            M.toast({html: `Error updating ${element.name}: ${data.error}`});
         }
     })
     .catch(error => {
@@ -35,6 +37,26 @@ window.saveSettings = function(element) {
         M.toast({html: `Error updating ${element.name}`});
     });
 };
+
+function applyColorChange(settingName, value) {
+    switch(settingName) {
+        case 'navColor':
+            document.documentElement.style.setProperty('--nav-color', value);
+            break;
+        case 'navTextColor':
+            document.documentElement.style.setProperty('--nav-text-color', value);
+            break;
+        case 'buttonColor':
+            document.documentElement.style.setProperty('--button-color', value);
+            break;
+        case 'buttonTextColor':
+            document.documentElement.style.setProperty('--button-text-color', value);
+            break;
+        case 'backgroundColor':
+            document.documentElement.style.setProperty('--background-color', value);
+            break;
+    }
+}
 
 document.addEventListener("DOMContentLoaded", function() {
     console.log('DOM fully loaded');

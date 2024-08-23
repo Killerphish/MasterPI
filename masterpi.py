@@ -29,6 +29,7 @@ import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 import aiofiles  # Ensure aiofiles is imported
 import traceback
+import json
 
 def load_config_sync():
     try:
@@ -689,11 +690,12 @@ async def save_settings():
             config['device']['name'] = data['device_name']
         elif 'temperatureUnit' in data:
             config['units']['temperature'] = data['temperatureUnit']
-        elif data.keys() & {'navColor', 'buttonColor', 'backgroundColor'}:
+        elif any(key in data for key in ['navColor', 'buttonColor', 'backgroundColor', 'navTextColor', 'buttonTextColor']):
             # Handle personalization settings
-            for key in {'navColor', 'buttonColor', 'backgroundColor'}:
+            config.setdefault('personalization', {})
+            for key in ['navColor', 'buttonColor', 'backgroundColor', 'navTextColor', 'buttonTextColor']:
                 if key in data:
-                    config.setdefault('personalization', {})[key] = data[key]
+                    config['personalization'][key] = data[key]
         else:
             app.logger.warning(f"Unknown setting received: {data}")
             return jsonify({'success': False, 'error': 'Invalid setting'}), 400
