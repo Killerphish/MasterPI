@@ -80,12 +80,11 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Handle the "Remove Sensor" form submission
-    const removeSensorForm = document.getElementById('removeSensorForm');
-    if (removeSensorForm) {
-        removeSensorForm.addEventListener('submit', function(event) {
+    document.querySelectorAll('.remove-sensor').forEach(button => {
+        button.addEventListener('click', function(event) {
             event.preventDefault();
 
-            const sensorIndex = document.getElementById('removeSensorIndex').value;
+            const sensorIndex = this.getAttribute('data-index');
 
             fetch(removeSensorUrl, {
                 method: 'POST',
@@ -109,9 +108,28 @@ document.addEventListener("DOMContentLoaded", function() {
                 M.toast({html: `Error: ${error.message}`});
             });
         });
-    }
+    });
 
     // Handle the "Edit Sensor" form submission
+    document.querySelectorAll('.edit-sensor').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const sensorIndex = this.getAttribute('data-index');
+            const csPin = this.getAttribute('data-cs-pin');
+            const label = this.getAttribute('data-label');
+
+            const form = document.getElementById(`editSensorForm-${sensorIndex}`);
+            form.querySelector('input[name="index"]').value = sensorIndex;
+            form.querySelector('input[name="cs_pin"]').value = csPin;
+            form.querySelector('input[name="label"]').value = label;
+
+            const modal = document.getElementById(`editSensorModal-${sensorIndex}`);
+            const instance = M.Modal.getInstance(modal);
+            instance.open();
+        });
+    });
+
     document.querySelectorAll('[id^="editSensorForm-"]').forEach(form => {
         form.addEventListener('submit', function(event) {
             event.preventDefault();
