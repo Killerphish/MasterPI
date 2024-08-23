@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 return response.json();
             })
             .then(result => {
+                console.log('Response result:', result);
                 if (result.message) {
                     M.toast({html: result.message});
                     // Optionally reload the page or update the UI

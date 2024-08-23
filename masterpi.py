@@ -28,6 +28,7 @@ from adafruit_max31855 import MAX31855
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 import aiofiles  # Ensure aiofiles is imported
+import traceback
 
 def load_config_sync():
     try:
@@ -179,7 +180,7 @@ async def settings():
         app.logger.info("GET request received on /settings")
         config = await load_config()
         app.logger.debug(f"Loaded config: {config}")
-        return await render_template('settings.html', config=config)  # Note the 'await' here
+        return await render_template('settings.html', config=config)
     except Exception as e:
         app.logger.error(f"Error in settings route: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
@@ -188,7 +189,10 @@ async def settings():
 async def save_personalization_settings():
     try:
         form_data = await request.form
+        app.logger.info(f"Received form data: {form_data}")
+        
         config = await load_config()
+        app.logger.info(f"Loaded config: {config}")
         
         config['personalization'] = {
             'navColor': form_data.get('navColor'),
@@ -197,12 +201,15 @@ async def save_personalization_settings():
             'buttonTextColor': form_data.get('buttonTextColor'),
             'backgroundColor': form_data.get('backgroundColor')
         }
+        app.logger.info(f"Updated config: {config}")
 
         save_config(config)
+        app.logger.info("Config saved successfully")
 
         return jsonify({"message": "Personalization settings saved successfully"}), 200
     except Exception as e:
-        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
+        app.logger.error(f"Error saving personalization settings: {str(e)}")
+        app.logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 @app.route('/get_temperature', methods=['GET'])
