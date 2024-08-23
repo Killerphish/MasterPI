@@ -15,6 +15,9 @@
         const getAvailablePinsUrl = "{{ url_for('get_available_pins') }}";
         const initializeSensorsUrl = "{{ url_for('initialize_sensors_route') }}";
         const powerOptionsUrl = "{{ url_for('power_options') }}";
+        const addSensorUrl = "{{ url_for('add_sensor') }}";
+        const removeSensorUrl = "{{ url_for('remove_sensor') }}";
+        const saveSensorSettingsUrl = "{{ url_for('save_sensor_settings') }}";
     </script>
     <style>
         :root {
@@ -122,7 +125,9 @@
                                 <form id="removeSensorForm" method="POST" action="{{ url_for('remove_sensor') }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" id="removeSensorIndex" name="index">
-                                        <button type="button" class="btn red modal-close">Cancel</button>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn red">Remove</button>
+                                        <button type="button" class="btn modal-close">Cancel</button>
                                     </div>
                                 </form>
                             </div>

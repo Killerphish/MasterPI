@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 chip_select_pin: chipSelectPin
             };
 
-            fetch('/add_sensor', {
+            fetch(addSensorUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -106,6 +106,78 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
     }
+
+    // Handle the "Remove Sensor" form submission
+    const removeSensorForm = document.getElementById('removeSensorForm');
+    if (removeSensorForm) {
+        removeSensorForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const sensorIndex = document.getElementById('removeSensorIndex').value;
+
+            fetch(removeSensorUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: JSON.stringify({ index: sensorIndex })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                    window.location.reload();  // Reload the page to reflect the removed sensor
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error removing sensor:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        });
+    }
+
+    // Handle the "Edit Sensor" form submission
+    document.querySelectorAll('[id^="editSensorForm-"]').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const index = formData.get('index');
+            const csPin = formData.get('cs_pin');
+            const label = formData.get('label');
+
+            const data = {
+                index: index,
+                cs_pin: csPin,
+                label: label
+            };
+
+            fetch(saveSensorSettingsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                    window.location.reload();  // Reload the page to reflect the edited sensor
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error editing sensor:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        });
+    });
 
     // Handle the "Initialize Sensors" button click
     const initializeSensorsButton = document.getElementById('initializeSensorsButton');
