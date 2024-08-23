@@ -51,7 +51,7 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-                <form id="settingsForm" method="POST" action="{{ url_for('save_device_settings') }}" class="col s12">
+                <form id="settingsForm" method="POST" class="col s12">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <div id="general" class="col s12">
                         <h2>General</h2>

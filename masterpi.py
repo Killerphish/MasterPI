@@ -747,12 +747,12 @@ async def create_systemd_service():
         After=network.target
 
         [Service]
-        User=pi  # Replace with the user that should run the app
-        Group=pi  # Replace with the group that should run the app
-        WorkingDirectory=/path/to/your/app  # Replace with the path to your app
-        ExecStart=/usr/bin/python3 /path/to/your/app/masterpi.py  # Replace with the path to your app's main script
-        Restart=always
-        Environment="PATH=/usr/bin:/usr/local/bin"  # Adjust the PATH if necessary
+        User=smoke
+        Group=smoke
+        WorkingDirectory=/home/smoke/MasterPI
+        ExecStart=/usr/bin/python3 /home/smoke/MasterPI/masterpi.py
+        Restart=no
+        Environment="PATH=/usr/bin:/usr/local/bin"
 
         [Install]
         WantedBy=multi-user.target
