@@ -67,6 +67,7 @@ config = load_config_sync()
 nest_asyncio.apply()
 
 app = Quart(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with a secure secret key
 csrf = CSRFProtect(app)
 app.config['DEBUG'] = config['app']['debug']
 app.secret_key = 'your_secret_key'  # Add a secret key for session management
@@ -188,18 +189,18 @@ async def settings():
 @app.route('/save_personalization_settings', methods=['POST'])
 async def save_personalization_settings():
     try:
-        form_data = await request.form
-        app.logger.info(f"Received form data: {form_data}")
+        data = await request.json
+        app.logger.info(f"Received data: {data}")
         
         config = await load_config()
         app.logger.info(f"Loaded config: {config}")
         
         config['personalization'] = {
-            'navColor': form_data.get('navColor'),
-            'navTextColor': form_data.get('navTextColor'),
-            'buttonColor': form_data.get('buttonColor'),
-            'buttonTextColor': form_data.get('buttonTextColor'),
-            'backgroundColor': form_data.get('backgroundColor')
+            'navColor': data.get('navColor'),
+            'navTextColor': data.get('navTextColor'),
+            'buttonColor': data.get('buttonColor'),
+            'buttonTextColor': data.get('buttonTextColor'),
+            'backgroundColor': data.get('backgroundColor')
         }
         app.logger.info(f"Updated config: {config}")
 

@@ -34,9 +34,10 @@ document.addEventListener("DOMContentLoaded", function() {
             fetch(savePersonalizationSettingsUrl, {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': getCsrfToken()
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'Content-Type': 'application/json'
                 },
-                body: personalizationData
+                body: JSON.stringify(Object.fromEntries(personalizationData))
             })
             .then(response => {
                 console.log('Response status:', response.status);
