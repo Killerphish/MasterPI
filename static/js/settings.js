@@ -334,7 +334,7 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     // Define saveSettings in the global scope
-    function saveSettings(element) {
+    window.saveSettings = function(element) {
         const setting = {
             [element.name]: element.value
         };
