@@ -173,20 +173,13 @@ async def index():
 
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
 
-@app.route('/settings', methods=['GET', 'POST'])
+@app.route('/settings', methods=['GET'])
 async def settings():
     try:
-        if request.method == 'POST':
-            app.logger.info("POST request received on /settings")
-            # Handle POST request (this should not happen, but let's log it if it does)
-            return jsonify({"error": "POST request received on /settings"}), 405
-        else:
-            app.logger.info("GET request received on /settings")
-            # Load the configuration
-            config = await load_config()  # Ensure this is awaited
-            app.logger.debug(f"Loaded config: {config}")  # Log the loaded config for debugging
-            # Render the settings page with the config
-            return await render_template('settings.html', config=config)
+        app.logger.info("GET request received on /settings")
+        config = await load_config()
+        app.logger.debug(f"Loaded config: {config}")
+        return await render_template('settings.html', config=config)
     except Exception as e:
         app.logger.error(f"Error in settings route: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
@@ -197,6 +190,8 @@ async def save_personalization_settings():
     try:
         form_data = await request.form
         app.logger.info(f"Received form data: {form_data}")
+        
+        config = await load_config()
         
         # Update the configuration with the new settings
         config['personalization'] = {

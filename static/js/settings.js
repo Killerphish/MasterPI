@@ -237,12 +237,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     const personalizationForm = document.getElementById('personalizationForm');
-    console.log('Personalization form:', personalizationForm);
-
     if (personalizationForm) {
-        console.log('Adding event listener to personalization form');
         personalizationForm.addEventListener('submit', function(event) {
-            console.log('Form submitted');
             event.preventDefault();
 
             const formData = new FormData(personalizationForm);
@@ -272,7 +268,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error saving personalization settings:', error);
                 M.toast({html: `Error: ${error.message}`});
             });
-            return false;
         });
     } else {
         console.error('Personalization form not found');
