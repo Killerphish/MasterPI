@@ -11,6 +11,22 @@ document.addEventListener("DOMContentLoaded", function() {
     const modals = document.querySelectorAll('.modal');
     M.Modal.init(modals);
 
+    // Add this new event listener for the "Add Sensor" button
+    const openAddSensorModalBtn = document.getElementById('openAddSensorModal');
+    if (openAddSensorModalBtn) {
+        openAddSensorModalBtn.addEventListener('click', function() {
+            const addSensorModal = document.getElementById('addSensorModal');
+            if (addSensorModal) {
+                const instance = M.Modal.getInstance(addSensorModal);
+                instance.open();
+            } else {
+                console.error('Add Sensor modal not found');
+            }
+        });
+    } else {
+        console.error('Open Add Sensor Modal button not found');
+    }
+
     var elems = document.querySelectorAll('.tabs');
     var instances = M.Tabs.init(elems);
 
