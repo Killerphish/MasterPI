@@ -187,7 +187,8 @@ async def settings():
         app.logger.debug(f"Loaded sensors: {sensors}")
         
         csrf_token = generate_csrf()
-        return await render_template('settings.html', config=config, sensors=sensors, csrf_token=csrf_token)
+        device_name = config.get('device', {}).get('name', 'MasterPI')  # Provide a default name if not set
+        return await render_template('settings.html', config=config, sensors=sensors, csrf_token=csrf_token, device_name=device_name)
     except Exception as e:
         app.logger.error(f"Error in settings route: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
