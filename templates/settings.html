@@ -14,6 +14,7 @@
         const getAvailablePinsUrl = "{{ url_for('get_available_pins') }}";
         const initializeSensorsUrl = "{{ url_for('initialize_sensors_route') }}";
         const powerOptionsUrl = "{{ url_for('power_options') }}";
+        const createSystemdServiceUrl = "{{ url_for('create_systemd_service') }}";
     </script>
     <style>
         :root {
@@ -235,6 +236,9 @@
                 </div>
                 <div class="col s12">
                     <button id="shutdownButton" class="btn black">Shutdown</button>
+                </div>
+                <div class="col s12">
+                    <button id="createSystemdServiceButton" class="btn blue">Create Systemd Service</button>
                 </div>
             </div>
         </div>

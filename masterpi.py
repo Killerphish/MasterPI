@@ -325,43 +325,24 @@ async def get_settings():
 @app.route('/save_device_settings', methods=['POST'])
 async def save_device_settings():
     try:
-        form_data = await request.get_json()  # Use get_json() to parse JSON data
-        app.logger.debug(f"Received raw form data: {form_data}")  # Add this line to print raw form data
+        data = await request.form
+        device_name = data.get('device_name')
+        temp_unit = data.get('temp_unit')
+        nav_color = data.get('navColor')
+        button_color = data.get('buttonColor')
+        background_color = data.get('backgroundColor')
 
-        device_name = form_data.get('device_name')
-        temp_unit = form_data.get('temp_unit')
-        nav_color = form_data.get('navColor')
-        button_color = form_data.get('buttonColor')
-        background_color = form_data.get('backgroundColor')
+        # Save the settings to your configuration
+        config['device']['name'] = device_name
+        config['units']['temperature'] = temp_unit
+        config['personalization']['navColor'] = nav_color
+        config['personalization']['buttonColor'] = button_color
+        config['personalization']['backgroundColor'] = background_color
 
-        app.logger.debug(f"Received device_name: {device_name}")
-        app.logger.debug(f"Received temp_unit: {temp_unit}")
-        app.logger.debug(f"Received nav_color: {nav_color}")
-        app.logger.debug(f"Received button_color: {button_color}")
-        app.logger.debug(f"Received background_color: {background_color}")
-
-        config = await load_config()  # Ensure this is awaited
-
-        # Update device name and temperature unit in the config
-        if device_name:
-            config['device']['name'] = device_name
-        if temp_unit:
-            config['units']['temperature'] = temp_unit
-
-        # Update personalization settings
-        if nav_color:
-            config['personalization']['nav'] = nav_color
-        if button_color:
-            config['personalization']['button'] = button_color
-        if background_color:
-            config['personalization']['background'] = background_color
-
-        app.logger.debug(f"Updated config: {config}")
-
+        # Save the config to a file or database
         save_config(config)
 
-        await flash('Settings saved successfully!', 'success')
-        return jsonify({"message": "Settings saved successfully"}), 200
+        return jsonify({"message": "Settings saved successfully."}), 200
     except Exception as e:
         app.logger.error(f"Error saving device settings: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
@@ -755,6 +736,37 @@ async def power_options():
             return jsonify({"error": "Invalid action"}), 400
     except Exception as e:
         app.logger.error(f"Error handling power options: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/create_systemd_service', methods=['POST'])
+async def create_systemd_service():
+    try:
+        service_content = """
+        [Unit]
+        Description=MasterPi Application
+        After=network.target
+
+        [Service]
+        User=pi  # Replace with the user that should run the app
+        Group=pi  # Replace with the group that should run the app
+        WorkingDirectory=/path/to/your/app  # Replace with the path to your app
+        ExecStart=/usr/bin/python3 /path/to/your/app/masterpi.py  # Replace with the path to your app's main script
+        Restart=always
+        Environment="PATH=/usr/bin:/usr/local/bin"  # Adjust the PATH if necessary
+
+        [Install]
+        WantedBy=multi-user.target
+        """
+        with open('/etc/systemd/system/masterpi.service', 'w') as service_file:
+            service_file.write(service_content)
+
+        os.system('sudo systemctl daemon-reload')
+        os.system('sudo systemctl enable masterpi.service')
+        os.system('sudo systemctl start masterpi.service')
+
+        return jsonify({"message": "Systemd service created and started successfully."}), 200
+    except Exception as e:
+        app.logger.error(f"Error creating systemd service: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
