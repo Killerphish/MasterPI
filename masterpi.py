@@ -181,8 +181,13 @@ async def settings():
         app.logger.info("GET request received on /settings")
         config = await load_config()
         app.logger.debug(f"Loaded config: {config}")
+        
+        # Ensure sensors are properly loaded from config
+        sensors = config.get('sensors', [])
+        app.logger.debug(f"Loaded sensors: {sensors}")
+        
         csrf_token = generate_csrf()
-        return await render_template('settings.html', config=config, csrf_token=csrf_token)
+        return await render_template('settings.html', config=config, sensors=sensors, csrf_token=csrf_token)
     except Exception as e:
         app.logger.error(f"Error in settings route: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
@@ -622,7 +627,8 @@ async def add_sensor():
             'type': sensor_type,
             'chip_select_pin': chip_select_pin,
             'temp_offset': 0.0,
-            'label': label
+            'label': label,
+            'enabled': True  # Add this line to ensure the sensor is enabled by default
         }
         config['sensors'].append(new_sensor)
 

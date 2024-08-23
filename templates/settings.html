@@ -78,13 +78,20 @@
                             <div class="sensor-list">
                                 <h3>Enabled Sensors</h3>
                                 <ul id="sensorList" class="collection">
-                                    {% for sensor in sensors %}
-                                        <li class="collection-item">
-                                            <span class="sensor-info">{{ sensor.type }} - {{ sensor.label }} (CS Pin: {{ sensor.chip_select_pin }})</span>
-                                            <span class="sensor-temp" id="sensor-temp-{{ loop.index0 }}">Temperature: --</span>
-                                            <button class="btn-small edit-sensor" data-index="{{ loop.index0 }}" data-target="editSensorModal-{{ loop.index0 }}" data-cs-pin="{{ sensor.chip_select_pin }}" data-label="{{ sensor.label }}">Edit</button>
-                                            <button class="btn-small red remove-sensor" data-index="{{ loop.index0 }}">Remove</button>
-                                        </li>
+                                    {% for sensor in config.sensors %}
+                                        {% if sensor.enabled %}
+                                            <li class="collection-item">
+                                                {{ sensor.label }} ({{ sensor.type }}) - Pin: {{ sensor.chip_select_pin }}
+                                                <a href="#" class="secondary-content edit-sensor" data-index="{{ loop.index0 }}" data-cs-pin="{{ sensor.chip_select_pin }}" data-label="{{ sensor.label }}">
+                                                    <i class="material-icons">edit</i>
+                                                </a>
+                                                <a href="#" class="secondary-content remove-sensor" data-index="{{ loop.index0 }}">
+                                                    <i class="material-icons">delete</i>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="collection-item">No sensors configured</li>
                                     {% endfor %}
                                 </ul>
                             </div>

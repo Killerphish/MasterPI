@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(result => {
                 if (result.message) {
                     M.toast({html: result.message});
-                    window.location.reload();  // Reload the page to reflect the new sensor
+                    refreshSensorList();  // Refresh the sensor list after adding
                 } else {
                     M.toast({html: `Error: ${result.error}`});
                 }
@@ -315,6 +315,40 @@ document.addEventListener("DOMContentLoaded", function() {
                 M.toast({html: 'Error fetching available pins'});
             });
     }
+
+    // Function to refresh sensor list
+    function refreshSensorList() {
+        fetch('/settings')
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newSensorList = doc.querySelector('.collection');
+                document.querySelector('.collection').innerHTML = newSensorList.innerHTML;
+                
+                // Reinitialize event listeners for edit and remove buttons
+                initializeSensorButtons();
+            })
+            .catch(error => {
+                console.error('Error refreshing sensor list:', error);
+                M.toast({html: 'Error refreshing sensor list'});
+            });
+    }
+
+    // Function to initialize sensor buttons
+    function initializeSensorButtons() {
+        document.querySelectorAll('.edit-sensor').forEach(button => {
+            button.addEventListener('click', handleEditSensor);
+        });
+        document.querySelectorAll('.remove-sensor').forEach(button => {
+            button.addEventListener('click', handleRemoveSensor);
+        });
+    }
+
+    // Call this function when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeSensorButtons();
+    });
 });
 
 // Log any errors that occur when the script runs
