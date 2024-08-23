@@ -347,6 +347,27 @@ async def save_device_settings():
         app.logger.error(f"Error saving device settings: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/save_personalization_settings', methods=['POST'])
+async def save_personalization_settings():
+    try:
+        data = await request.form
+        nav_color = data.get('navColor') or '#000000'
+        button_color = data.get('buttonColor') or '#000000'
+        background_color = data.get('backgroundColor') or '#ffffff'
+
+        # Save the personalization settings to your configuration
+        config['personalization']['navColor'] = nav_color
+        config['personalization']['buttonColor'] = button_color
+        config['personalization']['backgroundColor'] = background_color
+
+        # Save the config to a file or database
+        save_config(config)
+
+        return jsonify({"message": "Personalization settings saved successfully."}), 200
+    except Exception as e:
+        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/save_integration_settings', methods=['POST'])
 async def save_integration_settings():
     try:
@@ -593,20 +614,6 @@ async def save_sensor_settings():
         return jsonify({"message": "Sensor settings saved successfully"}), 200
     except Exception as e:
         app.logger.error(f"Error saving sensor settings: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/save_personalization_settings', methods=['POST'])
-async def save_personalization_settings():
-    try:
-        data = await request.json
-        config['personalization'] = {
-            'navColor': data['navColor'],
-            'buttonColor': data['buttonColor'],
-            'backgroundColor': data['backgroundColor']
-        }
-        save_config(config)  # Function to save the config to a file
-        return jsonify({"message": "Settings saved successfully"}), 200
-    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 # Map the CS pin to the correct board constant

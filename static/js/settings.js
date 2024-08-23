@@ -242,6 +242,36 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Handle the "Save Personalization Settings" form submission
+    const personalizationForm = document.getElementById('personalizationForm');
+    if (personalizationForm) {
+        personalizationForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(personalizationForm);
+
+            fetch(savePersonalizationSettingsUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error saving personalization settings:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        });
+    }
+
     // Function to get CSRF token
     function getCsrfToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
