@@ -240,14 +240,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
             const formData = new FormData(personalizationForm);
 
-            fetch(savePersonalizationSettingsUrl, {  // Make sure this variable is correctly defined
+            console.log('Submitting to URL:', savePersonalizationSettingsUrl); // Add this line
+
+            fetch(savePersonalizationSettingsUrl, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': getCsrfToken()
                 },
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status); // Add this line
+                return response.json();
+            })
             .then(result => {
                 if (result.message) {
                     M.toast({html: result.message});
@@ -260,6 +265,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error saving personalization settings:', error);
                 M.toast({html: `Error: ${error.message}`});
             });
+            return false;  // Add this line
         });
     }
 
