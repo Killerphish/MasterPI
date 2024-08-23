@@ -9,37 +9,26 @@ console.log('settings.js loaded');
 document.addEventListener("DOMContentLoaded", function() {
     console.log('DOM fully loaded');
 
-    // Log all forms on the page
-    const allForms = document.querySelectorAll('form');
-    console.log('All forms on the page:', allForms);
+    const settingsForm = document.getElementById('settingsForm');
+    console.log('Settings form:', settingsForm);
 
-    // Log the entire body content
-    console.log('Body content:', document.body.innerHTML);
-
-    // Try to find the personalization form
-    const personalizationForm = document.getElementById('personalizationForm');
-    console.log('Personalization form by ID:', personalizationForm);
-
-    if (!personalizationForm) {
-        // If not found by ID, try to find it by other means
-        const possibleForms = document.querySelectorAll('form');
-        console.log('All possible forms:', possibleForms);
-        
-        possibleForms.forEach((form, index) => {
-            console.log(`Form ${index}:`, form);
-            console.log(`Form ${index} innerHTML:`, form.innerHTML);
-        });
-    }
-
-    if (personalizationForm) {
-        console.log('Adding event listener to personalization form');
-        personalizationForm.addEventListener('submit', function(event) {
+    if (settingsForm) {
+        console.log('Adding event listener to settings form');
+        settingsForm.addEventListener('submit', function(event) {
             console.log('Form submitted');
             event.preventDefault();
 
-            const formData = new FormData(personalizationForm);
+            const formData = new FormData(settingsForm);
 
-            console.log('Form data:', Object.fromEntries(formData));
+            // Filter out non-personalization fields
+            const personalizationData = new FormData();
+            ['navColor', 'navTextColor', 'buttonColor', 'buttonTextColor', 'backgroundColor', 'csrf_token'].forEach(key => {
+                if (formData.has(key)) {
+                    personalizationData.append(key, formData.get(key));
+                }
+            });
+
+            console.log('Personalization data:', Object.fromEntries(personalizationData));
             console.log('Submitting to URL:', savePersonalizationSettingsUrl);
 
             fetch(savePersonalizationSettingsUrl, {
@@ -47,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 headers: {
                     'X-CSRF-TOKEN': getCsrfToken()
                 },
-                body: formData
+                body: personalizationData
             })
             .then(response => {
                 console.log('Response status:', response.status);
@@ -67,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
     } else {
-        console.error('Personalization form not found');
+        console.error('Settings form not found');
     }
 
     M.AutoInit();  // Initialize all Materialize components

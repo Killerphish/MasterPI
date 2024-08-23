@@ -186,14 +186,10 @@ async def settings():
 
 @app.route('/save_personalization_settings', methods=['POST'])
 async def save_personalization_settings():
-    app.logger.info("Save personalization settings route accessed")
     try:
         form_data = await request.form
-        app.logger.info(f"Received form data: {form_data}")
-        
         config = await load_config()
         
-        # Update the configuration with the new settings
         config['personalization'] = {
             'navColor': form_data.get('navColor'),
             'navTextColor': form_data.get('navTextColor'),
@@ -202,9 +198,8 @@ async def save_personalization_settings():
             'backgroundColor': form_data.get('backgroundColor')
         }
 
-        save_config(config)  # Save the updated configuration
+        save_config(config)
 
-        app.logger.info("Personalization settings saved successfully")
         return jsonify({"message": "Personalization settings saved successfully"}), 200
     except Exception as e:
         app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)

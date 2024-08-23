@@ -92,42 +92,36 @@
                     </div>
                     <div id="personalization" class="col s12">
                         <h2>Personalization</h2>
-                        <form id="personalizationForm" method="POST">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input type="color" id="navColor" name="navColor" value="{{ config.get('personalization', {}).get('navColor', '#000000') }}">
-                                    <label for="navColor">Navigation Color</label>
-                                </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="color" id="navColor" name="navColor" value="{{ config.get('personalization', {}).get('navColor', '#000000') }}">
+                                <label for="navColor">Navigation Color</label>
                             </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input type="color" id="navTextColor" name="navTextColor" value="{{ config.get('personalization', {}).get('navTextColor', '#ffffff') }}">
-                                    <label for="navTextColor">Navigation Text Color</label>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="color" id="navTextColor" name="navTextColor" value="{{ config.get('personalization', {}).get('navTextColor', '#ffffff') }}">
+                                <label for="navTextColor">Navigation Text Color</label>
                             </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input type="color" id="buttonColor" name="buttonColor" value="{{ config.get('personalization', {}).get('buttonColor', '#000000') }}">
-                                    <label for="buttonColor">Button Color</label>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="color" id="buttonColor" name="buttonColor" value="{{ config.get('personalization', {}).get('buttonColor', '#000000') }}">
+                                <label for="buttonColor">Button Color</label>
                             </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config.get('personalization', {}).get('buttonTextColor', '#ffffff') }}">
-                                    <label for="buttonTextColor">Button Text Color</label>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config.get('personalization', {}).get('buttonTextColor', '#ffffff') }}">
+                                <label for="buttonTextColor">Button Text Color</label>
                             </div>
-                            <div class="row">
-                                <div class="input-field col s12">
-                                    <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }}">
-                                    <label for="backgroundColor">Background Color</label>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }}">
+                                <label for="backgroundColor">Background Color</label>
                             </div>
-                            <div class="col s12">
-                                <button type="submit" class="btn waves-effect waves-light">Save Personalization Settings</button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </form>
                 <div class="col s12">
