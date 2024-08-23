@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
         openAddSensorModalBtn.addEventListener('click', function() {
             const addSensorModal = document.getElementById('addSensorModal');
             if (addSensorModal) {
+                fetchAvailablePins();
                 const instance = M.Modal.getInstance(addSensorModal);
                 instance.open();
             } else {
@@ -219,5 +220,26 @@ document.addEventListener("DOMContentLoaded", function() {
     // Function to get CSRF token
     function getCsrfToken() {
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
+    // Function to fetch available pins
+    function fetchAvailablePins() {
+        fetch(getAvailablePinsUrl)
+            .then(response => response.json())
+            .then(pins => {
+                const selectElement = document.getElementById('newSensorCsPin');
+                selectElement.innerHTML = ''; // Clear existing options
+                pins.forEach(pin => {
+                    const option = document.createElement('option');
+                    option.value = pin;
+                    option.textContent = pin;
+                    selectElement.appendChild(option);
+                });
+                M.FormSelect.init(selectElement); // Reinitialize Materialize select
+            })
+            .catch(error => {
+                console.error('Error fetching available pins:', error);
+                M.toast({html: 'Error fetching available pins'});
+            });
     }
 });
