@@ -19,7 +19,9 @@
     <style>
         :root {
             --nav-color: {{ config['personalization']['navColor'] or '#000000' }};
+            --nav-text-color: {{ config['personalization']['navTextColor'] or '#ffffff' }};
             --button-color: {{ config['personalization']['buttonColor'] or '#000000' }};
+            --button-text-color: {{ config['personalization']['buttonTextColor'] or '#ffffff' }};
             --background-color: {{ config['personalization']['backgroundColor'] or '#ffffff' }};
         }
 
@@ -32,10 +34,10 @@
 <body>
     <nav>
         <div class="nav-wrapper" style="background-color: var(--nav-color);">
-            <a href="{{ url_for('index') }}" class="brand-logo">{{ device_name }}</a>
+            <a href="{{ url_for('index') }}" class="brand-logo" style="color: var(--nav-text-color);">{{ device_name }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
-                <li><a href="{{ url_for('settings') }}">Settings</a></li>
-                <li><a href="#powerOptionsModal" class="modal-trigger">Power Options</a></li>
+                <li><a href="{{ url_for('settings') }}" style="color: var(--nav-text-color);">Settings</a></li>
+                <li><a href="#powerOptionsModal" class="modal-trigger" style="color: var(--nav-text-color);">Power Options</a></li>
             </ul>
         </div>
     </nav>
@@ -120,8 +122,6 @@
                                 <form id="removeSensorForm" method="POST" action="{{ url_for('remove_sensor') }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" id="removeSensorIndex" name="index">
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn green">Confirm</button>
                                         <button type="button" class="btn red modal-close">Cancel</button>
                                     </div>
                                 </form>
@@ -167,8 +167,20 @@
                     </div>
                     <div class="row">
                         <div class="input-field col s12">
+                            <input type="color" id="navTextColor" name="navTextColor" value="{{ config['personalization']['navTextColor'] or '#ffffff' }}">
+                            <label for="navTextColor">Navigation Text Color</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
                             <input type="color" id="buttonColor" name="buttonColor" value="{{ config['personalization']['buttonColor'] or '#000000' }}">
                             <label for="buttonColor">Button Color</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config['personalization']['buttonTextColor'] or '#ffffff' }}">
+                            <label for="buttonTextColor">Button Text Color</label>
                         </div>
                     </div>
                     <div class="row">

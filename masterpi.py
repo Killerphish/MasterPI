@@ -329,14 +329,18 @@ async def save_device_settings():
         device_name = data.get('device_name')
         temp_unit = data.get('temp_unit')
         nav_color = data.get('navColor') or '#000000'
+        nav_text_color = data.get('navTextColor') or '#ffffff'
         button_color = data.get('buttonColor') or '#000000'
+        button_text_color = data.get('buttonTextColor') or '#ffffff'
         background_color = data.get('backgroundColor') or '#ffffff'
 
         # Save the settings to your configuration
         config['device']['name'] = device_name
         config['units']['temperature'] = temp_unit
         config['personalization']['navColor'] = nav_color
+        config['personalization']['navTextColor'] = nav_text_color
         config['personalization']['buttonColor'] = button_color
+        config['personalization']['buttonTextColor'] = button_text_color
         config['personalization']['backgroundColor'] = background_color
 
         # Save the config to a file or database
@@ -352,12 +356,16 @@ async def save_personalization_settings():
     try:
         data = await request.form
         nav_color = data.get('navColor') or '#000000'
+        nav_text_color = data.get('navTextColor') or '#ffffff'
         button_color = data.get('buttonColor') or '#000000'
+        button_text_color = data.get('buttonTextColor') or '#ffffff'
         background_color = data.get('backgroundColor') or '#ffffff'
 
         # Save the personalization settings to your configuration
         config['personalization']['navColor'] = nav_color
+        config['personalization']['navTextColor'] = nav_text_color
         config['personalization']['buttonColor'] = button_color
+        config['personalization']['buttonTextColor'] = button_text_color
         config['personalization']['backgroundColor'] = background_color
 
         # Save the config to a file or database

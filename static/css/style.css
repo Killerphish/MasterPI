@@ -1,6 +1,8 @@
 :root {
     --nav-color: #827f7f;
+    --nav-text-color: #ffffff; /* New variable for navbar text color */
     --button-color: #f2f2f2;
+    --button-text-color: #000000; /* New variable for button text color */
     --background-color: #ffffff;
 }
 
@@ -29,7 +31,7 @@ label {
     float: left;
     padding-left: 15px;
     display: block;
-    color: var(--button-color);
+    color: var(--nav-text-color); /* Use the new variable */
     text-align: center;
     padding: 14px 20px;
     text-decoration: none;
@@ -41,7 +43,7 @@ label {
 }
 
 .nav-wrapper .brand-logo {
-    left: 2%;/* Override the left: 50% from Materialize */
+    left: 2%; /* Override the left: 50% from Materialize */
 }
 
 /* Modal styles */
@@ -194,4 +196,14 @@ label {
 .input-field input[type="email"],
 .input-field input[type="password"] {
     margin-top: 10px;
+}
+
+/* Update button styles to use the --button-color and --button-text-color variables */
+.btn, .btn-large, .btn-small, .btn-flat {
+    background-color: var(--button-color) !important;
+    color: var(--button-text-color) !important; /* Use the new variable */
+}
+
+.btn:hover, .btn-large:hover, .btn-small:hover, .btn-flat:hover {
+    background-color: darken(var(--button-color), 10%) !important; /* Adjust hover color as needed */
 }
