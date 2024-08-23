@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             const formData = new FormData(personalizationForm);
 
-            fetch(savePersonalizationSettingsUrl, {
+            fetch(savePersonalizationSettingsUrl, {  // Make sure this variable is correctly defined
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': getCsrfToken()
