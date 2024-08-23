@@ -58,11 +58,11 @@
                     <div id="general" class="col s12">
                         <h2>General</h2>
                         <div class="input-field col s12">
-                            <input type="text" id="device_name" name="device_name" value="{{ config.get('device', {}).get('name', '') }}" placeholder="Device Name">
+                            <input type="text" id="device_name" name="device_name" value="{{ config.get('device', {}).get('name', '') }}" placeholder="Device Name" onchange="saveSettings(this)">
                             <label for="device_name" class="active">Device Name</label>
                         </div>
                         <div class="input-field col s12">
-                            <select id="temperatureUnit" name="temperatureUnit">
+                            <select id="temperatureUnit" name="temperatureUnit" onchange="saveSettings(this)">
                                 <option value="Celsius" {% if config.get('units', {}).get('temperature') == 'Celsius' %}selected{% endif %}>Celsius</option>
                                 <option value="Fahrenheit" {% if config.get('units', {}).get('temperature') == 'Fahrenheit' %}selected{% endif %}>Fahrenheit</option>
                             </select>
@@ -129,11 +129,6 @@
                             <div class="input-field col s12">
                                 <input type="color" id="backgroundColor" name="backgroundColor" value="{{ config.get('personalization', {}).get('backgroundColor', '#ffffff') }}">
                                 <label for="backgroundColor">Background Color</label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col s12">
-                                <button type="submit" class="btn waves-effect waves-light">Save Settings</button>
                             </div>
                         </div>
                     </div>

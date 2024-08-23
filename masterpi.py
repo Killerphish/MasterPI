@@ -688,20 +688,18 @@ async def save_settings():
         data = await request.get_json()
         config = await load_config()
         
-        # Update device name
         if 'device_name' in data:
             config['device']['name'] = data['device_name']
-        
-        # Update temperature unit
-        if 'temperatureUnit' in data:
+        elif 'temperatureUnit' in data:
             config['units']['temperature'] = data['temperatureUnit']
+        else:
+            return jsonify({'success': False, 'error': 'Invalid setting'}), 400
         
-        # Save the updated config
         save_config(config)
         
-        return jsonify({'success': True, 'message': 'Settings saved successfully'})
+        return jsonify({'success': True, 'message': 'Setting updated successfully'})
     except Exception as e:
-        app.logger.error(f"Error saving settings: {e}", exc_info=True)
+        app.logger.error(f"Error saving setting: {e}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
