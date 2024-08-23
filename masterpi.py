@@ -322,85 +322,34 @@ async def get_settings():
         app.logger.error(f"Error fetching settings: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/save_device_settings', methods=['POST'])
-async def save_device_settings():
-    try:
-        data = await request.form
-        device_name = data.get('device_name')
-        temp_unit = data.get('temp_unit')
-        nav_color = data.get('navColor') or '#000000'
-        nav_text_color = data.get('navTextColor') or '#ffffff'
-        button_color = data.get('buttonColor') or '#000000'
-        button_text_color = data.get('buttonTextColor') or '#ffffff'
-        background_color = data.get('backgroundColor') or '#ffffff'
-
-        # Save the settings to your configuration
-        config['device']['name'] = device_name
-        config['units']['temperature'] = temp_unit
-        config['personalization']['navColor'] = nav_color
-        config['personalization']['navTextColor'] = nav_text_color
-        config['personalization']['buttonColor'] = button_color
-        config['personalization']['buttonTextColor'] = button_text_color
-        config['personalization']['backgroundColor'] = background_color
-
-        # Save the config to a file or database
-        save_config(config)
-
-        return jsonify({"message": "Settings saved successfully."}), 200
-    except Exception as e:
-        app.logger.error(f"Error saving device settings: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
 @app.route('/save_personalization_settings', methods=['POST'])
 async def save_personalization_settings():
     try:
-        data = await request.form
-        nav_color = data.get('navColor') or '#000000'
-        nav_text_color = data.get('navTextColor') or '#ffffff'
-        button_color = data.get('buttonColor') or '#000000'
-        button_text_color = data.get('buttonTextColor') or '#ffffff'
-        background_color = data.get('backgroundColor') or '#ffffff'
-
-        # Save the personalization settings to your configuration
-        config['personalization']['navColor'] = nav_color
-        config['personalization']['navTextColor'] = nav_text_color
-        config['personalization']['buttonColor'] = button_color
-        config['personalization']['buttonTextColor'] = button_text_color
-        config['personalization']['backgroundColor'] = background_color
-
-        # Save the config to a file or database
-        save_config(config)
-
-        return jsonify({"message": "Personalization settings saved successfully."}), 200
-    except Exception as e:
-        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/save_integration_settings', methods=['POST'])
-async def save_integration_settings():
-    try:
-        form_data = await request.form
-        meater_enabled = form_data.get('meater_enabled') == 'true'
-        meater_username = form_data.get('meater_username')
-        meater_password = form_data.get('meater_password')
-
-        app.logger.info(f"Form Data: {form_data}")  # Debugging line
+        form_data = await request.form  # Await the request.form to get the form data
+        nav_color = form_data.get('navColor')
+        nav_text_color = form_data.get('navTextColor')
+        button_color = form_data.get('buttonColor')
+        button_text_color = form_data.get('buttonTextColor')
+        background_color = form_data.get('backgroundColor')
 
         config = await load_config()  # Ensure this is awaited
 
-        # Update config with new settings
-        config['meater_integration']['enabled'] = meater_enabled
-        config['meater_integration']['username'] = meater_username
-        config['meater_integration']['password'] = meater_password
+        # Update the configuration with the new settings
+        config['personalization'] = {
+            'navColor': nav_color,
+            'navTextColor': nav_text_color,
+            'buttonColor': button_color,
+            'buttonTextColor': button_text_color,
+            'backgroundColor': background_color
+        }
 
-        save_config(config)
+        save_config(config)  # Save the updated configuration
 
-        await flash('Integration settings saved successfully!', 'success')
-        return redirect(url_for('settings'))
+        app.logger.info("Personalization settings saved successfully.")
+        return jsonify({"message": "Personalization settings saved successfully"}), 200
     except Exception as e:
-        app.logger.error(f"Error saving integration settings: {e}", exc_info=True)
-        await flash('Internal Server Error', 'error')
-        return redirect(url_for('settings'))
+        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/pid_autotune', methods=['POST'])
 async def pid_autotune():
@@ -535,7 +484,6 @@ async def set_target_temperature():
         app.logger.error(f"Error setting target temperature: {e}", exc_info=True)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# Add this route to handle the removal of a sensor
 @app.route('/remove_sensor', methods=['POST'])
 async def remove_sensor():
     try:
