@@ -62,11 +62,11 @@
                             <label for="device_name" class="active">Device Name</label>
                         </div>
                         <div class="input-field col s12">
-                            <select id="temp_unit" name="temp_unit" class="browser-default">
-                                <option value="C" {% if units.temperature == 'C' %}selected{% endif %}>Celsius</option>
-                                <option value="F" {% if units.temperature == 'F' %}selected{% endif %}>Fahrenheit</option>
+                            <select id="temperatureUnit" name="temperatureUnit">
+                                <option value="C" {% if config.get('units', {}).get('temperature') == 'Celsius' %}selected{% endif %}>Celsius</option>
+                                <option value="F" {% if config.get('units', {}).get('temperature') == 'Fahrenheit' %}selected{% endif %}>Fahrenheit</option>
                             </select>
-                            <label for="temp_unit" class="active">Temperature Unit</label>
+                            <label for="temperatureUnit" class="active">Temperature Unit</label>
                         </div>
                     </div>
                     <div id="devices" class="col s12">

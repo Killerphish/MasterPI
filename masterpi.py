@@ -184,6 +184,7 @@ async def settings():
             app.logger.info("GET request received on /settings")
             # Load the configuration
             config = await load_config()  # Ensure this is awaited
+            app.logger.debug(f"Loaded config: {config}")  # Log the loaded config for debugging
             # Render the settings page with the config
             return await render_template('settings.html', config=config)
     except Exception as e:
