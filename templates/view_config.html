@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Configuration</title>
+    <title>View Configurations</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </head>
 <body>
     <nav>
         <div class="nav-wrapper">
-            <a href="{{ url_for('index') }}" class="brand-logo">Configuration</a>
+            <a href="{{ url_for('index') }}" class="brand-logo">{{ config['device']['name'] }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li><a href="{{ url_for('settings') }}">Settings</a></li>
             </ul>
@@ -20,7 +19,7 @@
     <div class="container">
         <h1>Configuration</h1>
         <pre>{{ config | tojson(indent=2) }}</pre>
-        <a href="{{ url_for('edit_config') }}" class="btn">Edit Configuration</a>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
 </html>

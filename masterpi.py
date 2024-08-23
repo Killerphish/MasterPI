@@ -502,7 +502,7 @@ async def remove_sensor():
 async def view_config():
     try:
         config = await load_config()
-        return render_template('view_config.html', config=config)
+        return await render_template('view_config.html', config=config)
     except Exception as e:
         app.logger.error(f"Error viewing configuration: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
