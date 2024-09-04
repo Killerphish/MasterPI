@@ -397,17 +397,34 @@ async def get_status():
         current_temperature = await get_current_temperature()
         fan_controller.update(current_temperature)
 
+        # Log the current temperature and fan status
+        app.logger.info(f"Current temperature: {current_temperature}")
+        app.logger.info(f"Fan status: {'On' if fan_controller.is_fan_on() else 'Off'}")
+        app.logger.info(f"Target temperature: {fan_controller.target_temperature}")
+
+        # Collect temperatures from sensors
+        temperatures = []
+        for sensor, offset, enabled in sensors:
+            if enabled:
+                try:
+                    temperature = sensor.read_temperature()  # Ensure this method exists
+                    temperatures.append(temperature)
+                    app.logger.info(f"Read temperature: {temperature} from {sensor.__class__.__name__}")
+                except Exception as e:
+                    app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
+                    temperatures.append(None)
+
         status = {
             'status': 'OK',
             'message': 'Server is running',
             'temperature': current_temperature,
             'fan_on': fan_controller.is_fan_on(),
             'target_temperature': fan_controller.target_temperature,
-            'temperatures': [sensor.read_temperature() for sensor, _, enabled in sensors if enabled]  # Ensure this line is correct
+            'temperatures': temperatures
         }
         return jsonify(status)
     except Exception as e:
-        app.logger.error(f"Error fetching status: {e}")
+        app.logger.error(f"Error fetching status: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
 async def get_current_temperature():
