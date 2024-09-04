@@ -80,60 +80,8 @@
             {% endfor %}
         </div>
     </div>
-    <script type="module">
-        import { updateTargetTemp } from './static/js/api.js';
-
-        // Define the getCsrfToken function
-        function getCsrfToken() {
-            const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-            if (csrfTokenMeta) {
-                return csrfTokenMeta.getAttribute('content');
-            } else {
-                console.error('CSRF token not found');
-                return '';
-            }
-        }
-
-        document.getElementById('update-temp-button').addEventListener('click', () => {
-            const targetTempInput = document.getElementById('target-temp-input');
-            const targetTemp = parseFloat(targetTempInput.value);
-            if (!isNaN(targetTemp)) {
-                updateTargetTemp(targetTemp)
-                    .then(response => {
-                        console.log('Target temperature updated:', response);
-                    })
-                    .catch(error => {
-                        console.error('Error updating target temperature:', error);
-                    });
-            } else {
-                console.error('Invalid target temperature value');
-            }
-        });
-
-        document.getElementById('emergency-shutdown-button').addEventListener('click', () => {
-            fetch('/emergency_shutdown', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()  // Include CSRF token
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Emergency shutdown response:', data);
-                if (data.status === 'success') {
-                    console.log('Emergency shutdown successful.');
-                } else {
-                    console.error('Emergency shutdown failed:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error during emergency shutdown:', error);
-            });
-        });
-    </script>
-    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}" type="module" defer></script>
+    <script type="module" src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/status.js') }}" type="module" defer></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
