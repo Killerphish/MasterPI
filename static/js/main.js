@@ -49,6 +49,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     console.error('Temperatures data is undefined.');
                 }
+
+                // Destroy existing charts
+                charts.forEach(chart => chart.destroy());
+                charts = [];
+
+                // Reinitialize charts
+                initializeCharts();
+                updateCharts();
             })
             .catch(error => {
                 console.error('Error fetching status:', error);
@@ -64,8 +72,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const probeCharts = document.querySelectorAll('[id^="tempChart-"]');
     
     function initializeCharts() {
-        probeCharts.forEach((chartElement, index) => {
-            const ctx = chartElement.getContext('2d');
+        const probeCharts = document.getElementById('probe-charts');
+        const canvases = probeCharts.querySelectorAll('canvas');
+        
+        canvases.forEach((canvas, index) => {
+            const ctx = canvas.getContext('2d');
             const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -209,4 +220,15 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
     M.AutoInit();
+
+    // Add event listener for time range change
+    document.getElementById('time-range').addEventListener('change', () => {
+        // Destroy existing charts
+        charts.forEach(chart => chart.destroy());
+        charts = [];
+
+        // Reinitialize charts
+        initializeCharts();
+        updateCharts();
+    });
 });
