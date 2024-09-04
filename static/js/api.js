@@ -58,21 +58,16 @@ export async function fetchStatus() {
     }
 }
 
-export function updateTargetTemp(targetTemp) {
-    return fetch('/set_target_temperature', {  // Ensure the endpoint matches your Quart route
+export function updateTargetTemp(temperature) {
+    return fetch('/set_target_temperature', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()  // Include CSRF token
+            'X-CSRFToken': getCsrfToken()
         },
-        body: JSON.stringify({ target_temperature: targetTemp }),  // Ensure the key matches your Quart route
+        body: JSON.stringify({ target_temperature: temperature })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-        }
-        return response.json();
-    });
+    .then(response => response.json());
 }
 
 export function requestMeaterApiKey(email, password) {
