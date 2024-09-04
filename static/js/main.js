@@ -62,36 +62,39 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Initialize charts for each probe
     const probeCharts = document.querySelectorAll('[id^="tempChart-"]');
-    probeCharts.forEach((chartElement, index) => {
-        const ctx = chartElement.getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: `Probe ${index + 1} Temperature (°${tempUnit})`,
-                    data: [],
-                    borderColor: `hsl(${index * 137.5 % 360}, 70%, 50%)`,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                maintainAspectRatio: true,
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'minute'
+    
+    function initializeCharts() {
+        probeCharts.forEach((chartElement, index) => {
+            const ctx = chartElement.getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: `Probe ${index + 1} Temperature (°${tempUnit})`,
+                        data: [],
+                        borderColor: `hsl(${index * 137.5 % 360}, 70%, 50%)`,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'minute'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
                         }
-                    },
-                    y: {
-                        beginAtZero: true
                     }
                 }
-            }
+            });
+            charts.push(chart);
         });
-        charts.push(chart);
-    });
+    }
 
     function updateCharts() {
         const timeRange = document.getElementById('time-range').value;
@@ -112,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Initial chart update
+    initializeCharts();
     updateCharts();
     setInterval(updateCharts, 60000); // Update charts every minute
 
