@@ -152,7 +152,12 @@ document.addEventListener("DOMContentLoaded", function() {
                     'X-CSRFToken': getCsrfToken()  // Include CSRF token
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('Emergency shutdown response:', data);
                 if (data.status === 'success') {

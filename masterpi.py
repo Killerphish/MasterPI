@@ -706,6 +706,20 @@ async def save_settings():
         app.logger.error(f"Error saving setting: {e}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/emergency_shutdown', methods=['POST'])
+async def emergency_shutdown():
+    try:
+        # Set the target temperature to 0 degrees
+        pid.setpoint = 0.0
+        fan_controller.target_temperature = 0.0
+        fan_controller.update(0.0)  # Ensure the fan is turned off
+
+        app.logger.info("Emergency shutdown initiated: Fan turned off and target temperature set to 0 degrees.")
+        return jsonify({'status': 'success', 'message': 'Emergency shutdown initiated.'})
+    except Exception as e:
+        app.logger.error(f"Error during emergency shutdown: {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 if __name__ == '__main__':
     async def main():
         global config
