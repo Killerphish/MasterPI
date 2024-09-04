@@ -407,7 +407,10 @@ async def get_status():
         for sensor, offset, enabled in sensors:
             if enabled:
                 try:
-                    temperature = sensor.read_temperature()  # Ensure this method exists
+                    if isinstance(sensor, MAX31856):
+                        temperature = sensor.temperature  # Use the correct method
+                    else:
+                        temperature = sensor.read_temperature()  # For other sensors
                     temperatures.append(temperature)
                     app.logger.info(f"Read temperature: {temperature} from {sensor.__class__.__name__}")
                 except Exception as e:
@@ -444,19 +447,10 @@ async def read_sensor_temperature():
                 continue  # Skip disabled sensors
 
             try:
-                if isinstance(sensor, MAX31865):
-                    temperature_celsius = sensor.temperature
-                elif isinstance(sensor, MAX31855):
-                    temperature_celsius = sensor.temperature
-                elif isinstance(sensor, MAX31856):
-                    temperature_celsius = sensor.temperature
-                elif isinstance(sensor, AnalogIn):
-                    voltage = sensor.voltage
-                    temperature_celsius = voltage_to_temperature(voltage)
-                elif isinstance(sensor, adafruit_dht.DHT22):
-                    temperature_celsius = sensor.temperature
+                if isinstance(sensor, MAX31856):
+                    temperature_celsius = sensor.temperature  # Use the correct method
                 else:
-                    raise ValueError("Unsupported sensor type")
+                    temperature_celsius = sensor.read_temperature()  # For other sensors
 
                 corrected_temperature_celsius = temperature_celsius + offset
                 temperatures.append(corrected_temperature_celsius)
