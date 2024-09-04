@@ -48,7 +48,7 @@
                     </datalist>
                     <button id="update-temp-button" class="btn">Set</button>
                 </p>
-                <button id="emergency-shutdown-button" class="btn red">Emergency Shutdown</button>
+                <!-- Removed the Emergency Shutdown button from here -->
                 <div id="probe-labels">
                     {% for sensor in sensors %}
                         <p>{{ sensor.label }}: <span id="probe-{{ loop.index0 }}">{{ sensor.label }}: Temperature will be displayed here.</span></p>
