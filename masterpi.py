@@ -716,7 +716,7 @@ async def emergency_shutdown():
 
         # Ensure the fan is turned off
         fan_controller.update(0.0)
-        app.logger.info("Fan controller updated with target temperature 0 degrees.")
+        app.logger.info(f"Fan controller updated with target temperature 0 degrees. Fan value: {fan_controller.fan.value}")
 
         app.logger.info("Emergency shutdown initiated: Fan turned off and target temperature set to 0 degrees.")
         return jsonify({'status': 'success', 'message': 'Emergency shutdown initiated.'})
