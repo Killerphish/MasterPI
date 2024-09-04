@@ -1,6 +1,17 @@
 import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
 import { showModal, hideModal } from './modal.js'; // Ensure this import is correct
 
+// Define the getCsrfToken function
+function getCsrfToken() {
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfTokenMeta) {
+        return csrfTokenMeta.getAttribute('content');
+    } else {
+        console.error('CSRF token not found');
+        return '';
+    }
+}
+
 let tempUnit = 'F'; // Default unit changed to Fahrenheit
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -128,5 +139,33 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     } else {
         console.error('Element with id "update-temp-button" not found.');
+    }
+
+    // Add event listener for the emergency shutdown button
+    const emergencyShutdownButton = document.getElementById('emergency-shutdown-button');
+    if (emergencyShutdownButton) {
+        emergencyShutdownButton.addEventListener('click', () => {
+            fetch('/emergency_shutdown', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()  // Include CSRF token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Emergency shutdown response:', data);
+                if (data.status === 'success') {
+                    console.log('Emergency shutdown successful.');
+                } else {
+                    console.error('Emergency shutdown failed:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error during emergency shutdown:', error);
+            });
+        });
+    } else {
+        console.error('Element with id "emergency-shutdown-button" not found.');
     }
 });
