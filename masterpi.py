@@ -403,7 +403,7 @@ async def get_status():
             'temperature': current_temperature,
             'fan_on': fan_controller.is_fan_on(),
             'target_temperature': fan_controller.target_temperature,
-            'temperatures': [sensor.read_temperature() for sensor in sensors]  # Ensure this line is correct
+            'temperatures': [sensor.read_temperature() for sensor, _, enabled in sensors if enabled]  # Ensure this line is correct
         }
         return jsonify(status)
     except Exception as e:
