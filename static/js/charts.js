@@ -57,7 +57,47 @@ function updateCharts() {
         });
 }
 
-document.getElementById('time-range').addEventListener('change', updateCharts);
+document.getElementById('time-range').addEventListener('change', () => {
+    // Destroy existing charts
+    charts.forEach(chart => chart.destroy());
+    charts = [];
+
+    // Reinitialize charts
+    const probeCharts = document.getElementById('probe-charts');
+    const canvases = probeCharts.querySelectorAll('canvas');
+    
+    canvases.forEach((canvas, index) => {
+        const ctx = canvas.getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: `Probe ${index + 1}`,
+                    data: [],
+                    borderColor: `hsl(${index * 137.5 % 360}, 70%, 50%)`,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'minute'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        charts.push(chart);
+    });
+
+    updateCharts();
+});
 
 // Update charts every 5 seconds
 setInterval(updateCharts, 5000);
