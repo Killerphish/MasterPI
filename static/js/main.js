@@ -1,4 +1,5 @@
 import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
+import { showModal, hideModal } from './modal.js'; // Ensure this import is correct
 
 let tempUnit = 'F'; // Default unit changed to Fahrenheit
 
