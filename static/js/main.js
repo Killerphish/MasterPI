@@ -145,6 +145,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const emergencyShutdownButton = document.getElementById('emergency-shutdown-button');
     if (emergencyShutdownButton) {
         emergencyShutdownButton.addEventListener('click', () => {
+            console.log('Emergency shutdown button clicked'); // Log button click
             fetch('/emergency_shutdown', {
                 method: 'POST',
                 headers: {
@@ -153,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             })
             .then(response => {
+                console.log('Received response from /emergency_shutdown'); // Log response reception
                 if (!response.ok) {
                     throw new Error('Network response was not ok ' + response.statusText);
                 }
@@ -162,6 +164,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.log('Emergency shutdown response:', data);
                 if (data.status === 'success') {
                     console.log('Emergency shutdown successful.');
+                    updateStatus(); // Update the status immediately after emergency shutdown
                 } else {
                     console.error('Emergency shutdown failed:', data.message);
                 }
