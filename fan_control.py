@@ -6,7 +6,11 @@ class FanController:
         if isinstance(fan_pin, str):
             self.fan = digitalio.DigitalInOut(getattr(board, fan_pin))
         elif isinstance(fan_pin, int):
-            self.fan = digitalio.DigitalInOut(fan_pin)
+            pin_name = f'D{fan_pin}'
+            if hasattr(board, pin_name):
+                self.fan = digitalio.DigitalInOut(getattr(board, pin_name))
+            else:
+                raise ValueError(f"Invalid fan pin number: {fan_pin}")
         else:
             raise ValueError(f"Invalid fan_pin type: {type(fan_pin)}. Expected str or int.")
         self.fan.direction = digitalio.Direction.OUTPUT

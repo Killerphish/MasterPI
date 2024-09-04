@@ -147,6 +147,7 @@ pid = PIDController(kp=config['pid']['kp'], ki=config['pid']['ki'], kd=config['p
 fan_pin = config['fan']['pin']
 if isinstance(fan_pin, str):
     fan_pin = getattr(board, fan_pin)
+fan_pin = config['fan']['pin']
 fan_controller = FanController(fan_pin=fan_pin, target_temperature=config['pid']['target_temperature'])
 
 # Initialize aiohttp session and Meater API
