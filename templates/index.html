@@ -74,6 +74,17 @@
     <script type="module">
         import { updateTargetTemp } from './static/js/api.js';
 
+        // Define the getCsrfToken function
+        function getCsrfToken() {
+            const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfTokenMeta) {
+                return csrfTokenMeta.getAttribute('content');
+            } else {
+                console.error('CSRF token not found');
+                return '';
+            }
+        }
+
         document.getElementById('update-temp-button').addEventListener('click', () => {
             const targetTempInput = document.getElementById('target-temp-input');
             const targetTemp = parseFloat(targetTempInput.value);
