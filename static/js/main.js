@@ -13,6 +13,7 @@ function getCsrfToken() {
 }
 
 let tempUnit = 'F'; // Default unit changed to Fahrenheit
+let charts = [];
 
 document.addEventListener("DOMContentLoaded", function() {
     function updateStatus() {
@@ -56,38 +57,37 @@ document.addEventListener("DOMContentLoaded", function() {
     // Set interval to update status every 5 seconds
     setInterval(updateStatus, 5000);
 
-    const tempChartElement = document.getElementById('tempChart');
-    if (!tempChartElement) {
-        console.error('Element with id "tempChart" not found.');
-        return;
-    }
-
-    const ctx = tempChartElement.getContext('2d');
-    let tempChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: `Temperature (°${tempUnit})`, // Update label to reflect the default unit
-                data: [],
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            maintainAspectRatio: true,
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        unit: 'minute'
+    // Initialize charts for each probe
+    const probeCharts = document.querySelectorAll('[id^="tempChart-"]');
+    probeCharts.forEach((chartElement, index) => {
+        const ctx = chartElement.getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: `Probe ${index + 1} Temperature (°${tempUnit})`, // Update label to reflect the default unit
+                    data: [],
+                    borderColor: `hsl(${index * 137.5 % 360}, 70%, 50%)`,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'minute'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
                     }
-                },
-                y: {
-                    beginAtZero: true
                 }
             }
-        }
+        });
+        charts.push(chart);
     });
 
     function updateSensorTemperatures() {
