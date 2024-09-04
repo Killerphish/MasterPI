@@ -11,14 +11,20 @@ class FanController:
         
         self.fan = PWMOutputDevice(fan_pin)  # Initialize fan control using PWM
         self.fan.value = 0  # Start with fan off
+        self.target_temperature = target_temperature
         
     def update(self, current_temperature):
-        pid_output = self.pid(current_temperature)
-        self.fan.value = pid_output  # Adjust fan speed based on PID output
+        if current_temperature >= self.target_temperature:
+            pid_output = self.pid(current_temperature)
+            self.fan.value = pid_output  # Adjust fan speed based on PID output
+        else:
+            self.fan.value = 0  # Turn off the fan if current temperature is below target
+        
         logging.info(f"Fan PWM value set to: {self.fan.value}")
-        return pid_output
+        return self.fan.value
 
     def set_target_temperature(self, target_temperature):
+        self.target_temperature = target_temperature
         self.pid.setpoint = target_temperature
 
     def is_fan_on(self):

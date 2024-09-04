@@ -396,7 +396,8 @@ async def get_status():
             'status': 'OK',
             'message': 'Server is running',
             'temperature': current_temperature,  # Dynamic temperature value
-            'fan_on': fan_controller.is_fan_on()  # Dynamic fan status
+            'fan_on': fan_controller.is_fan_on(),  # Dynamic fan status
+            'target_temperature': fan_controller.target_temperature  # Add target temperature to status
         }
         return jsonify(status)
     except Exception as e:
@@ -711,12 +712,12 @@ async def emergency_shutdown():
     try:
         # Set the target temperature to 0 degrees
         pid.setpoint = 0.0
-        fan_controller.target_temperature = 0.0
+        fan_controller.set_target_temperature(0.0)
         app.logger.info("Set target temperature to 0 degrees.")
 
         # Ensure the fan is turned off
-        fan_controller.update(0.0)
-        app.logger.info(f"Fan controller updated with target temperature 0 degrees. Fan value: {fan_controller.fan.value}")
+        fan_controller.turn_off_fan()
+        app.logger.info(f"Fan controller updated. Fan value: {fan_controller.fan.value}")
 
         app.logger.info("Emergency shutdown initiated: Fan turned off and target temperature set to 0 degrees.")
         return jsonify({'status': 'success', 'message': 'Emergency shutdown initiated.'})
