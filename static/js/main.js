@@ -1,7 +1,6 @@
 import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
 import { showModal, hideModal } from './modal.js';
 
-// Define the getCsrfToken function
 function getCsrfToken() {
     const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
     if (csrfTokenMeta) {
@@ -40,12 +39,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
 
                 // Update probe temperatures
-                data.temperatures.forEach((temp, index) => {
-                    const probeElement = document.getElementById(`probe-${index}`);
-                    if (probeElement) {
-                        probeElement.textContent = `${temp} °${tempUnit}`;
-                    }
-                });
+                if (data.temperatures) {
+                    data.temperatures.forEach((temp, index) => {
+                        const probeElement = document.getElementById(`probe-${index}`);
+                        if (probeElement) {
+                            probeElement.textContent = `${temp} °${tempUnit}`;
+                        }
+                    });
+                } else {
+                    console.error('Temperatures data is undefined.');
+                }
             })
             .catch(error => {
                 console.error('Error fetching status:', error);

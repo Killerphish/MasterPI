@@ -402,7 +402,8 @@ async def get_status():
             'message': 'Server is running',
             'temperature': current_temperature,
             'fan_on': fan_controller.is_fan_on(),
-            'target_temperature': fan_controller.target_temperature
+            'target_temperature': fan_controller.target_temperature,
+            'temperatures': [sensor.read_temperature() for sensor in sensors]  # Ensure this line is correct
         }
         return jsonify(status)
     except Exception as e:
