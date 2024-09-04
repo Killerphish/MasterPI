@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     updateTargetTemp(targetTemp)
                         .then(response => {
                             console.log('Target temperature updated:', response);
+                            updateStatus(); // Update the status immediately after setting the target temperature
                         })
                         .catch(error => {
                             console.error('Error updating target temperature:', error);

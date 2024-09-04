@@ -390,13 +390,13 @@ async def get_status():
     try:
         # Fetch the current temperature from your sensor
         current_temperature = await get_current_temperature()
-        fan_status = fan_controller.is_fan_on()
+        fan_controller.update(current_temperature)  # Update the fan status based on the current temperature
 
         status = {
             'status': 'OK',
             'message': 'Server is running',
             'temperature': current_temperature,  # Dynamic temperature value
-            'fan_on': fan_status  # Dynamic fan status
+            'fan_on': fan_controller.is_fan_on()  # Dynamic fan status
         }
         return jsonify(status)
     except Exception as e:
