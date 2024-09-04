@@ -91,7 +91,25 @@
         });
 
         document.getElementById('emergency-shutdown-button').addEventListener('click', () => {
-            // Add your emergency shutdown logic here
+            fetch('/emergency_shutdown', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()  // Include CSRF token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Emergency shutdown response:', data);
+                if (data.status === 'success') {
+                    console.log('Emergency shutdown successful.');
+                } else {
+                    console.error('Emergency shutdown failed:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error during emergency shutdown:', error);
+            });
         });
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}" type="module" defer></script>
