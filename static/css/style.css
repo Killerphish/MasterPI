@@ -272,3 +272,11 @@ nav ul li {
 .collection .collection-item .secondary-content .btn-small.remove-sensor:hover {
     background-color: #d32f2f !important; /* Darker red on hover */
 }
+
+/* Style for the STOP button in the navigation bar */
+nav .btn {
+    margin-top: 15px;
+    height: 34px;
+    line-height: 34px;
+    padding: 0 1rem;
+}
