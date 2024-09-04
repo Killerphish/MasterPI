@@ -35,7 +35,7 @@
                 <p>Fan Status: <span id="fan-status">Fan status will be displayed here.</span></p>
                 <p>Target Temperature: 
                     <div class="input-container">
-                        <input list="temp-options" id="target-temp" min="0" max="700" class="validate">
+                        <input list="temp-options" id="target-temp-input" min="0" max="700" class="validate">
                         <i class="fas fa-caret-down"></i>
                     </div>
                     <datalist id="temp-options">
@@ -75,7 +75,7 @@
         import { updateTargetTemp } from './static/js/api.js';
 
         document.getElementById('update-temp-button').addEventListener('click', () => {
-            const targetTempInput = document.getElementById('target-temp');
+            const targetTempInput = document.getElementById('target-temp-input');
             const targetTemp = parseFloat(targetTempInput.value);
             if (!isNaN(targetTemp)) {
                 updateTargetTemp(targetTemp)

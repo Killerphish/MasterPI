@@ -218,9 +218,8 @@ async def save_personalization_settings():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/get_temperature', methods=['GET'])
-def get_temperature():
+async def get_temperature():
     try:
-        print("Reading temperature from sensors...")
         temperatures = []
         for sensor, offset, enabled in sensors:
             if not enabled:
@@ -256,7 +255,6 @@ def get_temperature():
                 app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
                 temperatures.append(None)
         
-        print(f"Temperatures read: {temperatures}")
         return jsonify({'temperatures': temperatures})
     except Exception as e:
         app.logger.error(f"Error reading temperature: {e}")
