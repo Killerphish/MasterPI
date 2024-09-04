@@ -44,9 +44,9 @@
                             <option value="{{ temp }}"></option>
                         {% endfor %}
                     </datalist>
-                    <button class="btn" onclick="updateTargetTemp(document.getElementById('target-temp').value)">Set</button>
+                    <button id="update-temp-button" class="btn">Set</button>
                 </p>
-                <button id="emergency-shutdown-button" class="btn red" onclick="emergencyShutdown()">Emergency Shutdown</button>
+                <button id="emergency-shutdown-button" class="btn red">Emergency Shutdown</button>
                 <div id="probe-labels">
                     {% for sensor in sensors %}
                         <p>{{ sensor.label }}: <span id="probe-{{ loop.index0 }}">{{ sensor.label }}: Temperature will be displayed here.</span></p>
@@ -71,7 +71,29 @@
             </div>
         </div>
     </div>
-    <script src="{{ url_for('static', filename='js/api.js') }}" type="module" defer></script>
+    <script type="module">
+        import { updateTargetTemp } from './static/js/api.js';
+
+        document.getElementById('update-temp-button').addEventListener('click', () => {
+            const targetTempInput = document.getElementById('target-temp');
+            const targetTemp = parseFloat(targetTempInput.value);
+            if (!isNaN(targetTemp)) {
+                updateTargetTemp(targetTemp)
+                    .then(response => {
+                        console.log('Target temperature updated:', response);
+                    })
+                    .catch(error => {
+                        console.error('Error updating target temperature:', error);
+                    });
+            } else {
+                console.error('Invalid target temperature value');
+            }
+        });
+
+        document.getElementById('emergency-shutdown-button').addEventListener('click', () => {
+            // Add your emergency shutdown logic here
+        });
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}" type="module" defer></script>
     <script src="{{ url_for('static', filename='js/status.js') }}" type="module" defer></script>
     <script>

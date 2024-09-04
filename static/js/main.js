@@ -102,4 +102,30 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(error => {
             console.error('Error fetching settings:', error);
         });
+
+    // Add event listener for the button to update target temperature
+    const updateTempButton = document.getElementById('update-temp-button');
+    if (updateTempButton) {
+        updateTempButton.addEventListener('click', () => {
+            const targetTempInput = document.getElementById('target-temp-input');
+            if (targetTempInput) {
+                const targetTemp = parseFloat(targetTempInput.value);
+                if (!isNaN(targetTemp)) {
+                    updateTargetTemp(targetTemp)
+                        .then(response => {
+                            console.log('Target temperature updated:', response);
+                        })
+                        .catch(error => {
+                            console.error('Error updating target temperature:', error);
+                        });
+                } else {
+                    console.error('Invalid target temperature value');
+                }
+            } else {
+                console.error('Element with id "target-temp-input" not found.');
+            }
+        });
+    } else {
+        console.error('Element with id "update-temp-button" not found.');
+    }
 });
