@@ -99,10 +99,4 @@ export function requestMeaterApiKey(email, password) {
     });
 }
 
-export async function fetchTemperatureData(timeRange) {
-    const response = await fetch(`/get_temperature_data?time_range=${timeRange}`);
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
-    }
-    return response.json();
-}
+// Remove the duplicate fetchTemperatureData function

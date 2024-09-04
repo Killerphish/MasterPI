@@ -1,5 +1,5 @@
 import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
-import { showModal, hideModal } from './modal.js'; // Ensure this import is correct
+import { showModal, hideModal } from './modal.js';
 
 // Define the getCsrfToken function
 function getCsrfToken() {
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function() {
             data: {
                 labels: [],
                 datasets: [{
-                    label: `Probe ${index + 1} Temperature (°${tempUnit})`, // Update label to reflect the default unit
+                    label: `Probe ${index + 1} Temperature (°${tempUnit})`,
                     data: [],
                     borderColor: `hsl(${index * 137.5 % 360}, 70%, 50%)`,
                     borderWidth: 1
@@ -90,48 +90,27 @@ document.addEventListener("DOMContentLoaded", function() {
         charts.push(chart);
     });
 
-    function updateSensorTemperatures() {
-        fetch('/get_temperature')
-            .then(response => response.json())
+    function updateCharts() {
+        const timeRange = document.getElementById('time-range').value;
+        fetchTemperatureData(timeRange)
             .then(data => {
-                const temperatures = data.temperatures;
-                temperatures.forEach((temp, index) => {
-                    const probeElement = document.getElementById(`probe-${index}`);
-                    if (probeElement) {
-                        // Format the temperature to two decimal places
-                        probeElement.textContent = temp !== null ? `${temp.toFixed(2)} °${tempUnit}` : 'Error reading temperature';
-                    }
+                charts.forEach((chart, index) => {
+                    const probeData = data.filter(item => item.probe_id === index);
+                    chart.data.datasets[0].data = probeData.map(item => ({
+                        x: new Date(item.timestamp),
+                        y: item.temperature
+                    }));
+                    chart.update();
                 });
             })
             .catch(error => {
-                console.error('Error fetching temperatures:', error);
+                console.error('Error fetching temperature data:', error);
             });
     }
 
-    // Initial temperature update
-    updateSensorTemperatures();
-    setInterval(updateSensorTemperatures, 5000); // Update temperatures every 5 seconds
-
-    M.AutoInit();
-    fetch('/get_settings')
-        .then(response => response.json())
-        .then(settings => {
-            const deviceNameElement = document.querySelector('.brand-logo');
-            if (deviceNameElement) {
-                deviceNameElement.textContent = settings.device.name;
-            }
-
-            // Update temperature unit
-            tempUnit = settings.units.temperature;
-
-            // Apply personalization settings
-            document.documentElement.style.setProperty('--nav-color', settings.personalization.navColor);
-            document.documentElement.style.setProperty('--button-color', settings.personalization.buttonColor);
-            document.documentElement.style.setProperty('--background-color', settings.personalization.backgroundColor);
-        })
-        .catch(error => {
-            console.error('Error fetching settings:', error);
-        });
+    // Initial chart update
+    updateCharts();
+    setInterval(updateCharts, 60000); // Update charts every minute
 
     // Add event listener for the button to update target temperature
     const updateTempButton = document.getElementById('update-temp-button');
@@ -200,4 +179,27 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         console.error('Element with id "emergency-shutdown-button" not found.');
     }
+
+    // Fetch and apply settings on page load
+    fetch('/get_settings')
+        .then(response => response.json())
+        .then(settings => {
+            const deviceNameElement = document.querySelector('.brand-logo');
+            if (deviceNameElement) {
+                deviceNameElement.textContent = settings.device.name;
+            }
+
+            // Update temperature unit
+            tempUnit = settings.units.temperature;
+
+            // Apply personalization settings
+            document.documentElement.style.setProperty('--nav-color', settings.personalization.navColor);
+            document.documentElement.style.setProperty('--button-color', settings.personalization.buttonColor);
+            document.documentElement.style.setProperty('--background-color', settings.personalization.backgroundColor);
+        })
+        .catch(error => {
+            console.error('Error fetching settings:', error);
+        });
+
+    M.AutoInit();
 });
