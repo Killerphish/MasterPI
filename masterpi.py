@@ -69,6 +69,7 @@ csrf = CSRFProtect(app)
 app.config['DEBUG'] = config['app']['debug']
 app.secret_key = 'your_secret_key'  # Add a secret key for session management
 app.config['REQUEST_TIMEOUT'] = 120  # Increase request timeout to 120 seconds
+app.static_folder = 'static'  # Add this line
 
 # Setup logging
 if not os.path.exists('logs'):
@@ -738,6 +739,11 @@ async def emergency_shutdown():
     except Exception as e:
         app.logger.error(f"Error during emergency shutdown: {e}", exc_info=True)
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    app.logger.debug(f"Attempting to serve static file: {filename}")
+    return send_from_directory(app.static_folder, filename)
 
 if __name__ == '__main__':
     async def main():
