@@ -29,7 +29,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
 
                 if (currentTargetTempElement) {
-                    currentTargetTempElement.textContent = `${data.target_temperature} °${tempUnit}`;
+                    if (data.target_temperature === 0) {
+                        currentTargetTempElement.textContent = 'Off';
+                    } else {
+                        currentTargetTempElement.textContent = `${data.target_temperature} °${tempUnit}`;
+                    }
                 } else {
                     console.error('Element with id "current-target-temp" not found.');
                 }
@@ -127,7 +131,12 @@ document.addEventListener("DOMContentLoaded", function() {
         updateTempButton.addEventListener('click', () => {
             const targetTempInput = document.getElementById('target-temp-input');
             if (targetTempInput) {
-                const targetTemp = parseFloat(targetTempInput.value);
+                let targetTemp = targetTempInput.value;
+                if (targetTemp.toLowerCase() === 'off') {
+                    targetTemp = 0;
+                } else {
+                    targetTemp = parseFloat(targetTemp);
+                }
                 if (!isNaN(targetTemp)) {
                     updateTargetTemp(targetTemp)
                         .then(response => {

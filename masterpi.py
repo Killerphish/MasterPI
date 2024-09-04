@@ -463,10 +463,13 @@ async def set_target_temperature():
             app.logger.error('Target temperature is required')
             return jsonify({'error': 'Target temperature is required'}), 400
 
+        # Convert to float, handling the case where it might be 0 (Off)
+        target_temperature = float(target_temperature)
+
         # Update the target temperature in your PID controller or other relevant component
-        pid.setpoint = float(target_temperature)
-        fan_controller.target_temperature = float(target_temperature)
-        app.logger.info(f"Target temperature set to: {target_temperature}")
+        pid.setpoint = target_temperature
+        fan_controller.target_temperature = target_temperature
+        app.logger.info(f"Target temperature set to: {'Off' if target_temperature == 0 else target_temperature}")
         return jsonify({'status': 'success'})
     except Exception as e:
         app.logger.error(f"Error setting target temperature: {e}", exc_info=True)
