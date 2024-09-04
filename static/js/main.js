@@ -20,11 +20,18 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 console.log('Status data:', data); // Debugging line
                 const fanStatusElement = document.getElementById('fan-status');
+                const currentTargetTempElement = document.getElementById('current-target-temp');
 
                 if (fanStatusElement) {
                     fanStatusElement.textContent = data.fan_on ? 'On' : 'Off';
                 } else {
                     console.error('Element with id "fan-status" not found.');
+                }
+
+                if (currentTargetTempElement) {
+                    currentTargetTempElement.textContent = `${data.target_temperature} °${tempUnit}`;
+                } else {
+                    console.error('Element with id "current-target-temp" not found.');
                 }
             })
             .catch(error => {

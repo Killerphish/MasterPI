@@ -395,9 +395,9 @@ async def get_status():
         status = {
             'status': 'OK',
             'message': 'Server is running',
-            'temperature': current_temperature,  # Dynamic temperature value
-            'fan_on': fan_controller.is_fan_on(),  # Dynamic fan status
-            'target_temperature': fan_controller.target_temperature  # Add target temperature to status
+            'temperature': current_temperature,
+            'fan_on': fan_controller.is_fan_on(),
+            'target_temperature': fan_controller.target_temperature  # Make sure this line is present
         }
         return jsonify(status)
     except Exception as e:
