@@ -3,6 +3,12 @@ import { fetchTemperatureData } from './api.js';
 let charts = [];
 
 document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    updateCharts();
+    setInterval(updateCharts, 5000); // Update charts every 5 seconds
+});
+
+function initializeCharts() {
     const probeCharts = document.getElementById('probe-charts');
     const canvases = probeCharts.querySelectorAll('canvas');
     
@@ -35,9 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         charts.push(chart);
     });
-
-    updateCharts();
-});
+}
 
 function updateCharts() {
     const timeRange = document.getElementById('time-range').value;
@@ -63,41 +67,6 @@ document.getElementById('time-range').addEventListener('change', () => {
     charts = [];
 
     // Reinitialize charts
-    const probeCharts = document.getElementById('probe-charts');
-    const canvases = probeCharts.querySelectorAll('canvas');
-    
-    canvases.forEach((canvas, index) => {
-        const ctx = canvas.getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [{
-                    label: `Probe ${index + 1}`,
-                    data: [],
-                    borderColor: `hsl(${index * 137.5 % 360}, 70%, 50%)`,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'minute'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-        charts.push(chart);
-    });
-
+    initializeCharts();
     updateCharts();
 });
-
-// Update charts every 5 seconds
-setInterval(updateCharts, 5000);
