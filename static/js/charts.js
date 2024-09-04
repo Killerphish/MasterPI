@@ -12,6 +12,10 @@ function initializeCharts() {
     const probeCharts = document.getElementById('probe-charts');
     const canvases = probeCharts.querySelectorAll('canvas');
     
+    // Destroy existing charts
+    charts.forEach(chart => chart.destroy());
+    charts = [];
+
     canvases.forEach((canvas, index) => {
         const ctx = canvas.getContext('2d');
         const chart = new Chart(ctx, {
@@ -62,11 +66,6 @@ function updateCharts() {
 }
 
 document.getElementById('time-range').addEventListener('change', () => {
-    // Destroy existing charts
-    charts.forEach(chart => chart.destroy());
-    charts = [];
-
-    // Reinitialize charts
     initializeCharts();
     updateCharts();
 });
