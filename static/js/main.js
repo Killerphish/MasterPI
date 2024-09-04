@@ -37,6 +37,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     console.error('Element with id "current-target-temp" not found.');
                 }
+
+                // Update probe temperatures
+                data.temperatures.forEach((temp, index) => {
+                    const probeElement = document.getElementById(`probe-${index}`);
+                    if (probeElement) {
+                        probeElement.textContent = `${temp} °${tempUnit}`;
+                    }
+                });
             })
             .catch(error => {
                 console.error('Error fetching status:', error);
