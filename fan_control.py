@@ -3,7 +3,12 @@ import board
 
 class FanController:
     def __init__(self, fan_pin, target_temperature):
-        self.fan = digitalio.DigitalInOut(getattr(board, fan_pin))
+        if isinstance(fan_pin, str):
+            self.fan = digitalio.DigitalInOut(getattr(board, fan_pin))
+        elif isinstance(fan_pin, int):
+            self.fan = digitalio.DigitalInOut(fan_pin)
+        else:
+            raise ValueError(f"Invalid fan_pin type: {type(fan_pin)}. Expected str or int.")
         self.fan.direction = digitalio.Direction.OUTPUT
         self.target_temperature = target_temperature
 
