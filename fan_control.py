@@ -1,5 +1,6 @@
 from simple_pid import PID
 from gpiozero import PWMOutputDevice
+import logging
 
 class FanController:
     def __init__(self, fan_pin, target_temperature):
@@ -14,6 +15,7 @@ class FanController:
     def update(self, current_temperature):
         pid_output = self.pid(current_temperature)
         self.fan.value = pid_output  # Adjust fan speed based on PID output
+        logging.info(f"Fan PWM value set to: {self.fan.value}")
         return pid_output
 
     def set_target_temperature(self, target_temperature):
@@ -24,9 +26,11 @@ class FanController:
     
     def turn_on_fan(self):
         self.fan.value = 1  # Set fan speed to maximum (assuming 100% duty cycle)
+        logging.info("Fan turned on.")
         
     def turn_off_fan(self):
         self.fan.value = 0  # Turn off the fan
+        logging.info("Fan turned off.")
 
     def cleanup(self):
         self.fan.close()  # Cleanup resources when done
