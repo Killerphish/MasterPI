@@ -4,7 +4,6 @@ let charts = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeCharts();
-    updateCharts();
     setInterval(updateCharts, 5000); // Update charts every 5 seconds
 });
 
@@ -13,7 +12,11 @@ function initializeCharts() {
     const canvases = probeCharts.querySelectorAll('canvas');
     
     // Destroy existing charts
-    charts.forEach(chart => chart.destroy());
+    charts.forEach(chart => {
+        if (chart) {
+            chart.destroy();
+        }
+    });
     charts = [];
 
     canvases.forEach((canvas, index) => {
@@ -52,12 +55,14 @@ function updateCharts() {
     fetchTemperatureData(timeRange)
         .then(data => {
             charts.forEach((chart, index) => {
-                const probeData = data.filter(item => item.probe_id === index);
-                chart.data.datasets[0].data = probeData.map(item => ({
-                    x: new Date(item.timestamp),
-                    y: item.temperature
-                }));
-                chart.update();
+                if (chart && chart.data && chart.data.datasets) {
+                    const probeData = data.filter(item => item.probe_id === index);
+                    chart.data.datasets[0].data = probeData.map(item => ({
+                        x: new Date(item.timestamp),
+                        y: item.temperature
+                    }));
+                    chart.update();
+                }
             });
         })
         .catch(error => {
@@ -69,3 +74,6 @@ document.getElementById('time-range').addEventListener('change', () => {
     initializeCharts();
     updateCharts();
 });
+
+// Export the functions to be used in other files if needed
+export { initializeCharts, updateCharts };

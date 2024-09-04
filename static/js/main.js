@@ -1,5 +1,6 @@
 import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
 import { showModal, hideModal } from './modal.js';
+import { initializeCharts, updateCharts } from './charts.js';
 
 function getCsrfToken() {
     const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
@@ -50,11 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.error('Temperatures data is undefined.');
                 }
 
-                // Destroy existing charts
-                charts.forEach(chart => chart.destroy());
-                charts = [];
-
-                // Reinitialize charts
+                // Reinitialize and update charts
                 initializeCharts();
                 updateCharts();
             })
