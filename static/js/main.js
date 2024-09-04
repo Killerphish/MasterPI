@@ -21,6 +21,11 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
 
+    // Call updateStatus on page load
+    updateStatus();
+    // Set interval to update status every 5 seconds
+    setInterval(updateStatus, 5000);
+
     const tempChartElement = document.getElementById('tempChart');
     if (!tempChartElement) {
         console.error('Element with id "tempChart" not found.');
