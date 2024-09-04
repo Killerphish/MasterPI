@@ -388,16 +388,15 @@ async def complete_wizard():
 @app.route('/api/status', methods=['GET'])
 async def get_status():
     try:
-        # Fetch the current temperature from your sensor
         current_temperature = await get_current_temperature()
-        fan_controller.update(current_temperature)  # Update the fan status based on the current temperature
+        fan_controller.update(current_temperature)
 
         status = {
             'status': 'OK',
             'message': 'Server is running',
             'temperature': current_temperature,
             'fan_on': fan_controller.is_fan_on(),
-            'target_temperature': fan_controller.target_temperature  # Make sure this line is present
+            'target_temperature': fan_controller.target_temperature
         }
         return jsonify(status)
     except Exception as e:
@@ -466,11 +465,18 @@ async def set_target_temperature():
         # Convert to float, handling the case where it might be 0 (Off)
         target_temperature = float(target_temperature)
 
-        # Update the target temperature in your PID controller or other relevant component
+        # Update the target temperature in your PID controller and fan controller
         pid.setpoint = target_temperature
-        fan_controller.target_temperature = target_temperature
+        fan_controller.set_target_temperature(target_temperature)
+
+        # Get the current temperature and update the fan status
+        current_temperature = await get_current_temperature()
+        fan_controller.update(current_temperature)
+
         app.logger.info(f"Target temperature set to: {'Off' if target_temperature == 0 else target_temperature}")
-        return jsonify({'status': 'success'})
+        app.logger.info(f"Fan status: {'On' if fan_controller.is_fan_on() else 'Off'}")
+
+        return jsonify({'status': 'success', 'fan_on': fan_controller.is_fan_on()})
     except Exception as e:
         app.logger.error(f"Error setting target temperature: {e}", exc_info=True)
         return jsonify({'status': 'error', 'message': str(e)}), 500
