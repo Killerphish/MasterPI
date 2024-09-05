@@ -41,7 +41,7 @@ def load_config_sync():
             return config
     except Exception as e:
         print(f"Error loading config file: {e}")
-        raise
+        return {}
 
 async def load_config():
     try:
@@ -739,6 +739,41 @@ async def emergency_shutdown():
 def serve_static(filename):
     app.logger.debug(f"Attempting to serve static file: {filename}")
     return send_from_directory(app.static_folder, filename)
+
+# Configure logging
+handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+app.logger.addHandler(handler)
+app.logger.setLevel(logging.INFO)
+
+# Initialize the database
+init_db()
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+async def read_temperature_data():
+    while True:
+        # Simulate reading temperature from a sensor
+        temperature = 75.0  # Replace with actual sensor reading
+        insert_temperature_data(temperature)
+        logging.info(f"Inserted temperature data: {temperature}")
+        await asyncio.sleep(60)  # Read temperature data every 60 seconds
+
+# Start the temperature reading loop
+asyncio.create_task(read_temperature_data())
+
+@app.route('/temp_data', methods=['GET'])
+async def temp_data():
+    try:
+        time_range = request.args.get('time_range', '60')  # Default to 60 minutes if not provided
+        data = get_temperature_data_by_range(int(time_range))
+        return jsonify(data=data)
+    except Exception as e:
+        app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 if __name__ == '__main__':
     async def main():
