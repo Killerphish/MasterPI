@@ -224,6 +224,8 @@ async def save_personalization_settings():
         app.logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
+import datetime  # Ensure datetime is imported
+
 @app.route('/get_temperature', methods=['GET'])
 async def get_temperature():
     try:
@@ -235,7 +237,10 @@ async def get_temperature():
         for sensor, offset, enabled in sensors:
             if not enabled:
                 continue  # Skip disabled sensors
-            temperature = sensor.read_temperature()  # Replace with actual sensor reading logic
+            if isinstance(sensor, adafruit_max31856.MAX31856):
+                temperature = sensor.temperature  # Use the correct method for MAX31856
+            else:
+                temperature = sensor.read_temperature()  # Use the generic method for other sensors
             temperatures.append({
                 'timestamp': datetime.datetime.now().isoformat(),  # Use datetime.datetime.now()
                 'temperature': temperature,
