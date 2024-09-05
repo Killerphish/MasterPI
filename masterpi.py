@@ -808,6 +808,7 @@ async def temp_data():
         config = await load_config()  # Load the configuration to get the timezone
         timezone = config['units'].get('timezone', 'UTC')  # Default to UTC if not set
         data = get_temperature_data_by_range(int(time_range), timezone)
+        app.logger.debug(f"Fetched temperature data: {data}")  # Add this line
         formatted_data = [{'timestamp': row[0], 'temperature': row[1]} for row in data]
         return jsonify(data=formatted_data)
     except Exception as e:
