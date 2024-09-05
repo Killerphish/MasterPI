@@ -86,6 +86,7 @@ function updateCharts() {
                         x: new Date(item.timestamp).toLocaleString('en-US', { timeZone: timezone }),
                         y: item.temperature  // Temperature is already in Fahrenheit and rounded to 2 decimal places
                     }));
+                    console.log(`Chart ${index} data:`, chart.data.datasets[0].data); // Log the chart data
                     chart.update();
                 }
             });
