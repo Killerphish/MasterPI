@@ -71,6 +71,11 @@ function updateCharts() {
 }
 
 document.getElementById('time-range').addEventListener('change', () => {
+    // Destroy existing charts
+    charts.forEach(chart => chart.destroy());
+    charts = [];
+
+    // Reinitialize charts
     initializeCharts();
     updateCharts();
 });

@@ -51,6 +51,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.error('Temperatures data is undefined.');
                 }
 
+                // Destroy existing charts
+                charts.forEach(chart => chart.destroy());
+                charts = [];
+
                 // Reinitialize and update charts
                 initializeCharts();
                 updateCharts();
@@ -64,68 +68,6 @@ document.addEventListener("DOMContentLoaded", function() {
     updateStatus();
     // Set interval to update status every 5 seconds
     setInterval(updateStatus, 5000);
-
-    // Initialize charts for each probe
-    const probeCharts = document.querySelectorAll('[id^="tempChart-"]');
-    
-    function initializeCharts() {
-        const probeCharts = document.getElementById('probe-charts');
-        const canvases = probeCharts.querySelectorAll('canvas');
-        
-        canvases.forEach((canvas, index) => {
-            const ctx = canvas.getContext('2d');
-            const chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: `Probe ${index + 1} Temperature (°${tempUnit})`,
-                        data: [],
-                        borderColor: `hsl(${index * 137.5 % 360}, 70%, 50%)`,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: true,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'minute'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            charts.push(chart);
-        });
-    }
-
-    function updateCharts() {
-        const timeRange = document.getElementById('time-range').value;
-        fetchTemperatureData(timeRange)
-            .then(data => {
-                charts.forEach((chart, index) => {
-                    const probeData = data.filter(item => item.probe_id === index);
-                    chart.data.datasets[0].data = probeData.map(item => ({
-                        x: new Date(item.timestamp),
-                        y: item.temperature
-                    }));
-                    chart.update();
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching temperature data:', error);
-            });
-    }
-
-    // Initial chart update
-    initializeCharts();
-    updateCharts();
-    setInterval(updateCharts, 60000); // Update charts every minute
 
     // Add event listener for the button to update target temperature
     const updateTempButton = document.getElementById('update-temp-button');
