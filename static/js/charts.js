@@ -5,6 +5,7 @@ let timezone = 'UTC';  // Default timezone
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeCharts();
+    updateCharts(); // Call this immediately after initialization
     setInterval(updateCharts, 5000); // Update charts every 5 seconds
 
     // Fetch settings to get the timezone
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeCharts() {
+    console.log('Initializing charts');
     const probeCharts = document.getElementById('probe-charts');
     const canvases = probeCharts.querySelectorAll('canvas');
     
@@ -74,6 +76,7 @@ function initializeCharts() {
 }
 
 function updateCharts() {
+    console.log('Updating charts');
     const timeRange = document.getElementById('time-range').value;
     fetchTemperatureData(timeRange)
         .then(data => {

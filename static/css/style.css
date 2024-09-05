@@ -280,3 +280,12 @@ nav .btn {
     line-height: 34px;
     padding: 0 1rem;
 }
+#probe-charts {
+    width: 100%;
+    height: 400px; /* Adjust as needed */
+}
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
