@@ -51,12 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.error('Temperatures data is undefined.');
                 }
 
-                // Destroy existing charts
-                charts.forEach(chart => chart.destroy());
-                charts = [];
-
-                // Reinitialize and update charts
-                initializeCharts();
+                // Update charts with new data
                 updateCharts();
             })
             .catch(error => {
@@ -162,12 +157,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Add event listener for time range change
     document.getElementById('time-range').addEventListener('change', () => {
-        // Destroy existing charts
-        charts.forEach(chart => chart.destroy());
-        charts = [];
-
-        // Reinitialize charts
-        initializeCharts();
         updateCharts();
     });
 });
