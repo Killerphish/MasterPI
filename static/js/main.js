@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (data.target_temperature === 0) {
                         currentTargetTempElement.textContent = 'Off';
                     } else {
-                        currentTargetTempElement.textContent = `${data.target_temperature} °${tempUnit}`;
+                        currentTargetTempElement.textContent = `${data.target_temperature.toFixed(2)} °${tempUnit}`;
                     }
                 } else {
                     console.error('Element with id "current-target-temp" not found.');
@@ -44,7 +44,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     data.temperatures.forEach((temp, index) => {
                         const probeElement = document.getElementById(`probe-${index}`);
                         if (probeElement) {
-                            probeElement.textContent = `${temp} °${tempUnit}`;
+                            const tempFahrenheit = (temp * 9/5 + 32).toFixed(2);  // Convert to Fahrenheit and limit to 2 decimal places
+                            probeElement.textContent = `${tempFahrenheit} °${tempUnit}`;
                         }
                     });
                 } else {
@@ -70,23 +71,18 @@ document.addEventListener("DOMContentLoaded", function() {
         updateTempButton.addEventListener('click', () => {
             const targetTempInput = document.getElementById('target-temp-input');
             if (targetTempInput) {
-                let targetTemp = targetTempInput.value;
-                if (targetTemp.toLowerCase() === 'off') {
-                    targetTemp = 0;
-                } else {
-                    targetTemp = parseFloat(targetTemp);
-                }
+                const targetTemp = parseFloat(targetTempInput.value);
                 if (!isNaN(targetTemp)) {
                     updateTargetTemp(targetTemp)
                         .then(response => {
                             console.log('Target temperature updated:', response);
-                            updateStatus(); // Update the status immediately after setting the target temperature
+                            updateStatus();  // Update status after setting target temperature
                         })
                         .catch(error => {
                             console.error('Error updating target temperature:', error);
                         });
                 } else {
-                    console.error('Invalid target temperature value');
+                    console.error('Invalid target temperature value.');
                 }
             } else {
                 console.error('Element with id "target-temp-input" not found.');

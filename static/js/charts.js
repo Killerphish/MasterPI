@@ -38,10 +38,18 @@ function initializeCharts() {
                         type: 'time',
                         time: {
                             unit: 'minute'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time'
                         }
                     },
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Temperature (°F)'
+                        }
                     }
                 }
             }
@@ -61,7 +69,7 @@ function updateCharts() {
                     console.log(`Updating chart ${index} with data:`, probeData); // Log the data for each chart
                     chart.data.datasets[0].data = probeData.map(item => ({
                         x: new Date(item.timestamp),
-                        y: item.temperature
+                        y: (item.temperature * 9/5 + 32).toFixed(2)  // Convert to Fahrenheit and limit to 2 decimal places
                     }));
                     chart.update();
                 }

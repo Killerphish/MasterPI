@@ -238,12 +238,13 @@ async def get_temperature():
             if not enabled:
                 continue  # Skip disabled sensors
             if isinstance(sensor, adafruit_max31856.MAX31856):
-                temperature = sensor.temperature  # Use the correct method for MAX31856
+                temperature_celsius = sensor.temperature  # Use the correct method for MAX31856
             else:
-                temperature = sensor.read_temperature()  # Use the generic method for other sensors
+                temperature_celsius = sensor.read_temperature()  # Use the generic method for other sensors
+            temperature_fahrenheit = temperature_celsius * 9/5 + 32  # Convert to Fahrenheit
             temperatures.append({
                 'timestamp': datetime.datetime.now().isoformat(),  # Use datetime.datetime.now()
-                'temperature': temperature,
+                'temperature': temperature_fahrenheit,
                 'probe_id': sensors.index((sensor, offset, enabled))
             })
         app.logger.info(f"Returning temperatures: {temperatures}")  # Log the temperatures for debugging
