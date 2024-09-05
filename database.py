@@ -77,7 +77,7 @@ def get_temperature_data_by_range(minutes, timezone):
 
     # Convert timestamps to the specified timezone
     tz = pytz.timezone(timezone)
-    data = [(tz.localize(datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')).astimezone(tz).strftime('%Y-%m-%d %H:%M:%S'), row[1]) for row in data]
+    data = [(datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.utc).astimezone(tz).strftime('%Y-%m-%d %H:%M:%S'), row[1]) for row in data]
     
     return data
 

@@ -19,3 +19,4 @@ nest_asyncio
 asyncio
 setuptools
 pyyaml
+pytz
