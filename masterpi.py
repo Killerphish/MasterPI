@@ -161,8 +161,17 @@ async def create_aiohttp_session():
     aiohttp_session = aiohttp.ClientSession()
     meater_api = MeaterApi(aiohttp_session)
 
-# Initialize the DHT22 sensor
-dht_device = adafruit_dht.DHT22(board.D18)
+# Initialize the DHT sensor
+dht_device = adafruit_dht.DHT22(board.D4)
+
+def read_sensor_temperature():
+    try:
+        temperature_c = dht_device.temperature
+        temperature_f = temperature_c * 9 / 5 + 32
+        return temperature_f
+    except RuntimeError as error:
+        logging.error(f"Error reading DHT sensor: {error}")
+        return None
 
 @app.route('/')
 async def index():
@@ -585,11 +594,18 @@ def initialize_sensor(sensor_type, chip_select_pin):
         try:
             spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
             cs = digitalio.DigitalInOut(cs_pin)
-            sensor = MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)  # Ensure thermocouple type is set
+            sensor = adafruit_max31856.MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)
             sensor.temperature  # Test the sensor
             return sensor
         except Exception as e:
             raise ValueError(f"Error initializing MAX31856 on pin {chip_select_pin}: {e}")
+    elif sensor_type == 'DHT22':
+        try:
+            sensor = adafruit_dht.DHT22(cs_pin)
+            sensor.temperature  # Test the sensor
+            return sensor
+        except Exception as e:
+            raise ValueError(f"Error initializing DHT22 on pin {chip_select_pin}: {e}")
     # Add other sensor types as needed
     return None
 
@@ -756,10 +772,30 @@ logging.basicConfig(level=logging.INFO)
 
 async def read_temperature_data():
     while True:
-        # Simulate reading temperature from a sensor
-        temperature = 75.0  # Replace with actual sensor reading
-        insert_temperature_data(temperature)
-        logging.info(f"Inserted temperature data: {temperature}")
+        try:
+            for sensor, offset, enabled in sensors:
+                if not enabled:
+                    continue  # Skip disabled sensors
+                if isinstance(sensor, adafruit_max31856.MAX31856):
+                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
+                elif isinstance(sensor, adafruit_dht.DHT22):
+                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
+                elif isinstance(sensor, MAX31865):
+                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
+                elif isinstance(sensor, MAX31855):
+                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
+                elif isinstance(sensor, ADS.ADS1115):
+                    # Assuming ADS1115 returns raw ADC values, you might need to convert it to temperature
+                    raw_value = AnalogIn(sensor, ADS.P0).value
+                    temperature = convert_ads1115_to_temperature(raw_value) * 9 / 5 + 32  # Convert to Fahrenheit
+                else:
+                    continue
+                temperature += offset  # Apply temperature offset
+                logging.info(f"Read temperature: {temperature}")
+                insert_temperature_data(temperature)
+                logging.info(f"Inserted temperature data: {temperature}")
+        except Exception as e:
+            logging.error(f"Error reading temperature: {e}")
         await asyncio.sleep(60)  # Read temperature data every 60 seconds
 
 @app.route('/temp_data', methods=['GET'])
@@ -767,7 +803,8 @@ async def temp_data():
     try:
         time_range = request.args.get('time_range', '60')  # Default to 60 minutes if not provided
         data = get_temperature_data_by_range(int(time_range))
-        return jsonify(data=data)
+        formatted_data = [{'timestamp': row[0], 'temperature': row[1]} for row in data]
+        return jsonify(data=formatted_data)
     except Exception as e:
         app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
