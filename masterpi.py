@@ -244,7 +244,7 @@ async def get_temperature():
             temperature_fahrenheit = temperature_celsius * 9/5 + 32  # Convert to Fahrenheit
             temperatures.append({
                 'timestamp': datetime.datetime.now().isoformat(),  # Use datetime.datetime.now()
-                'temperature': temperature_fahrenheit,
+                'temperature': round(temperature_fahrenheit, 2),  # Round to 2 decimal places
                 'probe_id': sensors.index((sensor, offset, enabled))
             })
         app.logger.info(f"Returning temperatures: {temperatures}")  # Log the temperatures for debugging

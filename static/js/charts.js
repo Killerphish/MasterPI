@@ -37,7 +37,8 @@ function initializeCharts() {
                     x: {
                         type: 'time',
                         time: {
-                            unit: 'minute'
+                            unit: 'minute',
+                            tooltipFormat: 'MMM d, yyyy, h:mm:ss a'  // Format for tooltip
                         },
                         title: {
                             display: true,
@@ -69,7 +70,7 @@ function updateCharts() {
                     console.log(`Updating chart ${index} with data:`, probeData); // Log the data for each chart
                     chart.data.datasets[0].data = probeData.map(item => ({
                         x: new Date(item.timestamp),
-                        y: (item.temperature * 9/5 + 32).toFixed(2)  // Convert to Fahrenheit and limit to 2 decimal places
+                        y: item.temperature  // Temperature is already in Fahrenheit and rounded to 2 decimal places
                     }));
                     chart.update();
                 }
