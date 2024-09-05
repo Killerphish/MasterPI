@@ -226,6 +226,8 @@ async def save_personalization_settings():
 @app.route('/get_temperature', methods=['GET'])
 async def get_temperature():
     try:
+        time_range = request.args.get('time_range', 'default_value')  # Get the time range parameter
+        app.logger.info(f"Time range: {time_range}")  # Log the time range for debugging
         temperatures = []
         for sensor, offset, enabled in sensors:
             if not enabled:
@@ -255,12 +257,21 @@ async def get_temperature():
                 # Round the temperature to two decimal places
                 temperature = round(temperature, 2)
                 
-                temperatures.append(temperature)
+                temperatures.append({
+                    'timestamp': datetime.now().isoformat(),
+                    'temperature': temperature,
+                    'probe_id': sensors.index((sensor, offset, enabled))
+                })
                 app.logger.info(f"Read temperature: {temperature} {'°F' if config['units']['temperature'] == 'Fahrenheit' else '°C'} from {sensor.__class__.__name__}")
             except Exception as e:
                 app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
-                temperatures.append(None)
+                temperatures.append({
+                    'timestamp': datetime.now().isoformat(),
+                    'temperature': None,
+                    'probe_id': sensors.index((sensor, offset, enabled))
+                })
         
+        app.logger.info(f"Returning temperatures: {temperatures}")  # Log the temperatures for debugging
         return jsonify({'temperatures': temperatures})
     except Exception as e:
         app.logger.error(f"Error reading temperature: {e}")

@@ -11,8 +11,8 @@ function getCsrfToken() {
     }
 }
 
-export function fetchTemperatureData() {
-    return fetch('/get_temperature')
+export function fetchTemperatureData(timeRange) {
+    return fetch(`/get_temperature?time_range=${timeRange}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);
@@ -20,27 +20,12 @@ export function fetchTemperatureData() {
             return response.json();
         })
         .then(data => {
-            // Attempt to transform data into the correct format
-            if (!Array.isArray(data)) {
-                if (typeof data === 'object' && data !== null) {
-                    // Convert object to array of arrays
-                    data = Object.entries(data);
-                } else {
-                    throw new Error('Data format is incorrect: not an array');
-                }
-            }
-
-            const transformedData = data.map(item => {
-                if (Array.isArray(item) && item.length === 2) {
-                    return item;
-                } else if (item.timestamp && item.entry) {
-                    return [item.timestamp, item.entry];
-                } else {
-                    throw new Error('Data format is incorrect: item structure is invalid');
-                }
-            });
-
-            return transformedData;
+            console.log('Fetched temperature data:', data); // Log the fetched data for debugging
+            return data;
+        })
+        .catch(error => {
+            console.error('Error fetching temperature data:', error);
+            throw error;
         });
 }
 
