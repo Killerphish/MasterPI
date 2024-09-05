@@ -762,9 +762,6 @@ async def read_temperature_data():
         logging.info(f"Inserted temperature data: {temperature}")
         await asyncio.sleep(60)  # Read temperature data every 60 seconds
 
-# Start the temperature reading loop
-asyncio.create_task(read_temperature_data())
-
 @app.route('/temp_data', methods=['GET'])
 async def temp_data():
     try:
@@ -775,17 +772,20 @@ async def temp_data():
         app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
-if __name__ == '__main__':
-    async def main():
-        global config
-        config = await load_config()  # Load the configuration asynchronously
-        await create_aiohttp_session()
-        init_db()  # Initialize the database
-        hypercorn_config = HypercornConfig()
-        hypercorn_config.bind = ["127.0.0.1:5000"]  # Ensure this is correct
-        try:
-            await serve(app, hypercorn_config)
-        finally:
-            await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
+async def main():
+    global config
+    config = await load_config()  # Load the configuration asynchronously
+    await create_aiohttp_session()
+    init_db()  # Initialize the database
+    hypercorn_config = HypercornConfig()
+    hypercorn_config.bind = ["127.0.0.1:5000"]  # Ensure this is correct
+    try:
+        # Start the temperature reading loop
+        asyncio.create_task(read_temperature_data())
+        await serve(app, hypercorn_config)
+    finally:
+        await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
 
+if __name__ == '__main__':
+    nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
     asyncio.run(main())
