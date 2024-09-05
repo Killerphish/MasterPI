@@ -290,10 +290,10 @@ async def favicon():
                                      'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/save_temperature', methods=['POST'])
-def save_temperature():
-    data = request.get_json()
+async def save_temperature():
+    data = await request.get_json()
     temperature = data.get('temperature')
-    if (temperature is None):
+    if temperature is None:
         return jsonify({'error': 'Temperature is required'}), 400
 
     try:
