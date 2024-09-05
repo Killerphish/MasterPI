@@ -1,46 +1,46 @@
-from flask import Flask, render_template, request, jsonify
+from quart import Quart, render_template, request, jsonify
 import sqlite3
+from database import get_last_24_hours_temperature_data, get_temperature_data_by_range
 
 def create_app():
-    app = Flask(__name__)
+    app = Quart(__name__)
 
     @app.route('/')
-    def index():
-        return render_template('index.html')
+    async def index():
+        return await render_template('index.html')
 
     @app.route('/settings')
-    def settings():
-        return render_template('settings.html')
+    async def settings():
+        return await render_template('settings.html')
 
     @app.route('/chart')
-    def chart():
-        return render_template('chart.html')
+    async def chart():
+        return await render_template('chart.html')
 
     @app.route('/update_target', methods=['POST'])
-    def update_target():
-        target_temp = request.form['target_temp']
+    async def update_target():
+        data = await request.form
+        target_temp = data['target_temp']
         # Update target temperature in your PID controller
         return jsonify(success=True)
 
     @app.route('/current_temp', methods=['GET'])
-    def current_temp():
+    async def current_temp():
         # Get current temperature from the sensor
         return jsonify(current_temp=current_temp)
 
     @app.route('/temp_data', methods=['GET'])
-    def temp_data():
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
-        c.execute('SELECT timestamp, temperature FROM temperature ORDER BY timestamp DESC LIMIT 60')
-        data = c.fetchall()
-        conn.close()
+    async def temp_data():
+        time_range = request.args.get('time_range', '60')  # Default to 60 minutes if not provided
+        data = get_temperature_data_by_range(int(time_range))
         return jsonify(data=data)
 
     @app.route('/save_settings', methods=['POST'])
-    def save_settings():
-        device_name = request.form['device_name']
-        temp_offset = request.form['temp_offset']
-        temp_unit = request.form['temp_unit']
+    async def save_settings():
+        data = await request.form
+        device_name = data['device_name']
+        temp_offset = data['temp_offset']
+        temp_unit = data['temp_unit']
         # Save these settings to a database or file
         # Example: save to SQLite
         conn = sqlite3.connect('database.db')
@@ -52,7 +52,7 @@ def create_app():
         return jsonify(success=True)
 
     @app.route('/pid_autotune', methods=['POST'])
-    def pid_autotune():
+    async def pid_autotune():
         # Start PID autotune process
         return jsonify(success=True)
 

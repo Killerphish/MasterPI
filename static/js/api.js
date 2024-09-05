@@ -12,7 +12,7 @@ function getCsrfToken() {
 }
 
 export function fetchTemperatureData(timeRange) {
-    return fetch(`/get_temperature?time_range=${timeRange}`)
+    return fetch(`/temp_data?time_range=${timeRange}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);

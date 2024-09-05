@@ -5,7 +5,7 @@ from quart_csrf import CSRFProtect, generate_csrf
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
-from database import insert_temperature_data, get_last_24_hours_temperature_data, init_db
+from database import insert_temperature_data, get_last_24_hours_temperature_data, init_db, get_temperature_data_by_range
 import digitalio
 import adafruit_blinka
 import board
@@ -232,21 +232,17 @@ async def get_temperature():
         time_range = request.args.get('time_range', '5')  # Default to 5 if not provided
         app.logger.info(f"Received request for temperature data with time range: {time_range}")
 
-        # Fetch temperature data based on the time range
+        # Fetch temperature data from the database
+        data = get_temperature_data_by_range(int(time_range))
+
         temperatures = []
-        for sensor, offset, enabled in sensors:
-            if not enabled:
-                continue  # Skip disabled sensors
-            if isinstance(sensor, adafruit_max31856.MAX31856):
-                temperature_celsius = sensor.temperature  # Use the correct method for MAX31856
-            else:
-                temperature_celsius = sensor.read_temperature()  # Use the generic method for other sensors
-            temperature_fahrenheit = temperature_celsius * 9/5 + 32  # Convert to Fahrenheit
+        for row in data:
+            timestamp, temperature = row
             temperatures.append({
-                'timestamp': datetime.datetime.now().isoformat(),  # Use datetime.datetime.now()
-                'temperature': round(temperature_fahrenheit, 2),  # Round to 2 decimal places
-                'probe_id': sensors.index((sensor, offset, enabled))
+                'timestamp': timestamp,
+                'temperature': temperature
             })
+
         app.logger.info(f"Returning temperatures: {temperatures}")  # Log the temperatures for debugging
         return jsonify({'temperatures': temperatures})
     except Exception as e:
