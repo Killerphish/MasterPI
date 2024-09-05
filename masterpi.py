@@ -30,6 +30,7 @@ from adafruit_ads1x15.analog_in import AnalogIn
 import aiofiles  # Ensure aiofiles is imported
 import traceback
 import json
+import datetime  # Add this import statement
 
 def load_config_sync():
     try:
@@ -226,55 +227,24 @@ async def save_personalization_settings():
 @app.route('/get_temperature', methods=['GET'])
 async def get_temperature():
     try:
-        time_range = request.args.get('time_range', 'default_value')  # Get the time range parameter
-        app.logger.info(f"Time range: {time_range}")  # Log the time range for debugging
+        time_range = request.args.get('time_range', '5')  # Default to 5 if not provided
+        app.logger.info(f"Received request for temperature data with time range: {time_range}")
+
+        # Fetch temperature data based on the time range
         temperatures = []
         for sensor, offset, enabled in sensors:
             if not enabled:
                 continue  # Skip disabled sensors
-
-            try:
-                if isinstance(sensor, MAX31865):
-                    temperature_celsius = sensor.temperature
-                elif isinstance(sensor, MAX31855):
-                    temperature_celsius = sensor.temperature
-                elif isinstance(sensor, MAX31856):
-                    temperature_celsius = sensor.temperature
-                elif isinstance(sensor, AnalogIn):
-                    voltage = sensor.voltage
-                    temperature_celsius = voltage_to_temperature(voltage)
-                elif isinstance(sensor, adafruit_dht.DHT22):
-                    temperature_celsius = sensor.temperature
-                else:
-                    raise ValueError("Unsupported sensor type")
-
-                corrected_temperature_celsius = temperature_celsius + offset
-                if config['units']['temperature'] == 'Fahrenheit':
-                    temperature = (corrected_temperature_celsius * 9/5) + 32
-                else:
-                    temperature = corrected_temperature_celsius
-                
-                # Round the temperature to two decimal places
-                temperature = round(temperature, 2)
-                
-                temperatures.append({
-                    'timestamp': datetime.now().isoformat(),
-                    'temperature': temperature,
-                    'probe_id': sensors.index((sensor, offset, enabled))
-                })
-                app.logger.info(f"Read temperature: {temperature} {'°F' if config['units']['temperature'] == 'Fahrenheit' else '°C'} from {sensor.__class__.__name__}")
-            except Exception as e:
-                app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
-                temperatures.append({
-                    'timestamp': datetime.now().isoformat(),
-                    'temperature': None,
-                    'probe_id': sensors.index((sensor, offset, enabled))
-                })
-        
+            temperature = sensor.read_temperature()  # Replace with actual sensor reading logic
+            temperatures.append({
+                'timestamp': datetime.datetime.now().isoformat(),  # Use datetime.datetime.now()
+                'temperature': temperature,
+                'probe_id': sensors.index((sensor, offset, enabled))
+            })
         app.logger.info(f"Returning temperatures: {temperatures}")  # Log the temperatures for debugging
         return jsonify({'temperatures': temperatures})
     except Exception as e:
-        app.logger.error(f"Error reading temperature: {e}")
+        app.logger.error(f"Error reading temperature: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 def voltage_to_temperature(voltage):

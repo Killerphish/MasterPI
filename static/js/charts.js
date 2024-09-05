@@ -57,7 +57,7 @@ function updateCharts() {
             console.log('Updating charts with data:', data); // Log the data for debugging
             charts.forEach((chart, index) => {
                 if (chart && chart.data && chart.data.datasets) {
-                    const probeData = data.filter(item => item.probe_id === index);
+                    const probeData = data.temperatures.filter(item => item.probe_id === index);
                     console.log(`Updating chart ${index} with data:`, probeData); // Log the data for each chart
                     chart.data.datasets[0].data = probeData.map(item => ({
                         x: new Date(item.timestamp),
