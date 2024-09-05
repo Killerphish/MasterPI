@@ -49,6 +49,7 @@ meater_integration:
 # Unit settings
 units:
   temperature: Fahrenheit  # Options: Celsius, Fahrenheit
+  timezone: 'America/New_York'  # Add your desired default timezone
 
 # Device settings
 device:

@@ -94,8 +94,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 M.toast({html: 'Error saving settings'});
             });
         });
-    } else {
-        console.error('Settings form not found');
     }
 
     M.AutoInit();  // Initialize all Materialize components
@@ -127,14 +125,33 @@ document.addEventListener("DOMContentLoaded", function() {
     // Ensure labels are correctly positioned
     M.updateTextFields();
 
-    // Fetch settings to get the temperature unit
+    // Fetch settings to get the temperature unit and timezone
     fetch('/get_settings')
         .then(response => response.json())
         .then(settings => {
             tempUnit = settings.units.temperature;
+            const timezone = settings.units.timezone;
+            document.getElementById('timezone').value = timezone;  // Set the timezone dropdown value
         })
         .catch(error => {
             console.error('Error fetching settings:', error);
+        });
+
+    // Fetch and populate timezones
+    fetch('/get_timezones')
+        .then(response => response.json())
+        .then(timezones => {
+            const timezoneSelect = document.getElementById('timezone');
+            timezones.forEach(tz => {
+                const option = document.createElement('option');
+                option.value = tz;
+                option.textContent = tz;
+                timezoneSelect.appendChild(option);
+            });
+            M.FormSelect.init(timezoneSelect);  // Reinitialize Materialize select
+        })
+        .catch(error => {
+            console.error('Error fetching timezones:', error);
         });
 
     // Add event listeners to switch tab content
@@ -223,129 +240,18 @@ document.addEventListener("DOMContentLoaded", function() {
     function handleEditSensor(event) {
         event.preventDefault();
         const sensorIndex = this.getAttribute('data-index');
-        const csPin = this.getAttribute('data-cs-pin');
-        const label = this.getAttribute('data-label');
+        const sensorLabel = this.getAttribute('data-label');
+        const sensorCsPin = this.getAttribute('data-cs-pin');
 
-        // Create or update the edit form
-        let editForm = document.getElementById(`editSensorForm-${sensorIndex}`);
-        if (!editForm) {
-            editForm = createEditForm(sensorIndex, csPin, label);
-            document.body.appendChild(editForm);
-        } else {
-            updateEditForm(editForm, sensorIndex, csPin, label);
-        }
+        // Populate the edit form with the current sensor data
+        document.getElementById('editSensorLabel').value = sensorLabel;
+        document.getElementById('editSensorCsPin').value = sensorCsPin;
+        document.getElementById('editSensorIndex').value = sensorIndex;
 
-        // Open the modal
-        const modalId = `editSensorModal-${sensorIndex}`;
-        let modal = document.getElementById(modalId);
-        if (!modal) {
-            modal = createEditModal(modalId, editForm);
-            document.body.appendChild(modal);
-        }
-        const instance = M.Modal.init(modal);
+        // Open the edit sensor modal
+        const editSensorModal = document.getElementById('editSensorModal');
+        const instance = M.Modal.getInstance(editSensorModal);
         instance.open();
-    }
-
-    // Function to create edit form
-    function createEditForm(index, csPin, label) {
-        const form = document.createElement('form');
-        form.id = `editSensorForm-${index}`;
-        form.innerHTML = `
-            <input type="hidden" name="index" value="${index}">
-            <div class="input-field">
-                <input type="text" name="cs_pin" value="${csPin}" required>
-                <label for="cs_pin">CS Pin</label>
-            </div>
-            <div class="input-field">
-                <input type="text" name="label" value="${label}" required>
-                <label for="label">Label</label>
-            </div>
-            <button type="submit" class="btn">Save Changes</button>
-        `;
-        form.addEventListener('submit', handleEditFormSubmit);
-        return form;
-    }
-
-    // Function to update existing edit form
-    function updateEditForm(form, index, csPin, label) {
-        form.querySelector('input[name="index"]').value = index;
-        form.querySelector('input[name="cs_pin"]').value = csPin;
-        form.querySelector('input[name="label"]').value = label;
-    }
-
-    // Function to create edit modal
-    function createEditModal(id, form) {
-        const modal = document.createElement('div');
-        modal.id = id;
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h4>Edit Sensor</h4>
-            </div>
-        `;
-        modal.querySelector('.modal-content').appendChild(form);
-        return modal;
-    }
-
-    // Function to handle edit form submission
-    function handleEditFormSubmit(event) {
-        event.preventDefault();
-        const form = event.target;
-        const formData = new FormData(form);
-        const data = {
-            index: formData.get('index'),
-            cs_pin: formData.get('cs_pin'),
-            label: formData.get('label')
-        };
-
-        fetch(saveSensorSettingsUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCsrfToken()
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.message) {
-                M.toast({html: result.message});
-                window.location.reload();  // Reload the page to reflect the edited sensor
-            } else {
-                M.toast({html: `Error: ${result.error}`});
-            }
-        })
-        .catch(error => {
-            console.error('Error editing sensor:', error);
-            M.toast({html: `Error: ${error.message}`});
-        });
-    }
-
-    // Function to get CSRF token
-    function getCsrfToken() {
-        const tokenInput = document.querySelector('input[name="csrf_token"]');
-        return tokenInput ? tokenInput.value : null;
-    }
-
-    // Function to fetch available pins
-    function fetchAvailablePins() {
-        fetch(getAvailablePinsUrl)
-            .then(response => response.json())
-            .then(pins => {
-                const selectElement = document.getElementById('newSensorCsPin');
-                selectElement.innerHTML = ''; // Clear existing options
-                pins.forEach(pin => {
-                    const option = document.createElement('option');
-                    option.value = pin;
-                    option.textContent = pin;
-                    selectElement.appendChild(option);
-                });
-                M.FormSelect.init(selectElement); // Reinitialize Materialize select
-            })
-            .catch(error => {
-                console.error('Error fetching available pins:', error);
-                M.toast({html: 'Error fetching available pins'});
-            });
     }
 
     // Function to refresh sensor list

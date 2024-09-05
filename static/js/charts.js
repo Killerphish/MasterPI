@@ -1,10 +1,21 @@
 import { fetchTemperatureData } from './api.js';
 
 let charts = [];
+let timezone = 'UTC';  // Default timezone
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeCharts();
     setInterval(updateCharts, 5000); // Update charts every 5 seconds
+
+    // Fetch settings to get the timezone
+    fetch('/get_settings')
+        .then(response => response.json())
+        .then(settings => {
+            timezone = settings.units.timezone;
+        })
+        .catch(error => {
+            console.error('Error fetching settings:', error);
+        });
 });
 
 function initializeCharts() {
@@ -38,7 +49,10 @@ function initializeCharts() {
                         type: 'time',
                         time: {
                             unit: 'minute',
-                            tooltipFormat: 'MMM d, yyyy, h:mm:ss a'  // Format for tooltip
+                            tooltipFormat: 'MMM d, yyyy, h:mm:ss a',  // Format for tooltip
+                            displayFormats: {
+                                minute: 'MMM d, yyyy, h:mm:ss a'
+                            }
                         },
                         title: {
                             display: true,
@@ -69,7 +83,7 @@ function updateCharts() {
                     const probeData = data.data;  // Use the data directly
                     console.log(`Updating chart ${index} with data:`, probeData); // Log the data for each chart
                     chart.data.datasets[0].data = probeData.map(item => ({
-                        x: new Date(item.timestamp),
+                        x: new Date(item.timestamp).toLocaleString('en-US', { timeZone: timezone }),
                         y: item.temperature  // Temperature is already in Fahrenheit and rounded to 2 decimal places
                     }));
                     chart.update();

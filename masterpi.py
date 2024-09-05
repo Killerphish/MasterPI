@@ -31,6 +31,7 @@ import aiofiles  # Ensure aiofiles is imported
 import traceback
 import json
 import datetime  # Add this import statement
+import pytz
 
 def load_config_sync():
     try:
@@ -715,6 +716,8 @@ async def save_settings():
             config['device']['name'] = data['device_name']
         elif 'temperatureUnit' in data:
             config['units']['temperature'] = data['temperatureUnit']
+        elif 'timezone' in data:
+            config['units']['timezone'] = data['timezone']  # Save the timezone setting
         elif any(key in data for key in ['navColor', 'buttonColor', 'backgroundColor', 'navTextColor', 'buttonTextColor']):
             # Handle personalization settings
             config.setdefault('personalization', {})
@@ -808,6 +811,11 @@ async def temp_data():
     except Exception as e:
         app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
+
+@app.route('/get_timezones', methods=['GET'])
+async def get_timezones():
+    timezones = pytz.all_timezones
+    return jsonify(timezones)
 
 async def main():
     global config

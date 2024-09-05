@@ -1,5 +1,7 @@
 import sqlite3
 import logging
+import pytz
+from datetime import datetime
 
 def init_db():
     # Initialize database.db
@@ -61,7 +63,7 @@ def get_last_24_hours_temperature_data():
     conn.close()
     return data
 
-def get_temperature_data_by_range(minutes):
+def get_temperature_data_by_range(minutes, timezone):
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute('''
@@ -72,6 +74,11 @@ def get_temperature_data_by_range(minutes):
     ''', (-minutes,))
     data = c.fetchall()
     conn.close()
+
+    # Convert timestamps to the specified timezone
+    tz = pytz.timezone(timezone)
+    data = [(tz.localize(datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')).astimezone(tz).strftime('%Y-%m-%d %H:%M:%S'), row[1]) for row in data]
+    
     return data
 
 if __name__ == '__main__':
