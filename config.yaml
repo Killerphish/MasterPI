@@ -6,6 +6,7 @@ app:
   wizard_completed: true
   host: 0.0.0.0
   port: 5000
+  secret_key: ${SECRET_KEY}  # Use environment variable
 
 # Sensor settings
 sensors: []  # Empty list, as sensors are now managed dynamically
