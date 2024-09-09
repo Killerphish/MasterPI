@@ -276,6 +276,11 @@ async def power_options():
     except Exception as e:
         app.logger.error(f"Error handling power options: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/settings')
+async def settings():
+    config = await load_config()
+    return await render_template('settings.html', config=config)
 
 @app.route('/save_settings', methods=['POST'])
 async def save_settings():
