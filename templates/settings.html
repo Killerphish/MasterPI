@@ -149,6 +149,29 @@
                             <label for="buttonTextColor">Button Text Color</label>
                         </div>
                     </div>
+                    
+                    <!-- Add Sensor Management Section -->
+                    <div id="sensorManagement" class="col s12">
+                        <h2>Sensor Management</h2>
+                        <button id="openAddSensorModal" class="btn waves-effect waves-light">Add Sensor</button>
+                        
+                        <!-- Sensor List -->
+                        <ul class="collection">
+                            {% for sensor in config.get('sensors', []) %}
+                            <li class="collection-item">
+                                {{ sensor.label }} ({{ sensor.type }})
+                                <div class="secondary-content">
+                                    <button class="btn-small waves-effect waves-light edit-sensor" data-index="{{ loop.index0 }}" data-label="{{ sensor.label }}" data-cs-pin="{{ sensor.chip_select_pin }}">
+                                        Edit
+                                    </button>
+                                    <button class="btn-small waves-effect waves-light red remove-sensor" data-index="{{ loop.index0 }}">
+                                        Remove
+                                    </button>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </form>
             </div>
         </div>
@@ -169,6 +192,59 @@
                     <button id="shutdownButton" class="btn black">Shutdown</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Add Sensor Modal -->
+    <div id="addSensorModal" class="modal">
+        <div class="modal-content">
+            <h4>Add New Sensor</h4>
+            <form id="addSensorForm">
+                <div class="input-field">
+                    <select id="newSensorType" required>
+                        <option value="" disabled selected>Choose sensor type</option>
+                        <option value="MAX31856">MAX31856</option>
+                        <option value="MAX31865">MAX31865</option>
+                        <option value="MAX31855">MAX31855</option>
+                        <option value="ADS1115">ADS1115</option>
+                    </select>
+                    <label>Sensor Type</label>
+                </div>
+                <div class="input-field">
+                    <input id="newSensorLabel" type="text" required>
+                    <label for="newSensorLabel">Sensor Label</label>
+                </div>
+                <div class="input-field">
+                    <select id="newSensorCsPin" required>
+                        <option value="" disabled selected>Choose CS pin</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <label>Chip Select Pin</label>
+                </div>
+                <button class="btn waves-effect waves-light" type="submit">Add Sensor</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Sensor Modal -->
+    <div id="editSensorModal" class="modal">
+        <div class="modal-content">
+            <h4>Edit Sensor</h4>
+            <form id="editSensorForm">
+                <input type="hidden" id="editSensorIndex">
+                <div class="input-field">
+                    <input id="editSensorLabel" type="text" required>
+                    <label for="editSensorLabel">Sensor Label</label>
+                </div>
+                <div class="input-field">
+                    <select id="editSensorCsPin" required>
+                        <option value="" disabled selected>Choose CS pin</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <label>Chip Select Pin</label>
+                </div>
+                <button class="btn waves-effect waves-light" type="submit">Save Changes</button>
+            </form>
         </div>
     </div>
 

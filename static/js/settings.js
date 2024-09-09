@@ -294,4 +294,67 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initialize Materialize select
     var elems = document.querySelectorAll('select');
     M.FormSelect.init(elems);
+
+    function fetchAvailablePins() {
+        fetch(getAvailablePinsUrl)
+            .then(response => response.json())
+            .then(pins => {
+                const newSensorCsPin = document.getElementById('newSensorCsPin');
+                const editSensorCsPin = document.getElementById('editSensorCsPin');
+                
+                [newSensorCsPin, editSensorCsPin].forEach(select => {
+                    select.innerHTML = '';
+                    pins.forEach(pin => {
+                        const option = document.createElement('option');
+                        option.value = pin;
+                        option.textContent = pin;
+                        select.appendChild(option);
+                    });
+                    M.FormSelect.init(select);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching available pins:', error);
+            });
+    }
+
+    const editSensorForm = document.getElementById('editSensorForm');
+    if (editSensorForm) {
+        editSensorForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const sensorIndex = document.getElementById('editSensorIndex').value;
+            const label = document.getElementById('editSensorLabel').value;
+            const chipSelectPin = document.getElementById('editSensorCsPin').value;
+
+            const data = {
+                index: sensorIndex,
+                label: label,
+                chip_select_pin: chipSelectPin
+            };
+
+            fetch(saveSensorSettingsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                    refreshSensorList();
+                    M.Modal.getInstance(document.getElementById('editSensorModal')).close();
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error saving sensor settings:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        });
+    }
 });
