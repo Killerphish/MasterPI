@@ -779,7 +779,20 @@ async def read_temperature_data():
             for sensor, offset, enabled in sensors:
                 if not enabled:
                     continue  # Skip disabled sensors
-                temperature = read_sensor_temperature(sensor)
+                if isinstance(sensor, adafruit_max31856.MAX31856):
+                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
+                elif isinstance(sensor, adafruit_dht.DHT22):
+                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
+                elif isinstance(sensor, MAX31865):
+                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
+                elif isinstance(sensor, MAX31855):
+                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
+                elif isinstance(sensor, ADS.ADS1115):
+                    # Assuming ADS1115 returns raw ADC values, you might need to convert it to temperature
+                    raw_value = AnalogIn(sensor, ADS.P0).value
+                    temperature = convert_ads1115_to_temperature(raw_value) * 9 / 5 + 32  # Convert to Fahrenheit
+                else:
+                    continue
                 temperature += offset  # Apply temperature offset
                 logging.info(f"Read temperature: {temperature}")
                 insert_temperature_data(temperature)
