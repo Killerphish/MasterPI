@@ -12,8 +12,15 @@ function getCsrfToken() {
 }
 
 export function fetchTemperatureData(timeRange) {
-    return fetch(`/temp_data?time_range=${timeRange}`)
-        .then(response => response.json())
+    const url = `/temp_data?time_range=${timeRange}`;
+    console.log(`Fetching temperature data from URL: ${url}`);  // Log the URL
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
             console.log('Raw temperature data:', JSON.stringify(data));
             // Ensure data is in the correct format
