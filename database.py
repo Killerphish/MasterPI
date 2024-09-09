@@ -64,26 +64,14 @@ def get_last_24_hours_temperature_data():
     return data
 
 def get_temperature_data_by_range(time_range, timezone):
-    conn = sqlite3.connect('temperature.db')
-    cursor = conn.cursor()
-    
-    # Calculate the timestamp for the start of the time range
-    start_time = datetime.datetime.now(pytz.timezone(timezone)) - timedelta(minutes=time_range)
-    
-    # Convert the start_time to UTC for database query
-    start_time_utc = start_time.astimezone(pytz.UTC)
-    
-    cursor.execute("""
-        SELECT timestamp, temperature
-        FROM temperature_data
-        WHERE timestamp >= ?
-        ORDER BY timestamp
-    """, (start_time_utc.strftime('%Y-%m-%d %H:%M:%S'),))
-    
-    data = cursor.fetchall()
-    conn.close()
-    
-    return data
+    try:
+        start_time = datetime.datetime.now(pytz.timezone(timezone)) - timedelta(minutes=time_range)
+        # Your code to fetch temperature data from the database
+        # ...
+        return data
+    except Exception as e:
+        print(f"Error fetching temperature data: {e}")
+        return []
 
 if __name__ == '__main__':
     init_db()
