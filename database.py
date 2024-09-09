@@ -63,21 +63,25 @@ def get_last_24_hours_temperature_data():
     conn.close()
     return data
 
-def get_temperature_data_by_range(minutes, timezone):
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute('''
-        SELECT timestamp, temperature 
-        FROM temperature_data 
-        WHERE timestamp >= datetime('now', ? || ' minutes') 
-        ORDER BY timestamp ASC
-    ''', (-minutes,))
-    data = c.fetchall()
+def get_temperature_data_by_range(time_range, timezone):
+    conn = sqlite3.connect('temperature.db')
+    cursor = conn.cursor()
+    
+    # Calculate the timestamp for the start of the time range
+    start_time = datetime.datetime.now(pytz.timezone(timezone)) - datetime.timedelta(minutes=time_range)
+    
+    # Convert the start_time to UTC for database query
+    start_time_utc = start_time.astimezone(pytz.UTC)
+    
+    cursor.execute("""
+        SELECT timestamp, temperature
+        FROM temperature_data
+        WHERE timestamp >= ?
+        ORDER BY timestamp
+    """, (start_time_utc.strftime('%Y-%m-%d %H:%M:%S'),))
+    
+    data = cursor.fetchall()
     conn.close()
-
-    # Convert timestamps to the specified timezone
-    tz = pytz.timezone(timezone)
-    data = [(datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.utc).astimezone(tz).strftime('%Y-%m-%d %H:%M:%S'), row[1]) for row in data]
     
     return data
 

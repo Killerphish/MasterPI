@@ -89,7 +89,22 @@ function updateCharts() {
                 console.error('Invalid data format received');
                 return;
             }
-            // ... rest of the function
+            if (data.data.length === 0) {
+                console.warn('No temperature data available');
+                return;
+            }
+            charts.forEach((chart, index) => {
+                if (chart && chart.data && chart.data.datasets) {
+                    const probeData = data.data;
+                    console.log(`Updating chart ${index} with data:`, probeData);
+                    chart.data.datasets[0].data = probeData.map(item => ({
+                        x: new Date(item.timestamp).toLocaleString('en-US', { timeZone: timezone }),
+                        y: item.temperature
+                    }));
+                    console.log(`Chart ${index} data:`, chart.data.datasets[0].data);
+                    chart.update();
+                }
+            });
         })
         .catch(error => {
             console.error('Error fetching temperature data:', error);
