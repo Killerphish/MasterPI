@@ -58,6 +58,11 @@ function applyColorChange(settingName, value) {
     }
 }
 
+// Function to get CSRF token from meta tag
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     console.log('DOM fully loaded');
 
@@ -92,6 +97,46 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => {
                 console.error('Error:', error);
                 M.toast({html: 'Error saving settings'});
+            });
+        });
+    }
+
+    const editSensorForm = document.getElementById('editSensorForm');
+    if (editSensorForm) {
+        editSensorForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const sensorIndex = document.getElementById('editSensorIndex').value;
+            const label = document.getElementById('editSensorLabel').value;
+            const chipSelectPin = document.getElementById('editSensorCsPin').value;
+
+            const data = {
+                index: sensorIndex,
+                label: label,
+                chip_select_pin: chipSelectPin
+            };
+
+            fetch(saveSensorSettingsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken()
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                    refreshSensorList();
+                    M.Modal.getInstance(document.getElementById('editSensorModal')).close();
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error saving sensor settings:', error);
+                M.toast({html: `Error: ${error.message}`});
             });
         });
     }
@@ -316,45 +361,5 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => {
                 console.error('Error fetching available pins:', error);
             });
-    }
-
-    const editSensorForm = document.getElementById('editSensorForm');
-    if (editSensorForm) {
-        editSensorForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const sensorIndex = document.getElementById('editSensorIndex').value;
-            const label = document.getElementById('editSensorLabel').value;
-            const chipSelectPin = document.getElementById('editSensorCsPin').value;
-
-            const data = {
-                index: sensorIndex,
-                label: label,
-                chip_select_pin: chipSelectPin
-            };
-
-            fetch(saveSensorSettingsUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.message) {
-                    M.toast({html: result.message});
-                    refreshSensorList();
-                    M.Modal.getInstance(document.getElementById('editSensorModal')).close();
-                } else {
-                    M.toast({html: `Error: ${result.error}`});
-                }
-            })
-            .catch(error => {
-                console.error('Error saving sensor settings:', error);
-                M.toast({html: `Error: ${error.message}`});
-            });
-        });
     }
 });
