@@ -4,6 +4,7 @@ let charts = [];
 let timezone = 'UTC';  // Default timezone
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded');
     initializeCharts();
     updateCharts(); // Call this immediately after initialization
     setInterval(updateCharts, 5000); // Update charts every 5 seconds
@@ -22,7 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeCharts() {
     console.log('Initializing charts');
     const probeCharts = document.getElementById('probe-charts');
+    console.log('probe-charts element:', probeCharts);
     const canvases = probeCharts.querySelectorAll('canvas');
+    console.log('Number of canvas elements:', canvases.length);
     
     // Destroy existing charts
     charts.forEach(chart => {
@@ -81,19 +84,12 @@ function updateCharts() {
     const timeRange = document.getElementById('time-range').value;
     fetchTemperatureData(timeRange)
         .then(data => {
-            console.log('Updating charts with data:', data); // Log the data for debugging
-            charts.forEach((chart, index) => {
-                if (chart && chart.data && chart.data.datasets) {
-                    const probeData = data.data;  // Use the data directly
-                    console.log(`Updating chart ${index} with data:`, probeData); // Log the data for each chart
-                    chart.data.datasets[0].data = probeData.map(item => ({
-                        x: new Date(item.timestamp).toLocaleString('en-US', { timeZone: timezone }),
-                        y: item.temperature  // Temperature is already in Fahrenheit and rounded to 2 decimal places
-                    }));
-                    console.log(`Chart ${index} data:`, chart.data.datasets[0].data); // Log the chart data
-                    chart.update();
-                }
-            });
+            console.log('Raw data received:', data);
+            if (!data.data || !Array.isArray(data.data)) {
+                console.error('Invalid data format received');
+                return;
+            }
+            // ... rest of the function
         })
         .catch(error => {
             console.error('Error fetching temperature data:', error);

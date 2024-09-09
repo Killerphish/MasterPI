@@ -13,16 +13,17 @@ function getCsrfToken() {
 
 export function fetchTemperatureData(timeRange) {
     const url = `/temp_data?time_range=${timeRange}`;
-    console.log(`Fetching temperature data from URL: ${url}`);  // Log the URL
+    console.log(`Fetching temperature data from URL: ${url}`);
     return fetch(url)
         .then(response => {
+            console.log('Response status:', response.status);
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
             return response.json();
         })
         .then(data => {
-            console.log('Raw temperature data:', JSON.stringify(data));
+            console.log('Parsed temperature data:', data);
             // Ensure data is in the correct format
             if (!data.data || !Array.isArray(data.data)) {
                 throw new Error('Invalid data format');
