@@ -21,16 +21,16 @@ from hypercorn.config import Config as HypercornConfig
 import ssl
 import yaml
 import busio
-import adafruit_max31856 
+import adafruit_max31856
 from adafruit_max31865 import MAX31865
 from adafruit_max31856 import MAX31856
-from adafruit_max31855 import MAX31855 
+from adafruit_max31855 import MAX31855
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
-import aiofiles  # Ensure aiofiles is imported
+import aiofiles
 import traceback
 import json
-import datetime  # Add this import statement
+import datetime
 import pytz
 
 def load_config_sync():
@@ -50,22 +50,6 @@ def load_config_sync():
         print(f"Unexpected error loading config file: {e}")
         return None
 
-async def load_config():
-    try:
-        async with aiofiles.open('config.yaml', 'r') as config_file:
-            print("Config file opened successfully")
-            config = yaml.safe_load(await config_file.read())
-            print("Config file loaded successfully")
-            return config
-    except Exception as e:
-        print(f"Error loading config file: {e}")
-        raise
-
-def save_config(config):
-    with open('config.yaml', 'w') as f:
-        yaml.dump(config, f, default_flow_style=False)
-    app.logger.info("Configuration saved successfully")
-
 config = load_config_sync()
 
 if config is None:
@@ -76,12 +60,14 @@ if config is None:
 nest_asyncio.apply()
 
 app = Quart(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with a secure secret key
+app.config['SECRET_KEY'] = 'your-secret-key'
 csrf = CSRFProtect(app)
+
+# Ensure config is not None before accessing its values
 app.config['DEBUG'] = config['app']['debug']
-app.secret_key = 'your_secret_key'  # Add a secret key for session management
-app.config['REQUEST_TIMEOUT'] = 120  # Increase request timeout to 120 seconds
-app.static_folder = 'static'  # Add this line
+app.secret_key = 'your_secret_key'
+app.config['REQUEST_TIMEOUT'] = 120
+app.static_folder = 'static'
 
 # Setup logging
 if not os.path.exists('logs'):
@@ -156,11 +142,9 @@ sensors = initialize_sensors(config)
 pid = PIDController(kp=config['pid']['kp'], ki=config['pid']['ki'], kd=config['pid']['kd'], setpoint=config['pid']['target_temperature'])
 
 # Initialize FanController
-# Initialize FanController
 fan_pin = config['fan']['pin']
 if isinstance(fan_pin, str):
     fan_pin = getattr(board, fan_pin)
-fan_pin = config['fan']['pin']
 fan_controller = FanController(fan_pin=fan_pin, target_temperature=config['pid']['target_temperature'])
 
 # Initialize aiohttp session and Meater API
@@ -198,447 +182,6 @@ async def index():
         }
 
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
-
-@app.route('/settings', methods=['GET'])
-async def settings():
-    try:
-        app.logger.info("GET request received on /settings")
-        config = await load_config()
-        app.logger.debug(f"Loaded config: {config}")
-        
-        # Ensure sensors are properly loaded from config
-        sensors = config.get('sensors', [])
-        app.logger.debug(f"Loaded sensors: {sensors}")
-        
-        csrf_token = generate_csrf()
-        device_name = config.get('device', {}).get('name', 'MasterPI')  # Provide a default name if not set
-        return await render_template('settings.html', config=config, sensors=sensors, csrf_token=csrf_token, device_name=device_name)
-    except Exception as e:
-        app.logger.error(f"Error in settings route: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/save_personalization_settings', methods=['POST'])
-async def save_personalization_settings():
-    try:
-        data = await request.json
-        app.logger.info(f"Received data: {data}")
-        
-        config = await load_config()
-        app.logger.info(f"Loaded config: {config}")
-        
-        config['personalization'] = {
-            'navColor': data.get('navColor'),
-            'navTextColor': data.get('navTextColor'),
-            'buttonColor': data.get('buttonColor'),
-            'buttonTextColor': data.get('buttonTextColor'),
-            'backgroundColor': data.get('backgroundColor')
-        }
-        app.logger.info(f"Updated config: {config}")
-
-        save_config(config)
-        app.logger.info("Config saved successfully")
-
-        return jsonify({"message": "Personalization settings saved successfully"}), 200
-    except Exception as e:
-        app.logger.error(f"Error saving personalization settings: {str(e)}")
-        app.logger.error(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
-
-import datetime  # Ensure datetime is imported
-
-@app.route('/get_temperature', methods=['GET'])
-async def get_temperature():
-    try:
-        time_range = request.args.get('time_range', '5')  # Default to 5 if not provided
-        app.logger.info(f"Received request for temperature data with time range: {time_range}")
-
-        # Fetch temperature data from the database
-        data = get_temperature_data_by_range(int(time_range))
-
-        temperatures = []
-        for row in data:
-            timestamp, temperature = row
-            temperatures.append({
-                'timestamp': timestamp,
-                'temperature': temperature
-            })
-
-        app.logger.info(f"Returning temperatures: {temperatures}")  # Log the temperatures for debugging
-        return jsonify({'temperatures': temperatures})
-    except Exception as e:
-        app.logger.error(f"Error reading temperature: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
-def voltage_to_temperature(voltage):
-    # Implement this function based on the sensor and its characteristics
-    # Example for an LM35 temperature sensor: temperature_C = voltage * 100
-    # Adjust as needed for your setup
-    return voltage * 100  # Replace this with the actual conversion formula
-
-@app.route('/get_meater_temperature', methods=['GET'])
-async def get_meater_temperature():
-    try:
-        temperature = await fetch_meater_temperature()
-        return jsonify({'temperature': temperature})
-    except Exception as e:
-        app.logger.error(f"Error fetching Meater temperature: {e}")
-        return jsonify({'error': 'Internal Server Error'}), 500
-
-async def fetch_meater_temperature():
-    # Replace with actual logic to fetch Meater temperature
-    # Replace with actual implementation
-    try:
-        # Simulate fetching temperature from Meater API
-        temperature = 75.0  # Example temperature value
-        return temperature
-    except Exception as e:
-        raise e
-
-# Endpoint to get Meater devices
-@app.route('/get_meater_status', methods=['GET'])
-def get_meater_status():
-    # Replace with actual logic to get Meater status
-    status = {
-        "connected": True,
-        "temperature": 75.0
-    }
-    return jsonify(status)
-
-@app.route('/favicon.ico')
-async def favicon():
-    return await send_from_directory(os.path.join(app.root_path, 'static'),
-                                     'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
-@app.route('/save_temperature', methods=['POST'])
-async def save_temperature():
-    data = await request.get_json()
-    temperature = data.get('temperature')
-    if temperature is None:
-        return jsonify({'error': 'Temperature is required'}), 400
-
-    try:
-        insert_temperature_data(temperature)
-        app.logger.info(f"Temperature data saved: {temperature}")
-        return jsonify({'status': 'success'})
-    except Exception as e:
-        app.logger.error(f"Error saving temperature: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-@app.route('/get_temperature_data', methods=['GET'])
-def get_temperature_data():
-    try:
-        data = get_last_24_hours_temperature_data()
-        return jsonify(data)
-    except Exception as e:
-        app.logger.error(f"Error fetching temperature data: {e}")
-        return jsonify({'error': 'Internal Server Error'}), 500
-
-@app.route('/get_settings', methods=['GET'])
-async def get_settings():
-    try:
-        config = await load_config()  # Ensure this is awaited
-        settings = {
-            'units': config['units'],
-            'device': config['device'],
-            'personalization': config['personalization']
-        }
-        return jsonify(settings)
-    except Exception as e:
-        app.logger.error(f"Error fetching settings: {e}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/pid_autotune', methods=['POST'])
-async def pid_autotune():
-    try:
-        # Replace with actual logic to start PID autotune
-        # For example, you might call a method on your PIDController instance
-        pid.start_autotune()
-        await flash('PID autotune started successfully!', 'success')
-        return redirect(url_for('settings'))
-    except Exception as e:
-        app.logger.error(f"Error starting PID autotune: {e}")
-        await flash('Error starting PID autotune', 'error')
-        return redirect(url_for('settings'))
-
-# Check if the wizard has been completed
-@app.before_request
-async def check_wizard():
-    # Only check if the wizard has not been completed
-    if not config.get('app', {}).get('wizard_completed', False):
-        app.logger.info("Wizard not completed, redirecting to wizard setup page.")
-        # Redirect to the wizard setup page if not completed
-        if request.endpoint not in ['wizard', 'complete_wizard', 'static']:
-            return redirect(url_for('wizard'))
-
-@app.route('/wizard', methods=['GET'])
-async def wizard():
-    app.logger.info("Rendering wizard setup page.")
-    return await render_template('wizard.html')  # Ensure wizard.html is in the templates folder
-
-@app.route('/complete_wizard', methods=['POST'])
-async def complete_wizard():
-    form_data = await request.form  # Await the request.form to get the form data
-    device_name = form_data.get('device_name')
-    temp_unit = form_data.get('temp_unit')
-
-    # Update the configuration with the new settings
-    config['device'] = {'name': device_name}
-    config['units']['temperature'] = temp_unit
-    config['app']['wizard_completed'] = True  # Set the wizard as completed
-
-    save_config(config)  # Save the updated configuration
-
-    # Log the updated configuration
-    app.logger.info(f"Updated configuration: {config}")
-
-    # Redirect to the main page
-    return redirect(url_for('index'))
-
-@app.route('/api/status', methods=['GET'])
-async def get_status():
-    try:
-        current_temperature = await get_current_temperature()
-        fan_controller.update(current_temperature)
-
-        # Log the current temperature and fan status
-        app.logger.info(f"Current temperature: {current_temperature}")
-        app.logger.info(f"Fan status: {'On' if fan_controller.is_fan_on() else 'Off'}")
-        app.logger.info(f"Target temperature: {fan_controller.target_temperature}")
-
-        # Collect temperatures from sensors
-        temperatures = []
-        for sensor, offset, enabled in sensors:
-            if enabled:
-                try:
-                    if isinstance(sensor, MAX31856):
-                        temperature = sensor.temperature  # Use the correct method
-                    else:
-                        temperature = sensor.read_temperature()  # For other sensors
-                    temperatures.append(temperature)
-                    app.logger.info(f"Read temperature: {temperature} from {sensor.__class__.__name__}")
-                except Exception as e:
-                    app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
-                    temperatures.append(None)
-
-        status = {
-            'status': 'OK',
-            'message': 'Server is running',
-            'temperature': current_temperature,
-            'fan_on': fan_controller.is_fan_on(),
-            'target_temperature': fan_controller.target_temperature,
-            'temperatures': temperatures
-        }
-        return jsonify(status)
-    except Exception as e:
-        app.logger.error(f"Error fetching status: {e}", exc_info=True)
-        return jsonify({'error': 'Internal Server Error'}), 500
-
-async def get_current_temperature():
-    try:
-        temperature = await read_sensor_temperature()
-        return temperature
-    except Exception as e:
-        app.logger.error(f"Error fetching current temperature: {e}", exc_info=True)
-        return 75.0  # Return a default value or handle the error appropriately
-
-async def read_sensor_temperature():
-    temperatures = []
-    for i, (sensor, offset, enabled) in enumerate(sensors):
-        if not enabled:
-            app.logger.debug(f"Sensor {i} is disabled, skipping")
-            continue
-        try:
-            app.logger.debug(f"Attempting to read from sensor {i} of type {type(sensor)}")
-            if isinstance(sensor, MAX31856):
-                temperature = sensor.temperature
-            elif isinstance(sensor, MAX31865):
-                temperature = sensor.temperature
-            elif isinstance(sensor, MAX31855):
-                temperature = sensor.temperature
-            elif isinstance(sensor, AnalogIn):
-                voltage = sensor.voltage
-                temperature = (voltage - 0.5) * 100  # Convert voltage to temperature
-            else:
-                temperature = sensor.temperature
-            
-            temperature += offset
-            app.logger.debug(f"Sensor {i} read temperature: {temperature}")
-            temperatures.append(temperature)
-        except Exception as e:
-            app.logger.error(f"Error reading temperature from sensor {i}: {e}")
-    
-    if not temperatures:
-        app.logger.error("No temperatures read from any sensors")
-        raise ValueError("No temperatures read from sensors")
-    
-    avg_temp = sum(temperatures) / len(temperatures)
-    app.logger.info(f"Average temperature from {len(temperatures)} sensors: {avg_temp}")
-    return avg_temp
-
-@app.route('/set_target_temperature', methods=['POST'])
-async def set_target_temperature():
-    try:
-        data = await request.get_json()
-        target_temperature = data.get('target_temperature')
-        if target_temperature is None:
-            app.logger.error('Target temperature is required')
-            return jsonify({'error': 'Target temperature is required'}), 400
-
-        # Convert to float, handling the case where it might be 0 (Off)
-        target_temperature = float(target_temperature)
-
-        # Update the target temperature in your PID controller and fan controller
-        pid.setpoint = target_temperature
-        fan_controller.set_target_temperature(target_temperature)
-
-        # Get the current temperature and update the fan status
-        current_temperature = await get_current_temperature()
-        fan_controller.update(current_temperature)
-
-        app.logger.info(f"Target temperature set to: {'Off' if target_temperature == 0 else target_temperature}")
-        app.logger.info(f"Fan status: {'On' if fan_controller.is_fan_on() else 'Off'}")
-
-        return jsonify({'status': 'success', 'fan_on': fan_controller.is_fan_on()})
-    except Exception as e:
-        app.logger.error(f"Error setting target temperature: {e}", exc_info=True)
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-@app.route('/remove_sensor', methods=['POST'])
-async def remove_sensor():
-    try:
-        data = await request.get_json()
-        sensor_index = int(data.get('index'))
-        app.logger.debug(f"Received request to remove sensor at index: {sensor_index}")
-
-        # Load the current configuration
-        config = await load_config()
-        app.logger.debug(f"Current config: {config}")
-
-        # Remove the sensor from the configuration
-        if 'sensors' in config and 0 <= sensor_index < len(config['sensors']):
-            del config['sensors'][sensor_index]
-            app.logger.debug(f"Updated config after removal: {config}")
-            save_config(config)
-            app.logger.info('Sensor removed successfully.')
-            return jsonify({"message": "Sensor removed successfully"}), 200
-        else:
-            app.logger.warning('Invalid sensor index.')
-            return jsonify({"error": "Invalid sensor index."}), 400
-    except Exception as e:
-        app.logger.error(f"Error removing sensor: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/view_config')
-async def view_config():
-    try:
-        config = await load_config()
-        return await render_template('view_config.html', config=config)
-    except Exception as e:
-        app.logger.error(f"Error viewing configuration: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/edit_config')
-async def edit_config():
-    try:
-        config = await load_config()
-        csrf_token = generate_csrf()
-        return await render_template('edit_config.html', config=config, csrf_token=csrf_token)
-    except Exception as e:
-        app.logger.error(f"Error loading configuration: {e}", exc_info=True)
-        return jsonify({'error': 'Internal Server Error'}), 500
-
-@app.route('/save_config', methods=['POST'])
-async def save_config_route():
-    try:
-        form_data = await request.form
-        new_config = yaml.safe_load(form_data['configContent'])
-        save_config(new_config)
-        return redirect(url_for('view_config'))
-    except Exception as e:
-        app.logger.error(f"Error saving configuration: {e}", exc_info=True)
-        return jsonify({'error': 'Internal Server Error'}), 500
-
-@app.route('/save_sensor_settings', methods=['POST'])
-async def save_sensor_settings():
-    try:
-        data = await request.json
-        index = int(data.get('index'))
-        cs_pin = data.get('cs_pin')
-        label = data.get('label')
-
-        config = await load_config()
-
-        if 'sensors' in config and 0 <= index < len(config['sensors']):
-            config['sensors'][index]['chip_select_pin'] = cs_pin
-            config['sensors'][index]['label'] = label
-            save_config(config)
-            return jsonify({"message": "Sensor settings saved successfully"}), 200
-        else:
-            return jsonify({"error": "Invalid sensor index."}), 400
-    except Exception as e:
-        app.logger.error(f"Error saving sensor settings: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
-
-# Map the CS pin to the correct board constant
-PIN_MAPPING = {
-    'D5': board.D5,
-    'D6': board.D6,
-    'D7': board.D7,
-    'D8': board.D8,
-    'D9': board.D9,
-    'D10': board.D10,
-    'D11': board.D11,
-    'D12': board.D12,
-    'D13': board.D13,
-    'D17': board.D17,
-    # Add other mappings as needed
-}
-
-def get_board_pin(pin_name):
-    try:
-        return PIN_MAPPING[pin_name]
-    except KeyError:
-        raise ValueError(f"Invalid pin name: {pin_name}")
-
-def initialize_sensor(sensor_type, chip_select_pin):
-    cs_pin = get_board_pin(chip_select_pin)
-    if sensor_type == 'MAX31856':
-        try:
-            spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
-            cs = digitalio.DigitalInOut(cs_pin)
-            sensor = adafruit_max31856.MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)
-            sensor.temperature  # Test the sensor
-            return sensor
-        except Exception as e:
-            raise ValueError(f"Error initializing MAX31856 on pin {chip_select_pin}: {e}")
-    elif sensor_type == 'DHT22':
-        try:
-            sensor = adafruit_dht.DHT22(cs_pin)
-            sensor.temperature  # Test the sensor
-            return sensor
-        except Exception as e:
-            raise ValueError(f"Error initializing DHT22 on pin {chip_select_pin}: {e}")
-    # Add other sensor types as needed
-    return None
-
-active_sensors = []
-
-def load_active_sensors():
-    global active_sensors
-    config = load_config_sync()  # Synchronous version of load_config for initialization
-    active_sensors = []
-    for sensor in config['sensors']:
-        try:
-            initialized_sensor = initialize_sensor(sensor['type'], sensor['chip_select_pin'])
-            active_sensors.append(initialized_sensor)
-        except Exception as e:
-            app.logger.error(f"Error initializing sensor {sensor['label']}: {e}")
-
-@app.before_serving
-async def initialize_sensors():
-    load_active_sensors()
-
-@app.route('/add_sensor', methods=['POST'])
 async def add_sensor():
     try:
         form_data = await request.get_json()  # Use get_json() to parse JSON data
@@ -815,25 +358,6 @@ async def temp_data():
     except Exception as e:
         app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
-
-# ... (rest of the code remains unchanged)
-async def temp_data():
-    try:
-        time_range = request.args.get('time_range', '60')  # Default to 60 minutes if not provided
-        config = await load_config()  # Load the configuration to get the timezone
-        timezone = config['units'].get('timezone', 'UTC')  # Default to UTC if not set
-        data = get_temperature_data_by_range(int(time_range), timezone)
-        app.logger.debug(f"Fetched temperature data: {data}")  # Add this line
-        formatted_data = [{'timestamp': row[0], 'temperature': row[1]} for row in data]
-        return jsonify(data=formatted_data)
-    except Exception as e:
-        app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
-        return jsonify({'error': 'Internal Server Error'}), 500
-
-@app.route('/get_timezones', methods=['GET'])
-async def get_timezones():
-    timezones = pytz.all_timezones
-    return jsonify(timezones)
 
 async def main():
     global config
