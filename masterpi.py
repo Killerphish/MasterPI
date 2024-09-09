@@ -50,6 +50,23 @@ def load_config_sync():
         print(f"Unexpected error loading config file: {e}")
         return None
 
+async def load_config():
+    try:
+        async with aiofiles.open('config.yaml', 'r') as config_file:
+            print("Config file opened successfully")
+            config = yaml.safe_load(await config_file.read())
+            print("Config file loaded successfully")
+            return config
+    except FileNotFoundError:
+        print("Config file not found. Please ensure 'config.yaml' exists.")
+        return None
+    except yaml.YAMLError as e:
+        print(f"Error parsing config file: {e}")
+        return None
+    except Exception as e:
+        print(f"Unexpected error loading config file: {e}")
+        return None
+
 config = load_config_sync()
 
 if config is None:
@@ -60,12 +77,12 @@ if config is None:
 nest_asyncio.apply()
 
 app = Quart(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key'
+app.config['SECRET_KEY'] = config['app']['secret_key']
 csrf = CSRFProtect(app)
 
 # Ensure config is not None before accessing its values
 app.config['DEBUG'] = config['app']['debug']
-app.secret_key = 'your_secret_key'
+app.secret_key = config['app']['secret_key']
 app.config['REQUEST_TIMEOUT'] = 120
 app.static_folder = 'static'
 
@@ -182,6 +199,7 @@ async def index():
         }
 
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
+
 async def add_sensor():
     try:
         form_data = await request.get_json()  # Use get_json() to parse JSON data
@@ -343,6 +361,39 @@ async def read_temperature_data():
         await asyncio.sleep(60)  # Read temperature data every 60 seconds
 
 @app.route('/temp_data', methods=['GET'])
+async def temp_data():
+    try:
+        time_range = request.args.get('time_range', '60')  # Default to 60 minutes if not provided
+        config = await load_config()  # Load the configuration to get the timezone
+        timezone = config['units'].get('timezone', 'UTC')  # Default to UTC if not set
+        app.logger.debug(f"Fetching temperature data for the last {time_range} minutes in timezone {timezone}")
+        
+        data = get_temperature_data_by_range(int(time_range), timezone)
+        app.logger.debug(f"Fetched temperature data: {data}")
+        
+        formatted_data = [{'timestamp': row[0], 'temperature': row[1]} for row in data]
+        return jsonify(data=formatted_data)
+    except Exception as e:
+        app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+async def main():
+    global config
+    config = await load_config()  # Load the configuration asynchronously
+    await create_aiohttp_session()
+    init_db()  # Initialize the database
+    hypercorn_config = HypercornConfig()
+    hypercorn_config.bind = ["127.0.0.1:5000"]  # Ensure this is correct
+    try:
+        # Start the temperature reading loop
+        asyncio.create_task(read_temperature_data())
+        await serve(app, hypercorn_config)
+    finally:
+        await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
+
+if __name__ == '__main__':
+    nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
+    asyncio.run(main())
 async def temp_data():
     try:
         time_range = request.args.get('time_range', '60')  # Default to 60 minutes if not provided
