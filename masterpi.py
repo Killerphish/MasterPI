@@ -432,37 +432,38 @@ async def get_current_temperature():
         return 75.0  # Return a default value or handle the error appropriately
 
 async def read_sensor_temperature():
-    try:
-        temperatures = []
-        for sensor, offset, enabled in sensors:
-            if not enabled:
-                app.logger.debug(f"Sensor {sensor.__class__.__name__} is disabled.")
-                continue  # Skip disabled sensors
-
-            try:
-                if isinstance(sensor, MAX31856):
-                    temperature_celsius = sensor.temperature  # Use the correct method
-                else:
-                    temperature_celsius = sensor.read_temperature()  # For other sensors
-
-                corrected_temperature_celsius = temperature_celsius + offset
-                temperatures.append(corrected_temperature_celsius)
-                app.logger.info(f"Read temperature: {corrected_temperature_celsius} °C from {sensor.__class__.__name__}")
-            except RuntimeError as e:
-                app.logger.error(f"Error reading temperature from {sensor.__class__.__name__}: {e}")
-                temperatures.append(None)  # Append None or a default value in case of error
-
-        if temperatures:
-            valid_temperatures = [temp for temp in temperatures if temp is not None]
-            if valid_temperatures:
-                return sum(valid_temperatures) / len(valid_temperatures)
+    temperatures = []
+    for i, (sensor, offset, enabled) in enumerate(sensors):
+        if not enabled:
+            app.logger.debug(f"Sensor {i} is disabled, skipping")
+            continue
+        try:
+            app.logger.debug(f"Attempting to read from sensor {i} of type {type(sensor)}")
+            if isinstance(sensor, MAX31856):
+                temperature = sensor.temperature
+            elif isinstance(sensor, MAX31865):
+                temperature = sensor.temperature
+            elif isinstance(sensor, MAX31855):
+                temperature = sensor.temperature
+            elif isinstance(sensor, AnalogIn):
+                voltage = sensor.voltage
+                temperature = (voltage - 0.5) * 100  # Convert voltage to temperature
             else:
-                raise ValueError("No valid temperatures read from sensors")
-        else:
-            raise ValueError("No temperatures read from sensors")
-    except Exception as e:
-        app.logger.error(f"Error reading sensor temperature: {e}", exc_info=True)
-        raise
+                temperature = sensor.temperature
+            
+            temperature += offset
+            app.logger.debug(f"Sensor {i} read temperature: {temperature}")
+            temperatures.append(temperature)
+        except Exception as e:
+            app.logger.error(f"Error reading temperature from sensor {i}: {e}")
+    
+    if not temperatures:
+        app.logger.error("No temperatures read from any sensors")
+        raise ValueError("No temperatures read from sensors")
+    
+    avg_temp = sum(temperatures) / len(temperatures)
+    app.logger.info(f"Average temperature from {len(temperatures)} sensors: {avg_temp}")
+    return avg_temp
 
 @app.route('/set_target_temperature', methods=['POST'])
 async def set_target_temperature():
@@ -779,20 +780,7 @@ async def read_temperature_data():
             for sensor, offset, enabled in sensors:
                 if not enabled:
                     continue  # Skip disabled sensors
-                if isinstance(sensor, adafruit_max31856.MAX31856):
-                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
-                elif isinstance(sensor, adafruit_dht.DHT22):
-                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
-                elif isinstance(sensor, MAX31865):
-                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
-                elif isinstance(sensor, MAX31855):
-                    temperature = sensor.temperature * 9 / 5 + 32  # Convert to Fahrenheit
-                elif isinstance(sensor, ADS.ADS1115):
-                    # Assuming ADS1115 returns raw ADC values, you might need to convert it to temperature
-                    raw_value = AnalogIn(sensor, ADS.P0).value
-                    temperature = convert_ads1115_to_temperature(raw_value) * 9 / 5 + 32  # Convert to Fahrenheit
-                else:
-                    continue
+                temperature = read_sensor_temperature(sensor)
                 temperature += offset  # Apply temperature offset
                 logging.info(f"Read temperature: {temperature}")
                 insert_temperature_data(temperature)

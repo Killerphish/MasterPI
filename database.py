@@ -68,7 +68,7 @@ def get_temperature_data_by_range(time_range, timezone):
     cursor = conn.cursor()
     
     # Calculate the timestamp for the start of the time range
-    start_time = datetime.datetime.now(pytz.timezone(timezone)) - datetime.timedelta(minutes=time_range)
+    start_time = datetime.now(pytz.timezone(timezone)) - timedelta(minutes=time_range)
     
     # Convert the start_time to UTC for database query
     start_time_utc = start_time.astimezone(pytz.UTC)
