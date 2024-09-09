@@ -68,6 +68,10 @@ def save_config(config):
 
 config = load_config_sync()
 
+if config is None:
+    print("Failed to load configuration. Exiting.")
+    exit(1)
+
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
 
@@ -796,6 +800,23 @@ async def read_temperature_data():
         await asyncio.sleep(60)  # Read temperature data every 60 seconds
 
 @app.route('/temp_data', methods=['GET'])
+async def temp_data():
+    try:
+        time_range = request.args.get('time_range', '60')  # Default to 60 minutes if not provided
+        config = await load_config()  # Load the configuration to get the timezone
+        timezone = config['units'].get('timezone', 'UTC')  # Default to UTC if not set
+        app.logger.debug(f"Fetching temperature data for the last {time_range} minutes in timezone {timezone}")
+        
+        data = get_temperature_data_by_range(int(time_range), timezone)
+        app.logger.debug(f"Fetched temperature data: {data}")
+        
+        formatted_data = [{'timestamp': row[0], 'temperature': row[1]} for row in data]
+        return jsonify(data=formatted_data)
+    except Exception as e:
+        app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+# ... (rest of the code remains unchanged)
 async def temp_data():
     try:
         time_range = request.args.get('time_range', '60')  # Default to 60 minutes if not provided
