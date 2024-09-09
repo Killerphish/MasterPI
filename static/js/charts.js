@@ -33,6 +33,7 @@ function initializeCharts() {
     charts = [];
 
     canvases.forEach((canvas, index) => {
+        console.log(`Initializing chart for canvas: ${canvas.id}`);  // Log canvas ID
         const ctx = canvas.getContext('2d');
         const chart = new Chart(ctx, {
             type: 'line',
