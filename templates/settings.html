@@ -8,6 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token }}">
+    <style>
+        :root {
+            --nav-color: {{ config['personalization']['navColor'] }};
+            --button-color: {{ config['personalization']['buttonColor'] }};
+            --background-color: {{ config['personalization']['backgroundColor'] }};
+        }
+    </style>
     <script>
         // Pass the URL to the JavaScript code
         const savePersonalizationSettingsUrl = "{{ url_for('save_personalization_settings') }}";
@@ -172,7 +179,16 @@
         });
     </script>
 </head>
-<body>
+<body style="background-color: var(--background-color);">
+    <nav>
+        <div class="nav-wrapper" style="background-color: var(--nav-color);">
+            <a href="{{ url_for('index') }}" class="brand-logo">{{ config['device']['name'] }}</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><button id="emergency-shutdown-button" class="btn red" style="margin-right: 10px;">STOP</button></li>
+                <li><a href="{{ url_for('settings') }}" class="btn" style="margin-right: 10px;">Settings</a></li>
+            </ul>
+        </div>
+    </nav>
     <div class="container">
         <h1>Settings</h1>
         <div class="row">
