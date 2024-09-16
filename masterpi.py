@@ -444,6 +444,17 @@ async def get_settings():
         app.logger.error(f"Error fetching settings: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
+@app.route('/save_personalization_settings', methods=['POST'])
+async def save_personalization_settings():
+    try:
+        data = await request.get_json()
+        # Process the data and save the settings
+        # For example, update the config file or database
+        return jsonify({'success': True})
+    except Exception as e:
+        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
+        return jsonify({'error': 'Internal Server Error'}), 500
+
 async def main():
     global config
     config = await load_config()  # Load the configuration asynchronously
