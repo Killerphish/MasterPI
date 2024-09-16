@@ -77,12 +77,16 @@ if config is None:
 nest_asyncio.apply()
 
 app = Quart(__name__)
-app.config['SECRET_KEY'] = config['app']['secret_key']
 csrf = CSRFProtect(app)
+
+# Set the secret key from the environment variable
+app.secret_key = os.environ.get('SECRET_KEY')
+
+if not app.secret_key:
+    raise ValueError("No SECRET_KEY set for application")
 
 # Ensure config is not None before accessing its values
 app.config['DEBUG'] = config['app']['debug']
-app.secret_key = config['app']['secret_key']
 app.config['REQUEST_TIMEOUT'] = 120
 app.static_folder = 'static'
 
