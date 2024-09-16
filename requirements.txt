@@ -1,5 +1,6 @@
 Quart
 Quart-CSRF
+pysqlite3
 Adafruit-Blinka
 Adafruit-PlatformDetect
 Adafruit-PureIO

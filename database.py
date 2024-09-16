@@ -72,7 +72,7 @@ def get_temperature_data_by_range(minutes, timezone):
     query = "SELECT timestamp, temperature FROM temperature_data WHERE timestamp >= ?"
     params = (start_time,)
     
-    with sqlite3.connect('your_database.db') as conn:
+    with sqlite3.connect('database.db') as conn:  # Ensure the correct database file is used
         cursor = conn.cursor()
         cursor.execute(query, params)
         data = cursor.fetchall()
