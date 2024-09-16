@@ -78,118 +78,168 @@
 
             // Add event listeners for power options
             document.getElementById('restartRpiButton').addEventListener('click', function() {
-                handlePowerOption('restart_rpi');
+                fetchWithCsrf(powerOptionsUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'restart_rpi' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    M.toast({html: data.message});
+                })
+                .catch(error => {
+                    console.error('Error restarting Raspberry Pi:', error);
+                    M.toast({html: 'Error restarting Raspberry Pi'});
+                });
             });
 
             document.getElementById('restartAppButton').addEventListener('click', function() {
-                handlePowerOption('restart_app');
+                fetchWithCsrf(powerOptionsUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'restart_app' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    M.toast({html: data.message});
+                })
+                .catch(error => {
+                    console.error('Error restarting application:', error);
+                    M.toast({html: 'Error restarting application'});
+                });
             });
 
             document.getElementById('shutdownButton').addEventListener('click', function() {
-                handlePowerOption('shutdown');
-            });
-
-            // Fetch and populate timezones
-            fetch(getTimezonesUrl)
+                fetchWithCsrf(powerOptionsUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'shutdown' })
+                })
                 .then(response => response.json())
-                .then(timezones => {
-                    const timezoneSelect = document.getElementById('timezone');
-                    timezones.forEach(tz => {
-                        const option = document.createElement('option');
-                        option.value = tz;
-                        option.textContent = tz;
-                        timezoneSelect.appendChild(option);
-                    });
-                    M.FormSelect.init(timezoneSelect);  // Reinitialize Materialize select
+                .then(data => {
+                    M.toast({html: data.message});
                 })
                 .catch(error => {
-                    console.error('Error fetching timezones:', error);
+                    console.error('Error shutting down Raspberry Pi:', error);
+                    M.toast({html: 'Error shutting down Raspberry Pi'});
                 });
+            });
+
+            // Add event listener for adding a sensor
+            document.getElementById('newSensorType').addEventListener('change', function() {
+                const chipSelectPinField = document.getElementById('newSensorCsPinField');
+                if (this.value === 'ADS1115') {
+                    chipSelectPinField.style.display = 'none';
+                } else {
+                    chipSelectPinField.style.display = 'block';
+                }
+            });
+
+            // Add event listener for removing a sensor
+            document.querySelectorAll('.remove-sensor').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const sensorIndex = this.getAttribute('data-index');
+
+                    fetchWithCsrf(removeSensorUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ index: sensorIndex })
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.message) {
+                            M.toast({html: result.message});
+                            refreshSensorList();  // Refresh the sensor list after removing
+                        } else {
+                            M.toast({html: `Error: ${result.error}`});
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error removing sensor:', error);
+                        M.toast({html: `Error: ${error.message}`});
+                    });
+                });
+            });
         });
     </script>
 </head>
 <body>
-    <div class="container" style="background-color: var(--background-color);">
+    <div class="container">
+        <h1>Settings</h1>
         <div class="row">
             <div class="col s12">
-                <form id="settingsForm" method="POST" class="col s12">
-                    <div id="general" class="col s12">
-                        <h2>General</h2>
-                        <div class="input-field col s12">
-                            <select id="temperatureUnit" name="temperatureUnit" onchange="saveSettings(this)">
-                                <option value="Fahrenheit" {% if config.get('units', {}).get('temperature') == 'Fahrenheit' %}selected{% endif %}>Fahrenheit</option>
-                                <option value="Celsius" {% if config.get('units', {}).get('temperature') == 'Celsius' %}selected{% endif %}>Celsius</option>
-                            </select>
-                            <label for="temperatureUnit" class="active">Temperature Unit</label>
-                        </div>
-                        <div class="input-field col s12">
-                            <select id="timezone" name="timezone" onchange="saveSettings(this)">
-                                <option value="" disabled selected>Choose your timezone</option>
-                                <!-- Options will be populated by JavaScript -->
-                            </select>
-                            <label for="timezone" class="active">Timezone</label>
-                        </div>
-                    </div>
-                    <div id="personalization" class="col s12">
-                        <h2>Personalization</h2>
-                        <div class="input-field col s12">
-                            <input type="color" id="navColor" name="navColor" value="{{ config.get('personalization', {}).get('navColor', '#000000') }}" onchange="saveSettings(this)">
-                            <label for="navColor">Navigation Bar Color</label>
-                        </div>
-                        <div class="input-field col s12">
-                            <input type="color" id="navTextColor" name="navTextColor" value="{{ config.get('personalization', {}).get('navTextColor', '#ffffff') }}" onchange="saveSettings(this)">
-                            <label for="navTextColor">Navigation Bar Text Color</label>
-                        </div>
-                        <div class="input-field col s12">
-                            <input type="color" id="buttonColor" name="buttonColor" value="{{ config.get('personalization', {}).get('buttonColor', '#000000') }}" onchange="saveSettings(this)">
-                            <label for="buttonColor">Button Color</label>
-                        </div>
-                        <div class="input-field col s12">
-                            <input type="color" id="buttonTextColor" name="buttonTextColor" value="{{ config.get('personalization', {}).get('buttonTextColor', '#ffffff') }}" onchange="saveSettings(this)">
-                            <label for="buttonTextColor">Button Text Color</label>
-                        </div>
-                    </div>
-                    <!-- Add Sensor Management Section -->
-                    <div id="sensorManagement" class="col s12">
-                        <h2>Sensor Management</h2>
-                        <button id="openAddSensorModal" class="btn waves-effect waves-light">Add Sensor</button>
-                        
-                        <!-- Sensor List -->
-                        <ul class="collection">
-                            {% for sensor in config.get('sensors', []) %}
-                            <li class="collection-item">
-                                {{ sensor.label }} ({{ sensor.type }})
-                                <div class="secondary-content">
-                                    <button class="btn-small waves-effect waves-light edit-sensor" data-index="{{ loop.index0 }}" data-label="{{ sensor.label }}" data-cs-pin="{{ sensor.chip_select_pin }}">
-                                        Edit
-                                    </button>
-                                    <button class="btn-small waves-effect waves-light red remove-sensor" data-index="{{ loop.index0 }}">
-                                        Remove
-                                    </button>
-                                </div>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </form>
+                <h5>Device Settings</h5>
+                <div class="input-field">
+                    <input id="deviceName" type="text" name="device_name" value="{{ config.device.name }}" onchange="saveSettings(this)">
+                    <label for="deviceName" class="active">Device Name</label>
+                </div>
+                <div class="input-field">
+                    <select id="temperatureUnit" name="temperatureUnit" onchange="saveSettings(this)">
+                        <option value="C" {% if config.units.temperature == 'C' %}selected{% endif %}>Celsius</option>
+                        <option value="F" {% if config.units.temperature == 'F' %}selected{% endif %}>Fahrenheit</option>
+                    </select>
+                    <label for="temperatureUnit">Temperature Unit</label>
+                </div>
+                <div class="input-field">
+                    <select id="timezone" name="timezone" onchange="saveSettings(this)">
+                        {% for tz in timezones %}
+                        <option value="{{ tz }}" {% if config.units.timezone == tz %}selected{% endif %}>{{ tz }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="timezone">Timezone</label>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Power Options Modal -->
-    <div id="powerOptionsModal" class="modal">
-        <div class="modal-content">
-            <h4>Power Options</h4>
-            <div class="row">
-                <div class="col s12">
-                    <button id="restartRpiButton" class="btn red">Restart Raspberry Pi</button>
+        <div class="row">
+            <div class="col s12">
+                <h5>Personalization Settings</h5>
+                <div class="input-field">
+                    <input id="navColor" type="color" name="navColor" value="{{ config.personalization.navColor }}" onchange="saveSettings(this)">
+                    <label for="navColor" class="active">Navigation Bar Color</label>
                 </div>
-                <div class="col s12">
-                    <button id="restartAppButton" class="btn orange">Restart Application</button>
+                <div class="input-field">
+                    <input id="navTextColor" type="color" name="navTextColor" value="{{ config.personalization.navTextColor }}" onchange="saveSettings(this)">
+                    <label for="navTextColor" class="active">Navigation Text Color</label>
                 </div>
-                <div class="col s12">
-                    <button id="shutdownButton" class="btn black">Shutdown</button>
+                <div class="input-field">
+                    <input id="buttonColor" type="color" name="buttonColor" value="{{ config.personalization.buttonColor }}" onchange="saveSettings(this)">
+                    <label for="buttonColor" class="active">Button Color</label>
                 </div>
+                <div class="input-field">
+                    <input id="buttonTextColor" type="color" name="buttonTextColor" value="{{ config.personalization.buttonTextColor }}" onchange="saveSettings(this)">
+                    <label for="buttonTextColor" class="active">Button Text Color</label>
+                </div>
+                <div class="input-field">
+                    <input id="backgroundColor" type="color" name="backgroundColor" value="{{ config.personalization.backgroundColor }}" onchange="saveSettings(this)">
+                    <label for="backgroundColor" class="active">Background Color</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                <h5>Sensors</h5>
+                <ul class="collection">
+                    {% for sensor in config.sensors %}
+                    <li class="collection-item">
+                        <div>
+                            {{ sensor.label }} ({{ sensor.type }})
+                            <a href="#!" class="secondary-content remove-sensor" data-index="{{ loop.index0 }}"><i class="material-icons">delete</i></a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <a href="#addSensorModal" class="btn modal-trigger">Add Sensor</a>
             </div>
         </div>
     </div>
@@ -209,16 +259,16 @@
                     </select>
                     <label>Sensor Type</label>
                 </div>
-                <div class="input-field">
-                    <input id="newSensorLabel" type="text" required>
-                    <label for="newSensorLabel">Sensor Label</label>
-                </div>
-                <div class="input-field">
+                <div class="input-field" id="newSensorCsPinField">
                     <select id="newSensorCsPin" required>
                         <option value="" disabled selected>Choose CS pin</option>
                         <!-- Options will be populated by JavaScript -->
                     </select>
                     <label>Chip Select Pin</label>
+                </div>
+                <div class="input-field">
+                    <input id="newSensorLabel" type="text" required>
+                    <label for="newSensorLabel">Sensor Label</label>
                 </div>
                 <button class="btn waves-effect waves-light" type="submit">Add Sensor</button>
             </form>
@@ -235,7 +285,7 @@
                     <input id="editSensorLabel" type="text" required>
                     <label for="editSensorLabel">Sensor Label</label>
                 </div>
-                <div class="input-field">
+                <div class="input-field" id="editSensorCsPinField">
                     <select id="editSensorCsPin" required>
                         <option value="" disabled selected>Choose CS pin</option>
                         <!-- Options will be populated by JavaScript -->
