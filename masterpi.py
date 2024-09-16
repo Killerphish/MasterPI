@@ -382,38 +382,26 @@ async def temp_data():
         app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
-async def main():
-    global config
-    config = await load_config()  # Load the configuration asynchronously
-    await create_aiohttp_session()
-    init_db()  # Initialize the database
-    hypercorn_config = HypercornConfig()
-    hypercorn_config.bind = ["127.0.0.1:5000"]  # Ensure this is correct
-    try:
-        # Start the temperature reading loop
-        asyncio.create_task(read_temperature_data())
-        await serve(app, hypercorn_config)
-    finally:
-        await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
+@app.route('/chart')
+async def chart():
+    return await render_template('chart.html')
 
-if __name__ == '__main__':
-    nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
-    asyncio.run(main())
-async def temp_data():
-    try:
-        time_range = request.args.get('time_range', '60')  # Default to 60 minutes if not provided
-        config = await load_config()  # Load the configuration to get the timezone
-        timezone = config['units'].get('timezone', 'UTC')  # Default to UTC if not set
-        app.logger.debug(f"Fetching temperature data for the last {time_range} minutes in timezone {timezone}")
-        
-        data = get_temperature_data_by_range(int(time_range), timezone)
-        app.logger.debug(f"Fetched temperature data: {data}")
-        
-        formatted_data = [{'timestamp': row[0], 'temperature': row[1]} for row in data]
-        return jsonify(data=formatted_data)
-    except Exception as e:
-        app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
-        return jsonify({'error': 'Internal Server Error'}), 500
+@app.route('/update_target', methods=['POST'])
+async def update_target():
+    data = await request.form
+    target_temp = data['target_temp']
+    # Update target temperature in your PID controller
+    return jsonify(success=True)
+
+@app.route('/current_temp', methods=['GET'])
+async def current_temp():
+    # Get current temperature from the sensor
+    return jsonify(current_temp=current_temp)
+
+@app.route('/pid_autotune', methods=['POST'])
+async def pid_autotune():
+    # Start PID autotune process
+    return jsonify(success=True)
 
 async def main():
     global config
