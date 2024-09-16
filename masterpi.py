@@ -400,6 +400,15 @@ async def read_temperature_data():
             logging.error(f"Error reading temperature: {e}")
         await asyncio.sleep(60)  # Read temperature data every 60 seconds
 
+#save_config settings
+def save_config(config):
+    try:
+        with open('config.yaml', 'w') as config_file:
+            yaml.safe_dump(config, config_file)
+            print("Config file saved successfully")
+    except Exception as e:
+        print(f"Error saving config file: {e}")
+
 @app.route('/temp_data', methods=['GET'])
 async def temp_data():
     try:
