@@ -78,6 +78,7 @@ nest_asyncio.apply()
 
 app = Quart(__name__)
 csrf = CSRFProtect(app)
+csrf.exempt('/add_sensor')  # Temporarily exempt the add_sensor route from CSRF protection
 
 # Set the secret key from the environment variable
 app.secret_key = os.environ.get('SECRET_KEY')
