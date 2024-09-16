@@ -496,6 +496,9 @@ async def remove_sensor():
         if sensor_index is None:
             raise ValueError("Missing sensor index")
 
+        # Convert sensor_index to an integer
+        sensor_index = int(sensor_index)
+
         # Load the configuration
         config = await load_config()
 
@@ -508,6 +511,9 @@ async def remove_sensor():
         else:
             raise ValueError("Invalid sensor index")
 
+    except ValueError as ve:
+        app.logger.error(f"ValueError: {ve}", exc_info=True)
+        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         app.logger.error(f"Error removing sensor: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
