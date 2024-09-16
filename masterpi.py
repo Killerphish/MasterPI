@@ -409,7 +409,7 @@ async def main():
     await create_aiohttp_session()
     init_db()  # Initialize the database
     hypercorn_config = HypercornConfig()
-    hypercorn_config.bind = ["127.0.0.1:5000"]  # Ensure this is correct
+    hypercorn_config.bind = ["0.0.0.0:5000"]  # Change this line
     try:
         # Start the temperature reading loop
         asyncio.create_task(read_temperature_data())
