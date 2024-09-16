@@ -199,13 +199,12 @@ async def create_aiohttp_session():
 # Initialize the DHT sensor
 dht_device = adafruit_dht.DHT22(board.D4)
 
-def read_sensor_temperature():
+def read_sensor_temperature(sensor):
     try:
-        temperature_c = dht_device.temperature
-        temperature_f = temperature_c * 9 / 5 + 32
-        return temperature_f
-    except RuntimeError as error:
-        logging.error(f"Error reading DHT sensor: {error}")
+        temperature = sensor.read_temperature()
+        return temperature
+    except Exception as e:
+        app.logger.error(f"Error reading temperature: {e}")
         return None
 
 @app.route('/')
@@ -249,7 +248,7 @@ async def add_sensor():
         save_config(config)
 
         # Initialize the sensor and update the active sensors list
-        initialized_sensor = initialize_sensor(sensor_type, chip_select_pin)
+        initialized_sensor = initialize_sensors(config)
         active_sensors.append(initialized_sensor)
 
         app.logger.info('Sensor added and initialized successfully.')
@@ -491,24 +490,24 @@ async def get_settings():
 @app.route('/remove_sensor', methods=['POST'])
 async def remove_sensor():
     try:
-        form_data = await request.get_json()  # Use get_json() to parse JSON data
-        sensor_index = form_data.get('sensor_index')
+        data = await request.get_json()
+        sensor_index = data.get('index')
 
         if sensor_index is None:
             raise ValueError("Missing sensor index")
 
-        config = await load_config()  # Ensure this is awaited
+        # Load the configuration
+        config = await load_config()
 
         # Remove the sensor from the configuration
-        config['sensors'].pop(sensor_index)
+        if 0 <= sensor_index < len(config['sensors']):
+            removed_sensor = config['sensors'].pop(sensor_index)
+            save_config(config)
+            app.logger.info(f"Removed sensor: {removed_sensor}")
+            return jsonify({"message": "Sensor removed successfully"}), 200
+        else:
+            raise ValueError("Invalid sensor index")
 
-        save_config(config)
-
-        # Update the active sensors list
-        load_active_sensors()
-
-        app.logger.info('Sensor removed successfully.')
-        return jsonify({"message": "Sensor removed successfully"}), 200
     except Exception as e:
         app.logger.error(f"Error removing sensor: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500

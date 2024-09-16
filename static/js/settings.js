@@ -265,11 +265,10 @@ document.addEventListener("DOMContentLoaded", function() {
         const sensorIndex = this.getAttribute('data-index');
         
         if (confirm('Are you sure you want to remove this sensor?')) {
-            fetch('/remove_sensor', {
+            fetchWithCsrf(removeSensorUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
                 },
                 body: JSON.stringify({ index: sensorIndex })
             })
