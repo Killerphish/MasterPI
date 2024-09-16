@@ -5,6 +5,7 @@ Adafruit-PlatformDetect
 Adafruit-PureIO
 adafruit-circuitpython-max31865
 adafruit-circuitpython-max31855
+adafruit-circuitpython-max31856
 adafruit-circuitpython-ads1x15
 adafruit-circuitpython-busdevice
 adafruit-circuitpython-dht
