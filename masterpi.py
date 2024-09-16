@@ -225,34 +225,42 @@ async def index():
 @app.route('/add_sensor', methods=['POST'])
 async def add_sensor():
     try:
-        form_data = await request.get_json()  # Use get_json() to parse JSON data
-        sensor_type = form_data.get('sensor_type')
-        label = form_data.get('label')
-        chip_select_pin = form_data.get('chip_select_pin')
+        data = await request.get_json()
+        sensor_type = data.get('sensor_type')
+        label = data.get('label')
+        chip_select_pin = data.get('chip_select_pin')
 
         if not sensor_type or not label or not chip_select_pin:
-            raise ValueError("Missing required sensor data")
+            raise ValueError("Missing sensor type, label, or chip select pin")
 
-        config = await load_config()  # Ensure this is awaited
+        # Initialize the sensor
+        initialized_sensor = initialize_sensors(sensor_type, chip_select_pin)
 
-        # Add the new sensor to the configuration
-        new_sensor = {
-            'type': sensor_type,
-            'chip_select_pin': chip_select_pin,
-            'temp_offset': 0.0,
-            'label': label,
-            'enabled': True  # Add this line to ensure the sensor is enabled by default
-        }
-        config['sensors'].append(new_sensor)
+        if initialized_sensor is None:
+            raise ValueError(f"Failed to initialize sensor: {sensor_type}")
 
-        save_config(config)
-
-        # Initialize the sensor and update the active sensors list
-        initialized_sensor = initialize_sensors(config)
+        # Add the initialized sensor to the active_sensors list
         active_sensors.append(initialized_sensor)
 
-        app.logger.info('Sensor added and initialized successfully.')
-        return jsonify({"message": "Sensor added and initialized successfully"}), 200
+        # Load the configuration
+        config = await load_config()
+
+        # Add the new sensor to the configuration
+        config['sensors'].append({
+            'type': sensor_type,
+            'label': label,
+            'chip_select_pin': chip_select_pin
+        })
+
+        # Save the updated configuration
+        save_config(config)
+
+        app.logger.info(f"Added new sensor: {label} ({sensor_type})")
+        return jsonify({"message": "Sensor added successfully"}), 200
+
+    except ValueError as ve:
+        app.logger.error(f"ValueError: {ve}", exc_info=True)
+        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         app.logger.error(f"Error adding sensor: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
