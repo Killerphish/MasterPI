@@ -85,6 +85,9 @@ app.secret_key = os.environ.get('SECRET_KEY')
 if not app.secret_key:
     raise ValueError("No SECRET_KEY set for Quart application")
 
+# Log the secret key for debugging (remove this in production)
+app.logger.info(f"Using SECRET_KEY: {app.secret_key}")
+
 # Ensure config is not None before accessing its values
 app.config['DEBUG'] = config['app']['debug']
 app.config['REQUEST_TIMEOUT'] = 120
