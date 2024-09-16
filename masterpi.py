@@ -32,6 +32,25 @@ import traceback
 import json
 import datetime
 import pytz
+import hmac
+from quart_csrf import csrf
+
+def patched_validate_csrf(data):
+    if not data:
+        return False
+    try:
+        expected_data = csrf._get_signed_token()
+        return hmac.compare_digest(data, expected_data)
+    except Exception as e:
+        print(f"Error in validate_csrf: {e}")
+        return False
+
+# Monkey-patch the validate_csrf function
+csrf.validate_csrf = patched_validate_csrf
+
+# Now create your Quart app and set up CSRF protection
+app = Quart(__name__)
+csrf = CSRFProtect(app)
 
 def load_config_sync():
     try:
@@ -76,11 +95,8 @@ if config is None:
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
 
-app = Quart(__name__)
 # Set the secret key from the environment variable
 app.secret_key = os.environ.get('SECRET_KEY')
-csrf = CSRFProtect(app)
-csrf.exempt('/add_sensor')  # Temporarily exempt the add_sensor route from CSRF protection
 
 if not app.secret_key:
     raise ValueError("No SECRET_KEY set for Quart application")
