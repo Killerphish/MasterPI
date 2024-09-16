@@ -35,6 +35,9 @@ import pytz
 import hmac
 from quart_csrf import csrf
 
+# Initialize the global active_sensors list
+active_sensors = []
+
 def patched_validate_csrf(data):
     if not data:
         return False
