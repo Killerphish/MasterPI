@@ -354,8 +354,8 @@ async def save_settings():
 async def save_personalization_settings():
     try:
         data = await request.get_json()
-        // Process the data and save the settings
-        // For example, update the config file or database
+        # Process the data and save the settings
+        # For example, update the config file or database
         return jsonify({'success': True})
     except Exception as e:
         app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
@@ -364,12 +364,12 @@ async def save_personalization_settings():
 @app.route('/emergency_shutdown', methods=['POST'])
 async def emergency_shutdown():
     try:
-        // Set the target temperature to 0 degrees
+        # Set the target temperature to 0 degrees
         pid.setpoint = 0.0
         fan_controller.set_target_temperature(0.0)
         app.logger.info("Set target temperature to 0 degrees.")
 
-        // Ensure the fan is turned off
+        # Ensure the fan is turned off
         fan_controller.turn_off_fan()
         app.logger.info(f"Fan controller updated. Fan value: {fan_controller.fan.value}")
 
@@ -442,7 +442,7 @@ async def temp_data():
             if isinstance(timestamp, datetime):
                 formatted_timestamp = timestamp.astimezone(timezone).isoformat()
             else:
-                // If timestamp is not a datetime object, convert it to one
+                # If timestamp is not a datetime object, convert it to one
                 formatted_timestamp = datetime.fromtimestamp(timestamp, timezone).isoformat()
             
             formatted_data.append({
@@ -463,23 +463,23 @@ async def chart():
 async def update_target():
     data = await request.form
     target_temp = data['target_temp']
-    // Update target temperature in your PID controller
+    # Update target temperature in your PID controller
     return jsonify(success=True)
 
 @app.route('/current_temp', methods=['GET'])
 async def current_temp():
-    // Get current temperature from the sensor
+    # Get current temperature from the sensor
     return jsonify(current_temp=current_temp)
 
 @app.route('/pid_autotune', methods=['POST'])
 async def pid_autotune():
-    // Start PID autotune process
+    # Start PID autotune process
     return jsonify(success=True)
 
 @app.route('/api/status', methods=['GET'])
 async def api_status():
     try:
-        // Example status data
+        # Example status data
         status_data = {
             'fan_on': True,
             'target_temperature': 75.0,
