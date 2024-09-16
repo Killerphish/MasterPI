@@ -376,14 +376,24 @@ async def temp_data():
         data = get_temperature_data_by_range(int(time_range), timezone)
         app.logger.debug(f"Fetched temperature data: {data}")
         
-        formatted_data = [{
-            'timestamp': row[0].astimezone(timezone).isoformat(),
-            'temperature': row[1]
-        } for row in data]
+        formatted_data = []
+        for row in data:
+            timestamp, temperature = row
+            if isinstance(timestamp, datetime):
+                formatted_timestamp = timestamp.astimezone(timezone).isoformat()
+            else:
+                # If timestamp is not a datetime object, convert it to one
+                formatted_timestamp = datetime.fromtimestamp(timestamp, timezone).isoformat()
+            
+            formatted_data.append({
+                'timestamp': formatted_timestamp,
+                'temperature': temperature
+            })
+        
         return jsonify(data=formatted_data)
     except Exception as e:
         app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
-        return jsonify({'error': 'Internal Server Error'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/chart')
 async def chart():
@@ -412,7 +422,7 @@ async def main():
     await create_aiohttp_session()
     init_db()  # Initialize the database
     hypercorn_config = HypercornConfig()
-    hypercorn_config.bind = ["0.0.0.0:5000"]  # Change this line
+    hypercorn_config.bind = ["0.0.0.0:5000"]  # Ensure this is correct
     try:
         # Start the temperature reading loop
         asyncio.create_task(read_temperature_data())
