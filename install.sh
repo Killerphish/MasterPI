@@ -97,9 +97,12 @@ if [ -f "requirements.txt" ]; then
     pip install -r requirements.txt || { echo "Failed to install requirements"; exit 1; }
 fi
 
-# Run Quart application 
-
-hypercorn masterpi:app & || { echo "Failed to start Quart application"; exit 1; }
+# Run Quart application
+hypercorn masterpi:app & 
+if [ $? -ne 0 ]; then
+    echo "Failed to start Quart application"
+    exit 1
+fi
 
 # Deactivate the virtual environment
 deactivate
