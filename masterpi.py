@@ -83,7 +83,7 @@ csrf = CSRFProtect(app)
 app.secret_key = os.environ.get('SECRET_KEY')
 
 if not app.secret_key:
-    raise ValueError("No SECRET_KEY set for Flask application")
+    raise ValueError("No SECRET_KEY set for Quart application")
 
 # Ensure config is not None before accessing its values
 app.config['DEBUG'] = config['app']['debug']
