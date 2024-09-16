@@ -456,6 +456,66 @@ async def get_settings():
         app.logger.error(f"Error fetching settings: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
+@app.route('/remove_sensor', methods=['POST'])
+async def remove_sensor():
+    try:
+        form_data = await request.get_json()  # Use get_json() to parse JSON data
+        sensor_index = form_data.get('sensor_index')
+
+        if sensor_index is None:
+            raise ValueError("Missing sensor index")
+
+        config = await load_config()  # Ensure this is awaited
+
+        # Remove the sensor from the configuration
+        config['sensors'].pop(sensor_index)
+
+        save_config(config)
+
+        # Update the active sensors list
+        load_active_sensors()
+
+        app.logger.info('Sensor removed successfully.')
+        return jsonify({"message": "Sensor removed successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"Error removing sensor: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/save_sensor_settings', methods=['POST'])
+async def save_sensor_settings():
+    try:
+        form_data = await request.get_json()  # Use get_json() to parse JSON data
+        sensor_index = form_data.get('sensor_index')
+        sensor_settings = form_data.get('sensor_settings')
+
+        if sensor_index is None or sensor_settings is None:
+            raise ValueError("Missing sensor index or settings")
+
+        config = await load_config()  # Ensure this is awaited
+
+        # Update the sensor settings in the configuration
+        config['sensors'][sensor_index].update(sensor_settings)
+
+        save_config(config)
+
+        # Update the active sensors list
+        load_active_sensors()
+
+        app.logger.info('Sensor settings saved successfully.')
+        return jsonify({"message": "Sensor settings saved successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"Error saving sensor settings: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get_timezones', methods=['GET'])
+async def get_timezones():
+    try:
+        timezones = pytz.all_timezones
+        return jsonify(timezones), 200
+    except Exception as e:
+        app.logger.error(f"Error fetching timezones: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
 async def main():
     global config
     config = await load_config()  # Load the configuration asynchronously
