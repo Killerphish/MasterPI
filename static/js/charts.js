@@ -11,7 +11,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fetch settings to get the timezone
     fetch('/get_settings')
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(settings => {
             timezone = settings.units.timezone;
         })

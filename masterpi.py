@@ -430,6 +430,20 @@ async def api_status():
         app.logger.error(f"Error fetching status: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
+@app.route('/get_settings', methods=['GET'])
+async def get_settings():
+    try:
+        config = await load_config()
+        settings = {
+            'device': config['device'],
+            'units': config['units'],
+            'personalization': config['personalization']
+        }
+        return jsonify(settings)
+    except Exception as e:
+        app.logger.error(f"Error fetching settings: {e}", exc_info=True)
+        return jsonify({'error': 'Internal Server Error'}), 500
+
 async def main():
     global config
     config = await load_config()  # Load the configuration asynchronously
