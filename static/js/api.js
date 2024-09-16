@@ -41,7 +41,7 @@ export async function fetchStatus() {
         const response = await fetch('/api/status');
         if (!response.ok) {
             console.error('Network response was not ok:', response.status, response.statusText);
-            throw new Error('Network response was not ok');
+            throw new Error(`Network response was not ok: ${response.statusText}`);
         }
         return await response.json();
     } catch (error) {

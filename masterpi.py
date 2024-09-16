@@ -416,6 +416,20 @@ async def pid_autotune():
     # Start PID autotune process
     return jsonify(success=True)
 
+@app.route('/api/status', methods=['GET'])
+async def api_status():
+    try:
+        # Example status data
+        status_data = {
+            'fan_on': True,
+            'target_temperature': 75.0,
+            'temperatures': [72.5, 73.0, 74.0]
+        }
+        return jsonify(status_data)
+    except Exception as e:
+        app.logger.error(f"Error fetching status: {e}", exc_info=True)
+        return jsonify({'error': 'Internal Server Error'}), 500
+
 async def main():
     global config
     config = await load_config()  # Load the configuration asynchronously
