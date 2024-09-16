@@ -34,7 +34,7 @@ dashboard:
 logging:
   level: INFO
   format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-  filename: app.log
+  filename: logs/app.log
 
 # Emergency shutdown settings
 emergency_shutdown:
