@@ -200,6 +200,7 @@ async def index():
 
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
 
+@app.route('/add_sensor', methods=['POST'])
 async def add_sensor():
     try:
         form_data = await request.get_json()  # Use get_json() to parse JSON data
@@ -312,6 +313,17 @@ async def save_settings():
     except Exception as e:
         app.logger.error(f"Error saving setting: {e}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/save_personalization_settings', methods=['POST'])
+async def save_personalization_settings():
+    try:
+        data = await request.get_json()
+        # Process the data and save the settings
+        # For example, update the config file or database
+        return jsonify({'success': True})
+    except Exception as e:
+        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/emergency_shutdown', methods=['POST'])
 async def emergency_shutdown():
@@ -442,17 +454,6 @@ async def get_settings():
         return jsonify(settings)
     except Exception as e:
         app.logger.error(f"Error fetching settings: {e}", exc_info=True)
-        return jsonify({'error': 'Internal Server Error'}), 500
-
-@app.route('/save_personalization_settings', methods=['POST'])
-async def save_personalization_settings():
-    try:
-        data = await request.get_json()
-        # Process the data and save the settings
-        # For example, update the config file or database
-        return jsonify({'success': True})
-    except Exception as e:
-        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
 async def main():
