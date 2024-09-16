@@ -16,81 +16,44 @@ let tempUnit = 'F'; // Default unit changed to Fahrenheit
 let charts = [];
 
 document.addEventListener("DOMContentLoaded", function() {
-    function updateStatus() {
-        fetchStatus()
-            .then(data => {
-                console.log('Status data:', data); // Debugging line
-                const fanStatusElement = document.getElementById('fan-status');
-                const currentTargetTempElement = document.getElementById('current-target-temp');
+    console.log('DOM fully loaded');
+    M.AutoInit();
 
-                if (fanStatusElement) {
-                    fanStatusElement.textContent = data.fan_on ? 'On' : 'Off';
+    // Fetch and display status data
+    fetchStatus()
+        .then(status => {
+            document.getElementById('fan-status').textContent = status.fan_on ? 'On' : 'Off';
+            document.getElementById('current-target-temp').textContent = status.target_temperature;
+            // Display temperatures
+            status.temperatures.forEach((temp, index) => {
+                document.getElementById(`probe-${index}`).textContent = `${temp} °F`;
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching status:', error);
+        });
+
+    // Add event listener for time range change
+    document.getElementById('time-range').addEventListener('change', () => {
+        updateCharts();
+    });
+
+    // Add event listener for updating target temperature
+    document.getElementById('update-temp-button').addEventListener('click', () => {
+        const targetTemp = document.getElementById('target-temp-input').value;
+        updateTargetTemp(targetTemp)
+            .then(response => {
+                if (response.success) {
+                    M.toast({html: 'Target temperature updated successfully'});
                 } else {
-                    console.error('Element with id "fan-status" not found.');
+                    M.toast({html: `Error updating target temperature: ${response.error}`});
                 }
-
-                if (currentTargetTempElement) {
-                    if (data.target_temperature === 0) {
-                        currentTargetTempElement.textContent = 'Off';
-                    } else {
-                        currentTargetTempElement.textContent = `${data.target_temperature.toFixed(2)} °${tempUnit}`;
-                    }
-                } else {
-                    console.error('Element with id "current-target-temp" not found.');
-                }
-
-                // Update probe temperatures
-                if (data.temperatures) {
-                    data.temperatures.forEach((temp, index) => {
-                        const probeElement = document.getElementById(`probe-${index}`);
-                        if (probeElement) {
-                            const tempFahrenheit = (temp * 9/5 + 32).toFixed(2);  // Convert to Fahrenheit and limit to 2 decimal places
-                            probeElement.textContent = `${tempFahrenheit} °${tempUnit}`;
-                        }
-                    });
-                } else {
-                    console.error('Temperatures data is undefined.');
-                }
-
-                // Update charts with new data
-                updateCharts();
             })
             .catch(error => {
-                console.error('Error fetching status:', error);
+                console.error('Error updating target temperature:', error);
+                M.toast({html: 'Error updating target temperature'});
             });
-    }
-
-    // Call updateStatus on page load
-    updateStatus();
-    // Set interval to update status every 5 seconds
-    setInterval(updateStatus, 5000);
-
-    // Add event listener for the button to update target temperature
-    const updateTempButton = document.getElementById('update-temp-button');
-    if (updateTempButton) {
-        updateTempButton.addEventListener('click', () => {
-            const targetTempInput = document.getElementById('target-temp-input');
-            if (targetTempInput) {
-                const targetTemp = parseFloat(targetTempInput.value);
-                if (!isNaN(targetTemp)) {
-                    updateTargetTemp(targetTemp)
-                        .then(response => {
-                            console.log('Target temperature updated:', response);
-                            updateStatus();  // Update status after setting target temperature
-                        })
-                        .catch(error => {
-                            console.error('Error updating target temperature:', error);
-                        });
-                } else {
-                    console.error('Invalid target temperature value.');
-                }
-            } else {
-                console.error('Element with id "target-temp-input" not found.');
-            }
-        });
-    } else {
-        console.error('Element with id "update-temp-button" not found.');
-    }
+    });
 
     // Add event listener for the emergency shutdown button
     const emergencyShutdownButton = document.getElementById('emergency-shutdown-button');
