@@ -63,6 +63,16 @@ function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 }
 
+// Use this function for all fetch requests
+function fetchWithCsrf(url, options = {}) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+        ...options.headers,
+        'X-CSRF-TOKEN': csrfToken,
+    };
+    return fetch(url, { ...options, headers });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     console.log('DOM fully loaded');
 
@@ -116,11 +126,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 chip_select_pin: chipSelectPin
             };
 
-            fetch(saveSensorSettingsUrl, {
+            fetchWithCsrf(saveSensorSettingsUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
                 },
                 body: JSON.stringify(data)
             })
@@ -227,11 +236,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 chip_select_pin: chipSelectPin
             };
 
-            fetch(addSensorUrl, {
+            fetchWithCsrf(addSensorUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
                 },
                 body: JSON.stringify(data)
             })
