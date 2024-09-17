@@ -141,27 +141,29 @@ def initialize_sensors(config):
         enabled = sensor_config.get('enabled', True)  # Default to True if not specified
         try:
             temp_offset = float(sensor_config.get('temp_offset', 0.0))
+            chip_select_pin = sensor_config.get('chip_select_pin')
+            
             if sensor_type == 'MAX31865':
                 spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
-                cs_pin = getattr(board, sensor_config['chip_select_pin'])
+                cs_pin = getattr(board, chip_select_pin)
                 cs = digitalio.DigitalInOut(cs_pin)
                 sensor = MAX31865(spi, cs, rtd_nominal=sensor_config['rtd_type'], ref_resistor=sensor_config['reference_resistor'])
                 sensors.append((sensor, temp_offset, enabled))
-                app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
+                app.logger.info(f"Initialized {sensor_type} sensor on pin {chip_select_pin}")
             elif sensor_type == 'MAX31855':
                 spi = busio.SPI(clock=board.SCLK, MISO=board.MISO)
-                cs_pin = getattr(board, sensor_config['chip_select_pin'])
+                cs_pin = getattr(board, chip_select_pin)
                 cs = digitalio.DigitalInOut(cs_pin)
                 sensor = MAX31855(spi, cs)
                 sensors.append((sensor, temp_offset, enabled))
-                app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
+                app.logger.info(f"Initialized {sensor_type} sensor on pin {chip_select_pin}")
             elif sensor_type == 'MAX31856':
                 spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
-                cs_pin = getattr(board, sensor_config['chip_select_pin'])
+                cs_pin = getattr(board, chip_select_pin)
                 cs = digitalio.DigitalInOut(cs_pin)
                 sensor = MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)  # Ensure thermocouple type is set
                 sensors.append((sensor, temp_offset, enabled))
-                app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['chip_select_pin']}")
+                app.logger.info(f"Initialized {sensor_type} sensor on pin {chip_select_pin}")
             elif sensor_type == 'ADS1115':
                 i2c = busio.I2C(board.SCL, board.SDA)
                 ads = ADS.ADS1115(i2c, address=sensor_config['address'])
@@ -173,7 +175,7 @@ def initialize_sensors(config):
                 sensors.append((sensor, temp_offset, enabled))
                 app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['pin']}")
         except Exception as e:
-            app.logger.error(f"Error initializing {sensor_type} on pin {sensor_config.get('chip_select_pin', sensor_config.get('channel', 'N/A'))}: {e}")
+            app.logger.error(f"Error initializing {sensor_type} on pin {chip_select_pin}: {e}")
 
     print("Temperature sensors initialized.")
     return sensors
