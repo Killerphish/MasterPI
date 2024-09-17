@@ -5,7 +5,7 @@ from quart_csrf import CSRFProtect, generate_csrf
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
-from database import init_db, insert_temperature_data, get_last_24_hours_temperature_data, get_temperature_data_by_range, load_config
+from database import init_db, insert_temperature_data, get_last_24_hours_temperature_data, get_temperature_data_by_range
 import digitalio
 import adafruit_blinka
 import board
@@ -34,6 +34,7 @@ from datetime import datetime
 import pytz
 import hmac
 from quart_csrf import csrf
+from config import load_config  # Import load_config from config.py
 
 # Initialize the global active_sensors list
 active_sensors = []
