@@ -28,7 +28,7 @@ export function fetchTemperatureData(timeRange) {
             if (!data.data || !Array.isArray(data.data)) {
                 throw new Error('Invalid data format');
             }
-            return data;
+            return data.data;  // Return the data array
         })
         .catch(error => {
             console.error('Error fetching temperature data:', error);

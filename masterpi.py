@@ -474,7 +474,7 @@ async def temp_data():
             formatted_data[sensor_id]['timestamps'].append(formatted_timestamp)
             formatted_data[sensor_id]['temperatures'].append(temperature)
         
-        return jsonify(list(formatted_data.values()))
+        return jsonify({'data': list(formatted_data.values())})
     except Exception as e:
         app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
