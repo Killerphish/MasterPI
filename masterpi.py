@@ -126,7 +126,7 @@ app.logger.info('Application startup')
 # Context processor to inject CSRF token into templates
 @app.context_processor
 def inject_csrf_token():
-    token = await csrf.generate_csrf()
+    token = csrf.generate_csrf()
     app.logger.debug(f"Generated CSRF token: {token}")
     return dict(csrf_token=token)
 
@@ -251,7 +251,7 @@ async def add_sensor():
         data = await request.get_json()
         sensor_type = data.get('sensor_type')
         label = data.get('label')
-        chip_select_pin = data.get('chip_select_pin', None)  # Optional for ADS1115
+        chip_select_pin = data.get('chip_select_pin')
 
         if not sensor_type or not label:
             raise ValueError("Missing sensor type or label")
