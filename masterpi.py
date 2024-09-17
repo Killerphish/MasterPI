@@ -594,6 +594,15 @@ async def get_timezones():
         app.logger.error(f"Error fetching timezones: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/get_sensors', methods=['GET'])
+async def get_sensors():
+    try:
+        config = await load_config()
+        return jsonify({'sensors': config['sensors']})
+    except Exception as e:
+        app.logger.error(f"Error fetching sensors: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
 async def main():
     global config
     config = await load_config()  # Load the configuration asynchronously
