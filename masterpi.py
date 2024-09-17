@@ -203,7 +203,9 @@ async def create_aiohttp_session():
 # Initialize the DHT sensor
 dht_device = adafruit_dht.DHT22(board.D4)
 
-def read_sensor_temperature(sensor):
+from database import insert_temperature_data
+
+def read_sensor_temperature(sensor, sensor_id):
     try:
         if isinstance(sensor, MAX31856):
             temperature = sensor.temperature
@@ -217,6 +219,10 @@ def read_sensor_temperature(sensor):
             temperature = sensor.temperature
         else:
             raise ValueError("Unsupported sensor type")
+        
+        # Insert the temperature data into the database with the sensor_id
+        insert_temperature_data(temperature, sensor_id)
+        
         return temperature
     except Exception as e:
         app.logger.error(f"Error reading temperature: {e}")
