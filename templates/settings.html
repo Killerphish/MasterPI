@@ -83,6 +83,24 @@
             var elems = document.querySelectorAll('select');
             M.FormSelect.init(elems);
 
+            // Fetch available pins and populate the dropdown
+            fetch(getAvailablePinsUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const csPinSelect = document.getElementById('newSensorCsPin');
+                    csPinSelect.innerHTML = '<option value="" disabled selected>Choose CS pin</option>';
+                    data.available_pins.forEach(pin => {
+                        const option = document.createElement('option');
+                        option.value = pin;
+                        option.textContent = pin;
+                        csPinSelect.appendChild(option);
+                    });
+                    M.FormSelect.init(csPinSelect); // Reinitialize the select element
+                })
+                .catch(error => {
+                    console.error('Error fetching available pins:', error);
+                });
+
             // Add event listeners for power options
             document.getElementById('restartRpiButton').addEventListener('click', function() {
                 fetchWithCsrf(powerOptionsUrl, {

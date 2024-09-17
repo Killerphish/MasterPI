@@ -278,7 +278,7 @@ async def get_available_pins():
         used_pins = {sensor['chip_select_pin'] for sensor in config['sensors']}
         all_pins = {'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12', 'D13', 'D17'}  # Add other available pins as needed
         available_pins = list(all_pins - used_pins)
-        return jsonify(available_pins), 200
+        return jsonify(available_pins=available_pins), 200
     except Exception as e:
         app.logger.error(f"Error fetching available pins: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
