@@ -70,6 +70,7 @@
             {% endfor %}
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script type="module" src="{{ url_for('static', filename='js/charts.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
@@ -93,6 +94,43 @@
                 })
                 .catch(error => {
                     console.error('Error fetching settings:', error);
+                });
+
+            // Fetch and display sensor data
+            fetch('/temp_data')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach((sensorData, index) => {
+                        const ctx = document.getElementById(`tempChart-${index}`).getContext('2d');
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: sensorData.timestamps,
+                                datasets: [{
+                                    label: sensorData.label,
+                                    data: sensorData.temperatures,
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    x: {
+                                        type: 'time',
+                                        time: {
+                                            unit: 'minute'
+                                        }
+                                    },
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching sensor data:', error);
                 });
         });
     </script>
