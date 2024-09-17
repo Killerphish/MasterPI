@@ -442,8 +442,9 @@ async def temp_data():
             if isinstance(timestamp, datetime):
                 formatted_timestamp = timestamp.astimezone(timezone).isoformat()
             else:
-                # If timestamp is not a datetime object, convert it to one
-                formatted_timestamp = datetime.fromtimestamp(float(timestamp), timezone).isoformat()
+                # If timestamp is a string, parse it to a datetime object
+                parsed_timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                formatted_timestamp = parsed_timestamp.astimezone(timezone).isoformat()
             
             formatted_data.append({
                 'timestamp': formatted_timestamp,
