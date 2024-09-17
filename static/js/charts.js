@@ -91,21 +91,21 @@ function updateCharts() {
     fetchTemperatureData(timeRange)
         .then(data => {
             console.log('Raw data received:', data);
-            if (!data.data || !Array.isArray(data.data)) {
+            if (!Array.isArray(data)) {
                 console.error('Invalid data format received');
                 return;
             }
-            if (data.data.length === 0) {
+            if (data.length === 0) {
                 console.warn('No temperature data available');
                 return;
             }
             charts.forEach((chart, index) => {
                 if (chart && chart.data && chart.data.datasets) {
-                    const probeData = data.data;
+                    const probeData = data[index];
                     console.log(`Updating chart ${index} with data:`, probeData);
-                    chart.data.datasets[0].data = probeData.map(item => ({
-                        x: new Date(item.timestamp).toLocaleString('en-US', { timeZone: timezone }),
-                        y: item.temperature
+                    chart.data.datasets[0].data = probeData.timestamps.map((timestamp, i) => ({
+                        x: new Date(timestamp).toLocaleString('en-US', { timeZone: timezone }),
+                        y: probeData.temperatures[i]
                     }));
                     console.log(`Chart ${index} data:`, chart.data.datasets[0].data);
                     chart.update();
