@@ -99,7 +99,8 @@
             // Fetch and display sensor data
             fetch('/temp_data')
                 .then(response => response.json())
-                .then(data => {
+                .then(responseData => {
+                    const data = responseData.data;  // Access the data property
                     data.forEach((sensorData, index) => {
                         const ctx = document.getElementById(`tempChart-${index}`).getContext('2d');
                         new Chart(ctx, {
