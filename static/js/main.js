@@ -22,11 +22,28 @@ document.addEventListener("DOMContentLoaded", function() {
     // Fetch and display status data
     fetchStatus()
         .then(status => {
-            document.getElementById('fan-status').textContent = status.fan_on ? 'On' : 'Off';
-            document.getElementById('current-target-temp').textContent = status.target_temperature;
+            const fanStatusElement = document.getElementById('fan-status');
+            if (fanStatusElement) {
+                fanStatusElement.textContent = status.fan_on ? 'On' : 'Off';
+            } else {
+                console.error('Element with id "fan-status" not found.');
+            }
+
+            const targetTempElement = document.getElementById('current-target-temp');
+            if (targetTempElement) {
+                targetTempElement.textContent = status.target_temperature;
+            } else {
+                console.error('Element with id "current-target-temp" not found.');
+            }
+
             // Display temperatures
             status.temperatures.forEach((temp, index) => {
-                document.getElementById(`probe-${index}`).textContent = `${temp} °F`;
+                const probeElement = document.getElementById(`probe-${index}`);
+                if (probeElement) {
+                    probeElement.textContent = `${temp} °F`;
+                } else {
+                    console.error(`Element with id "probe-${index}" not found.`);
+                }
             });
         })
         .catch(error => {
