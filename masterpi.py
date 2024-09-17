@@ -30,7 +30,7 @@ from adafruit_ads1x15.analog_in import AnalogIn
 import aiofiles
 import traceback
 import json
-import datetime
+from datetime import datetime
 import pytz
 import hmac
 from quart_csrf import csrf
