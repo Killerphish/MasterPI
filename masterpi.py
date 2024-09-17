@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages, send_file
-from quart_csrf import CSRFProtect, csrf_token
+from quart_csrf import CSRFProtect
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
@@ -33,7 +33,6 @@ import json
 from datetime import datetime
 import pytz
 import hmac
-from quart_csrf import csrf
 from config import load_config  # Import load_config from config.py
 
 # Initialize the global active_sensors list
@@ -126,7 +125,8 @@ app.logger.info('Application startup')
 # Context processor to inject CSRF token into templates
 @app.context_processor
 async def inject_csrf_token():
-    return {'csrf_token': await csrf_token()}
+    token = await csrf._get_token()
+    return {'csrf_token': token}
 
 # Initialize temperature sensors based on settings
 print("Initializing temperature sensors...")
