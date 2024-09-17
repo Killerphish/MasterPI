@@ -443,7 +443,7 @@ async def temp_data():
                 formatted_timestamp = timestamp.astimezone(timezone).isoformat()
             else:
                 # If timestamp is not a datetime object, convert it to one
-                formatted_timestamp = datetime.fromtimestamp(timestamp, timezone).isoformat()
+                formatted_timestamp = datetime.fromtimestamp(float(timestamp), timezone).isoformat()
             
             formatted_data.append({
                 'timestamp': formatted_timestamp,
