@@ -5,7 +5,7 @@ from quart_csrf import CSRFProtect, generate_csrf
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
-from database import init_db, insert_temperature_data, get_last_24_hours_temperature_data, get_temperature_data_by_range
+from database import init_db, insert_temperature_data, get_last_24_hours_temperature_data, get_temperature_data_by_range, load_config
 import digitalio
 import adafruit_blinka
 import board
