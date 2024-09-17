@@ -122,7 +122,6 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Application startup')
 
-# Context processor to inject CSRF token into templates
 @app.context_processor
 async def inject_csrf_token():
     token = await csrf._get_token()
