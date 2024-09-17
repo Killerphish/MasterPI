@@ -38,11 +38,15 @@ from config import load_config  # Import load_config from config.py
 # Initialize the global active_sensors list
 active_sensors = []
 
+# Create your Quart app and set up CSRF protection
+app = Quart(__name__)
+csrf = CSRFProtect(app)
+
 def patched_validate_csrf(data):
     if not data:
         return False
     try:
-        expected_data = csrf._get_signed_token()
+        expected_data = csrf._get_token()
         return hmac.compare_digest(data, expected_data)
     except Exception as e:
         print(f"Error in validate_csrf: {e}")
@@ -50,10 +54,6 @@ def patched_validate_csrf(data):
 
 # Monkey-patch the validate_csrf function
 csrf.validate_csrf = patched_validate_csrf
-
-# Now create your Quart app and set up CSRF protection
-app = Quart(__name__)
-csrf = CSRFProtect(app)
 
 def load_config_sync():
     try:
