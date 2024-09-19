@@ -1,7 +1,8 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages, send_file
-from quart_csrf import CSRFProtect, CSRFError, current_app
+from quart_csrf import CSRFProtect
+from werkzeug.exceptions import BadRequest
 import hmac
 import secrets
 from temperature_sensor import TemperatureSensor
@@ -39,17 +40,17 @@ from config import load_config  # Import load_config from config.py
 # Initialize the global active_sensors list
 active_sensors = []
 
-# Create your Quart app and set up CSRF protection
+# Create your Quart app
 app = Quart(__name__)
 
 class CustomCSRFProtect(CSRFProtect):
     async def protect(self):
         token = await self._get_csrf_token()
         if token is None:
-            raise CSRFError()
+            raise BadRequest("CSRF token missing")
         if self.request.method not in self.exempt_methods:
             if token != self.request.headers.get(self.header_name):
-                raise CSRFError()
+                raise BadRequest("CSRF token mismatch")
         return token
 
     async def generate_csrf(self):
@@ -66,8 +67,14 @@ def validate_csrf(data):
         current_app.logger.error(f"Error in validate_csrf: {e}")
         return False
 
+# Set up CSRF protection
 csrf = CustomCSRFProtect(app)
 csrf._validate_csrf = validate_csrf
+
+# Add CSRF token to all templates
+@app.context_processor
+async def inject_csrf_token():
+    return {'csrf_token': await csrf.generate_csrf()}
 
 def load_config_sync():
     try:
