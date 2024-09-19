@@ -243,13 +243,20 @@ document.addEventListener("DOMContentLoaded", function() {
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.json())
-            .then(result => {
-                if (result.message) {
-                    M.toast({html: result.message});
-                    refreshSensorList();  // Refresh the sensor list after adding
-                } else {
-                    M.toast({html: `Error: ${result.error}`});
+            .then(response => response.text())  // Capture raw response text
+            .then(text => {
+                try {
+                    const result = JSON.parse(text);  // Parse the JSON response
+                    if (result.message) {
+                        M.toast({html: result.message});
+                        refreshSensorList();  // Refresh the sensor list after adding
+                    } else {
+                        M.toast({html: `Error: ${result.error}`});
+                    }
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                    console.error('Raw response text:', text);  // Log the raw response text
+                    M.toast({html: 'Error adding sensor: Invalid JSON response'});
                 }
             })
             .catch(error => {
