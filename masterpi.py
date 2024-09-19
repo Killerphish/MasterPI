@@ -1,7 +1,9 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages, send_file
-from quart_csrf import CSRFProtect, generate_csrf
+from quart_csrf import CSRFProtect, CSRFError, current_app
+import hmac
+import secrets
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
@@ -50,14 +52,18 @@ class CustomCSRFProtect(CSRFProtect):
                 raise CSRFError()
         return token
 
+    async def generate_csrf(self):
+        """Generate a new CSRF token."""
+        return secrets.token_hex(16)
+
 def validate_csrf(data):
     if not data:
         return False
     try:
-        expected_data = generate_csrf()
+        expected_data = current_app.extensions['csrf'].generate_csrf()
         return hmac.compare_digest(data, expected_data)
     except Exception as e:
-        app.logger.error(f"Error in validate_csrf: {e}")
+        current_app.logger.error(f"Error in validate_csrf: {e}")
         return False
 
 csrf = CustomCSRFProtect(app)
