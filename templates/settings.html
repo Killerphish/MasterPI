@@ -119,17 +119,6 @@
                     M.toast({html: 'Error restarting Raspberry Pi'});
                 });
             });
-        } else {
-                console.error('Add Sensor Button not found');
-            }
-            // Add event listener for the "Add Sensor" form submission
-            const addSensorForm = document.getElementById('addSensorForm');
-            if (addSensorForm) {
-                addSensorForm.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    const sensorType = document.getElementById('newSensorType').value;
-                    const label = document.getElementById('newSensorLabel').value;
-                    const chipSelectPin = document.getElementById('newSensorCsPin').value;
 
             document.getElementById('restartAppButton').addEventListener('click', function() {
                 fetchWithCsrf(powerOptionsUrl, {
@@ -176,48 +165,36 @@
                     chipSelectPinField.style.display = 'block';
                 }
             });
-            const data = {
-                        sensor_type: sensorType,
-                        label: label,
-                        chip_select_pin: chipSelectPin
-                    };
-                    fetchWithCsrf(addSensorUrl, {
+
+            // Add event listener for removing a sensor
+            document.querySelectorAll('.remove-sensor').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const sensorIndex = this.getAttribute('data-index');
+
+                    fetchWithCsrf(removeSensorUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(data)
+                        body: JSON.stringify({ index: sensorIndex })
                     })
                     .then(response => response.json())
-                    .then(data => {
-                        if (data.message) {
-                            M.toast({html: data.message});
-                            refreshSensorList();  // Refresh the sensor list after adding
+                    .then(result => {
+                        if (result.message) {
+                            M.toast({html: result.message});
+                            refreshSensorList();  // Refresh the sensor list after removing
                         } else {
-                            M.toast({html: `Error: ${data.error}`});
+                            M.toast({html: `Error: ${result.error}`});
                         }
                     })
                     .catch(error => {
-                        console.error('Error adding sensor:', error);
+                        console.error('Error removing sensor:', error);
                         M.toast({html: `Error: ${error.message}`});
                     });
                 });
-            } else {
-                console.error('Add Sensor Form not found');
-            }
+            });
         });
-        function getCsrfToken() {
-            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        }
-
-        function fetchWithCsrf(url, options = {}) {
-            const csrfToken = getCsrfToken();
-            const headers = {
-                ...options.headers,
-                'X-CSRF-TOKEN': csrfToken,
-            };
-            return fetch(url, { ...options, headers });
-        }
     </script>
 </head>
 <body style="background-color: var(--background-color);">
@@ -296,7 +273,7 @@
                     </li>
                     {% endfor %}
                 </ul>
-                <button id="addSensorButton" class="btn waves-effect waves-light">Add Sensor</button>
+                <a href="#addSensorModal" class="btn modal-trigger">Add Sensor</a>
             </div>
         </div>
     </div>
@@ -307,24 +284,24 @@
             <h4>Add New Sensor</h4>
             <form id="addSensorForm">
                 <div class="input-field">
-                    <select id="newSensorType" name="sensor_type" required>
+                    <select id="newSensorType" required>
                         <option value="" disabled selected>Choose sensor type</option>
                         <option value="MAX31856">MAX31856</option>
                         <option value="MAX31865">MAX31865</option>
                         <option value="MAX31855">MAX31855</option>
                         <option value="ADS1115">ADS1115</option>
                     </select>
-                    <label for="newSensorType">Sensor Type</label>
+                    <label>Sensor Type</label>
                 </div>
                 <div class="input-field" id="newSensorCsPinField">
-                    <select id="newSensorCsPin" name="chip_select_pin" required>
+                    <select id="newSensorCsPin" required>
                         <option value="" disabled selected>Choose CS pin</option>
                         <!-- Options will be populated by JavaScript -->
                     </select>
-                    <label for="newSensorCsPin">Chip Select Pin</label>
+                    <label>Chip Select Pin</label>
                 </div>
                 <div class="input-field">
-                    <input id="newSensorLabel" name="label" type="text" required>
+                    <input id="newSensorLabel" type="text" required>
                     <label for="newSensorLabel">Sensor Label</label>
                 </div>
                 <button class="btn waves-effect waves-light" type="submit">Add Sensor</button>
@@ -347,7 +324,7 @@
                         <option value="" disabled selected>Choose CS pin</option>
                         <!-- Options will be populated by JavaScript -->
                     </select>
-                    <label for="editSensorCsPin">Chip Select Pin</label>
+                    <label>Chip Select Pin</label>
                 </div>
                 <button class="btn waves-effect waves-light" type="submit">Save Changes</button>
             </form>
