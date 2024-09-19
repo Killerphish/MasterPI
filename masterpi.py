@@ -23,7 +23,6 @@ import yaml
 import busio
 import adafruit_max31856
 from adafruit_max31865 import MAX31865
-from adafruit_max31856 import MAX31856
 from adafruit_max31855 import MAX31855
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
@@ -124,7 +123,7 @@ app.logger.info('Application startup')
 
 @app.context_processor
 async def inject_csrf_token():
-    token = await generate_csrf()
+    token = generate_csrf()
     return {'csrf_token': token}
 
 # Initialize temperature sensors based on settings
