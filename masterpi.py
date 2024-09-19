@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages, send_file
-from quart_csrf import CSRFProtect
+from quart_csrf import CSRFProtect, generate_csrf
 from temperature_sensor import TemperatureSensor
 from pid_controller import PIDController
 from fan_control import FanController
@@ -46,7 +46,7 @@ def patched_validate_csrf(data):
     if not data:
         return False
     try:
-        expected_data = csrf._get_token()
+        expected_data = generate_csrf()
         return hmac.compare_digest(data, expected_data)
     except Exception as e:
         print(f"Error in validate_csrf: {e}")
@@ -124,7 +124,7 @@ app.logger.info('Application startup')
 
 @app.context_processor
 async def inject_csrf_token():
-    token = await csrf._get_token()
+    token = await generate_csrf()
     return {'csrf_token': token}
 
 # Initialize temperature sensors based on settings
