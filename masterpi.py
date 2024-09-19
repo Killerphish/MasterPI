@@ -39,20 +39,29 @@ active_sensors = []
 
 # Create your Quart app and set up CSRF protection
 app = Quart(__name__)
-csrf = CSRFProtect(app)
 
-def patched_validate_csrf(data):
+class CustomCSRFProtect(CSRFProtect):
+    async def protect(self):
+        token = await self._get_csrf_token()
+        if token is None:
+            raise CSRFError()
+        if self.request.method not in self.exempt_methods:
+            if token != self.request.headers.get(self.header_name):
+                raise CSRFError()
+        return token
+
+def validate_csrf(data):
     if not data:
         return False
     try:
         expected_data = generate_csrf()
         return hmac.compare_digest(data, expected_data)
     except Exception as e:
-        print(f"Error in validate_csrf: {e}")
+        app.logger.error(f"Error in validate_csrf: {e}")
         return False
 
-# Monkey-patch the validate_csrf function
-csrf.validate_csrf = patched_validate_csrf
+csrf = CustomCSRFProtect(app)
+csrf._validate_csrf = validate_csrf
 
 def load_config_sync():
     try:
@@ -123,8 +132,7 @@ app.logger.info('Application startup')
 
 @app.context_processor
 async def inject_csrf_token():
-    token = generate_csrf()
-    return {'csrf_token': token}
+    return {'csrf_token': await csrf.generate_csrf()}
 
 # Initialize temperature sensors based on settings
 print("Initializing temperature sensors...")
@@ -242,6 +250,7 @@ async def index():
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
 
 @app.route('/add_sensor', methods=['POST'])
+@csrf.exempt  # If you want to exempt this route from CSRF protection
 async def add_sensor():
     try:
         data = await request.get_json()
