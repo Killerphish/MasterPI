@@ -263,7 +263,6 @@ async def index():
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
 
 @app.route('/add_sensor', methods=['POST'])
-@csrf.exempt  # If you want to exempt this route from CSRF protection
 async def add_sensor():
     try:
         data = await request.get_json()
