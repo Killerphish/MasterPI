@@ -550,26 +550,35 @@ async def get_settings():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/remove_sensor', methods=['POST'])
-async def remove_sensor():
-    data = await request.get_json()
+def remove_sensor():
+    data = request.get_json()
     sensor_index = data.get('index')
+    app.logger.info(f"Received sensor index: {sensor_index}")
+
     if sensor_index is None:
         return jsonify({'error': 'Sensor index not provided'}), 400
 
     try:
+        # Convert sensor_index to an integer
+        sensor_index = int(sensor_index)
+        app.logger.info(f"Converted sensor index to int: {sensor_index}")
+
         config = load_config_sync()
         app.logger.info(f"Configuration before removal: {config}")
-        
+
         if 0 <= sensor_index < len(config['sensors']):
             removed_sensor = config['sensors'].pop(sensor_index)
             save_config_sync(config)
-            
+
             app.logger.info(f"Removed sensor: {removed_sensor}")
             app.logger.info(f"Configuration after removal: {config}")
-            
+
             return jsonify({'message': f'Sensor {removed_sensor["label"]} removed successfully'})
         else:
             return jsonify({'error': 'Invalid sensor index'}), 400
+    except ValueError:
+        app.logger.error(f"Invalid sensor index format: {sensor_index}")
+        return jsonify({'error': 'Invalid sensor index format'}), 400
     except Exception as e:
         app.logger.error(f"Error removing sensor: {e}")
         return jsonify({'error': 'Failed to remove sensor'}), 500
