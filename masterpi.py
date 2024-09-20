@@ -147,10 +147,11 @@ app.logger.info('Application startup')
 async def inject_csrf_token():
     return {'csrf_token': await csrf.generate_csrf()}
 
-# Initialize temperature sensors based on settings
-print("Initializing temperature sensors...")
-def initialize_sensors(sensor_type, chip_select_pin=None):
+def initialize_sensor(sensor_config):
     try:
+        sensor_type = sensor_config['type']
+        chip_select_pin = sensor_config.get('chip_select_pin')
+
         if sensor_type == 'MAX31865':
             spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
             cs_pin = getattr(board, chip_select_pin) if chip_select_pin else None
@@ -176,14 +177,26 @@ def initialize_sensors(sensor_type, chip_select_pin=None):
         else:
             raise ValueError(f"Unsupported sensor type: {sensor_type}")
         
-        return sensor
+        return sensor, sensor_config['label']
     except Exception as e:
         app.logger.error(f"Error initializing {sensor_type} sensor: {e}")
         raise
 
-# Initialize temperature sensors based on settings
+def initialize_sensors(config):
+    global active_sensors
+    active_sensors = []
+    for sensor_config in config['sensors']:
+        try:
+            sensor, label = initialize_sensor(sensor_config)
+            active_sensors.append((sensor, label))
+        except Exception as e:
+            app.logger.error(f"Failed to initialize sensor {sensor_config['label']}: {e}")
+    return active_sensors
+
+# In your main code:
 print("Initializing temperature sensors...")
-sensors = initialize_sensors(config)
+active_sensors = initialize_sensors(config)
+print(f"Temperature sensors initialized. Active sensors: {len(active_sensors)}")
 
 # Initialize PID controller
 pid = PIDController(kp=config['pid']['kp'], ki=config['pid']['ki'], kd=config['pid']['kd'], setpoint=config['pid']['target_temperature'])
@@ -250,33 +263,28 @@ async def index():
 async def add_sensor():
     try:
         data = await request.get_json()
-        sensor_type = data['sensor_type']
-        label = data['label']
-        chip_select_pin = data.get('chip_select_pin')  # This might be None for some sensor types
+        sensor_config = {
+            'type': data['sensor_type'],
+            'label': data['label'],
+            'chip_select_pin': data.get('chip_select_pin')
+        }
 
         # Initialize the sensor
-        initialized_sensor = initialize_sensors(sensor_type, chip_select_pin)
+        sensor, label = initialize_sensor(sensor_config)
 
         # Add the initialized sensor to the active_sensors list
-        active_sensors.append((initialized_sensor, label))
+        active_sensors.append((sensor, label))
 
         # Load the configuration
         config = await load_config()
 
         # Add the new sensor to the configuration
-        sensor_config = {
-            'type': sensor_type,
-            'label': label,
-        }
-        if chip_select_pin:
-            sensor_config['chip_select_pin'] = chip_select_pin
-
         config['sensors'].append(sensor_config)
 
         # Save the updated configuration
         await save_config(config)
 
-        app.logger.info(f"Added new sensor: {label} ({sensor_type})")
+        app.logger.info(f"Added new sensor: {label} ({sensor_config['type']})")
         return jsonify({"message": "Sensor added successfully"}), 200
 
     except ValueError as ve:
