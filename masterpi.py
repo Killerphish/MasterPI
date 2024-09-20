@@ -496,27 +496,26 @@ async def temp_data():
         data = get_temperature_data_by_range(int(time_range), timezone)
         app.logger.debug(f"Fetched temperature data: {data}")
         
-        formatted_data = {}
-        for row in data:
-            timestamp, temperature, sensor_id = row
-            if isinstance(timestamp, datetime):
-                formatted_timestamp = timestamp.astimezone(timezone).isoformat()
-            else:
-                # If timestamp is a string, parse it to a datetime object
-                parsed_timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
-                formatted_timestamp = parsed_timestamp.astimezone(timezone).isoformat()
-            
-            if sensor_id not in formatted_data:
-                formatted_data[sensor_id] = {
-                    'timestamps': [],
-                    'temperatures': [],
-                    'label': next(sensor['label'] for sensor in config['sensors'] if sensor['id'] == sensor_id)
-                }
-            
-            formatted_data[sensor_id]['timestamps'].append(formatted_timestamp)
-            formatted_data[sensor_id]['temperatures'].append(temperature)
+        formatted_data = []
+        for sensor in config['sensors']:
+            sensor_data = {
+                'timestamps': [],
+                'temperatures': [],
+                'label': sensor['label']
+            }
+            for row in data:
+                timestamp, temperature, sensor_id = row
+                if sensor_id == sensor['id']:
+                    if isinstance(timestamp, datetime):
+                        formatted_timestamp = timestamp.astimezone(timezone).isoformat()
+                    else:
+                        parsed_timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                        formatted_timestamp = parsed_timestamp.astimezone(timezone).isoformat()
+                    sensor_data['timestamps'].append(formatted_timestamp)
+                    sensor_data['temperatures'].append(temperature)
+            formatted_data.append(sensor_data)
         
-        return jsonify({'data': list(formatted_data.values())})
+        return jsonify({'data': formatted_data})
     except Exception as e:
         app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500

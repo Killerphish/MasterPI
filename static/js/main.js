@@ -37,14 +37,18 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             // Display temperatures
-            status.temperatures.forEach((temp, index) => {
-                const probeElement = document.getElementById(`probe-${index}`);
-                if (probeElement) {
-                    probeElement.textContent = `${temp} °F`;
-                } else {
-                    console.error(`Element with id "probe-${index}" not found.`);
-                }
-            });
+            if (status.temperatures && Array.isArray(status.temperatures)) {
+                status.temperatures.forEach((temp, index) => {
+                    const probeElement = document.getElementById(`probe-${index}`);
+                    if (probeElement) {
+                        probeElement.textContent = `${temp} °F`;
+                    } else {
+                        console.error(`Element with id "probe-${index}" not found.`);
+                    }
+                });
+            } else {
+                console.error('Invalid or missing temperatures data in status');
+            }
         })
         .catch(error => {
             console.error('Error fetching status:', error);
