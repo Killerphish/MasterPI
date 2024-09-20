@@ -149,53 +149,37 @@ async def inject_csrf_token():
 
 # Initialize temperature sensors based on settings
 print("Initializing temperature sensors...")
-def initialize_sensors(config):
-    sensors = []
-    sensor_configs = config['sensors']
-
-    for sensor_config in sensor_configs:
-        sensor_type = sensor_config['type']
-        enabled = sensor_config.get('enabled', True)  # Default to True if not specified
-        try:
-            temp_offset = float(sensor_config.get('temp_offset', 0.0))
-            chip_select_pin = sensor_config.get('chip_select_pin')
-            
-            if sensor_type == 'MAX31865':
-                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
-                cs_pin = getattr(board, chip_select_pin)
-                cs = digitalio.DigitalInOut(cs_pin)
-                sensor = MAX31865(spi, cs, rtd_nominal=sensor_config['rtd_type'], ref_resistor=sensor_config['reference_resistor'])
-                sensors.append((sensor, temp_offset, enabled))
-                app.logger.info(f"Initialized {sensor_type} sensor on pin {chip_select_pin}")
-            elif sensor_type == 'MAX31855':
-                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO)
-                cs_pin = getattr(board, chip_select_pin)
-                cs = digitalio.DigitalInOut(cs_pin)
-                sensor = MAX31855(spi, cs)
-                sensors.append((sensor, temp_offset, enabled))
-                app.logger.info(f"Initialized {sensor_type} sensor on pin {chip_select_pin}")
-            elif sensor_type == 'MAX31856':
-                spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
-                cs_pin = getattr(board, chip_select_pin)
-                cs = digitalio.DigitalInOut(cs_pin)
-                sensor = MAX31856(spi, cs, thermocouple_type=adafruit_max31856.ThermocoupleType.K)  # Ensure thermocouple type is set
-                sensors.append((sensor, temp_offset, enabled))
-                app.logger.info(f"Initialized {sensor_type} sensor on pin {chip_select_pin}")
-            elif sensor_type == 'ADS1115':
-                i2c = busio.I2C(board.SCL, board.SDA)
-                ads = ADS.ADS1115(i2c, address=sensor_config['address'])
-                sensor = AnalogIn(ads, getattr(ADS, f'P{sensor_config["channel"]}'))
-                sensors.append((sensor, temp_offset, enabled))
-                app.logger.info(f"Initialized {sensor_type} sensor on channel {sensor_config['channel']} with address {sensor_config['address']}")
-            elif sensor_type == 'DHT22':
-                sensor = adafruit_dht.DHT22(getattr(board, sensor_config['pin']))
-                sensors.append((sensor, temp_offset, enabled))
-                app.logger.info(f"Initialized {sensor_type} sensor on pin {sensor_config['pin']}")
-        except Exception as e:
-            app.logger.error(f"Error initializing {sensor_type} on pin {chip_select_pin}: {e}")
-
-    print("Temperature sensors initialized.")
-    return sensors
+def initialize_sensors(sensor_type, chip_select_pin=None):
+    try:
+        if sensor_type == 'MAX31865':
+            spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
+            cs_pin = getattr(board, chip_select_pin) if chip_select_pin else None
+            cs = digitalio.DigitalInOut(cs_pin) if cs_pin else None
+            sensor = MAX31865(spi, cs, rtd_nominal=100, ref_resistor=430.0)
+        elif sensor_type == 'MAX31855':
+            spi = busio.SPI(clock=board.SCLK, MISO=board.MISO)
+            cs_pin = getattr(board, chip_select_pin) if chip_select_pin else None
+            cs = digitalio.DigitalInOut(cs_pin) if cs_pin else None
+            sensor = MAX31855(spi, cs)
+        elif sensor_type == 'MAX31856':
+            spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
+            cs_pin = getattr(board, chip_select_pin) if chip_select_pin else None
+            cs = digitalio.DigitalInOut(cs_pin) if cs_pin else None
+            sensor = adafruit_max31856.MAX31856(spi, cs)
+        elif sensor_type == 'ADS1115':
+            i2c = busio.I2C(board.SCL, board.SDA)
+            ads = ADS.ADS1115(i2c)
+            sensor = AnalogIn(ads, ADS.P0)  # Assuming we're using the first channel
+        elif sensor_type == 'DHT22':
+            pin = getattr(board, chip_select_pin) if chip_select_pin else board.D4  # Default to D4 if not specified
+            sensor = adafruit_dht.DHT22(pin)
+        else:
+            raise ValueError(f"Unsupported sensor type: {sensor_type}")
+        
+        return sensor
+    except Exception as e:
+        app.logger.error(f"Error initializing {sensor_type} sensor: {e}")
+        raise
 
 # Initialize temperature sensors based on settings
 print("Initializing temperature sensors...")
@@ -263,25 +247,18 @@ async def index():
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
 
 @app.route('/add_sensor', methods=['POST'])
-@csrf.exempt  # If you want to exempt this route from CSRF protection
 async def add_sensor():
     try:
         data = await request.get_json()
-        sensor_type = data.get('sensor_type')
-        label = data.get('label')
-        chip_select_pin = data.get('chip_select_pin')
-
-        if not sensor_type or not label:
-            raise ValueError("Missing sensor type or label")
+        sensor_type = data['sensor_type']
+        label = data['label']
+        chip_select_pin = data.get('chip_select_pin')  # This might be None for some sensor types
 
         # Initialize the sensor
         initialized_sensor = initialize_sensors(sensor_type, chip_select_pin)
 
-        if initialized_sensor is None:
-            raise ValueError(f"Failed to initialize sensor: {sensor_type}")
-
         # Add the initialized sensor to the active_sensors list
-        active_sensors.append(initialized_sensor)
+        active_sensors.append((initialized_sensor, label))
 
         # Load the configuration
         config = await load_config()
@@ -297,7 +274,7 @@ async def add_sensor():
         config['sensors'].append(sensor_config)
 
         # Save the updated configuration
-        save_config(config)
+        await save_config(config)
 
         app.logger.info(f"Added new sensor: {label} ({sensor_type})")
         return jsonify({"message": "Sensor added successfully"}), 200
