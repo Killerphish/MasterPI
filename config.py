@@ -1,4 +1,5 @@
 import yaml
+import asyncio
 
 def load_config():
     try:
@@ -16,3 +17,12 @@ def load_config():
     except Exception as e:
         print(f"Unexpected error loading config file: {e}")
         return None
+
+async def save_config(config):
+    def _save_config():
+        with open('config.yaml', 'w') as file:
+            yaml.dump(config, file)
+        print("Config file saved successfully")
+
+    # Run the synchronous file operation in a separate thread
+    await asyncio.to_thread(_save_config)
