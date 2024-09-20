@@ -82,243 +82,63 @@ function fetchWithCsrf(url, options = {}) {
 document.addEventListener("DOMContentLoaded", function() {
     console.log('DOM fully loaded');
 
-    const settingsForm = document.getElementById('settingsForm');
-    console.log('Settings form:', settingsForm);
+    // Initialize Materialize components
+    M.AutoInit();
 
-    if (settingsForm) {
-        console.log('Adding event listener to settings form');
-        settingsForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            console.log('Form submitted');
+    // Initialize the modal
+    const addSensorModal = document.querySelector('#addSensorModal');
+    M.Modal.init(addSensorModal);
 
-            const formData = new FormData(settingsForm);
-            const settings = Object.fromEntries(formData);
-
-            fetch('/save_settings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
-                },
-                body: JSON.stringify(settings)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    M.toast({html: 'Settings saved successfully'});
-                } else {
-                    M.toast({html: 'Error saving settings'});
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                M.toast({html: 'Error saving settings'});
-            });
-        });
-    }
-
-    const editSensorForm = document.getElementById('editSensorForm');
-    if (editSensorForm) {
-        editSensorForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const sensorIndex = document.getElementById('editSensorIndex').value;
-            const label = document.getElementById('editSensorLabel').value;
-            const chipSelectPin = document.getElementById('editSensorCsPin').value;
-
-            const data = {
-                index: sensorIndex,
-                label: label,
-                chip_select_pin: chipSelectPin
-            };
-
-            fetchWithCsrf(saveSensorSettingsUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.message) {
-                    M.toast({html: result.message});
-                    refreshSensorList();
-                    M.Modal.getInstance(document.getElementById('editSensorModal')).close();
-                } else {
-                    M.toast({html: `Error: ${result.error}`});
-                }
-            })
-            .catch(error => {
-                console.error('Error saving sensor settings:', error);
-                M.toast({html: `Error: ${error.message}`});
-            });
-        });
-    }
-
-    M.AutoInit();  // Initialize all Materialize components
-
-    // Initialize modals
-    const modals = document.querySelectorAll('.modal');
-    M.Modal.init(modals);
-
-    // Add this new event listener for the "Add Sensor" button
-    const openAddSensorModalBtn = document.getElementById('openAddSensorModal');
-    if (openAddSensorModalBtn) {
-        openAddSensorModalBtn.addEventListener('click', function() {
-            const addSensorModal = document.getElementById('addSensorModal');
-            if (addSensorModal) {
-                fetchAvailablePins();
-                const instance = M.Modal.getInstance(addSensorModal);
-                instance.open();
-            } else {
-                console.error('Add Sensor modal not found');
-            }
+    // Add event listener for the "Add Sensor" button
+    const openAddSensorModalButton = document.querySelector('#openAddSensorModal');
+    if (openAddSensorModalButton) {
+        openAddSensorModalButton.addEventListener('click', () => {
+            const instance = M.Modal.getInstance(addSensorModal);
+            instance.open();
         });
     } else {
         console.error('Open Add Sensor Modal button not found');
     }
 
-    var elems = document.querySelectorAll('.tabs');
-    var instances = M.Tabs.init(elems);
+    // Add event listener for the "Add Sensor" form submission
+    const addSensorForm = document.querySelector('#addSensorForm');
+    addSensorForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const sensorType = document.querySelector('#newSensorType').value;
+        const chipSelectPin = document.querySelector('#newSensorCsPin').value;
+        const sensorLabel = document.querySelector('#newSensorLabel').value;
 
-    // Ensure labels are correctly positioned
-    M.updateTextFields();
+        const sensorData = {
+            sensor_type: sensorType,
+            chip_select_pin: chipSelectPin,
+            label: sensorLabel
+        };
 
-    // Fetch settings to get the temperature unit and timezone
-    fetch('/get_settings')
+        fetchWithCsrf('/add_sensor', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(sensorData)
+        })
         .then(response => response.json())
-        .then(settings => {
-            tempUnit = settings.units.temperature;
-            const timezone = settings.units.timezone;
-            document.getElementById('timezone').value = timezone;  // Set the timezone dropdown value
+        .then(data => {
+            if (data.message) {
+                M.toast({html: data.message});
+                // Refresh the sensor list
+                refreshSensorList();
+                // Close the modal
+                const instance = M.Modal.getInstance(addSensorModal);
+                instance.close();
+            } else {
+                M.toast({html: `Error adding sensor: ${data.error}`});
+            }
         })
         .catch(error => {
-            console.error('Error fetching settings:', error);
-        });
-
-    // Fetch and populate timezones
-    fetch('/get_timezones')
-        .then(response => response.json())
-        .then(timezones => {
-            const timezoneSelect = document.getElementById('timezone');
-            timezones.forEach(tz => {
-                const option = document.createElement('option');
-                option.value = tz;
-                option.textContent = tz;
-                timezoneSelect.appendChild(option);
-            });
-            M.FormSelect.init(timezoneSelect);  // Reinitialize Materialize select
-        })
-        .catch(error => {
-            console.error('Error fetching timezones:', error);
-        });
-
-    // Add event listeners to switch tab content
-    document.querySelectorAll('.tabs a').forEach(tab => {
-        tab.addEventListener('click', function(event) {
-            event.preventDefault();
-            const target = this.getAttribute('href').substring(1);
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(target).classList.add('active');
+            console.error('Error adding sensor:', error);
+            M.toast({html: 'Error adding sensor'});
         });
     });
-
-    // Handle the "Add Sensor" form submission
-    const addSensorForm = document.getElementById('addSensorForm');
-    if (addSensorForm) {
-        addSensorForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const sensorType = document.getElementById('newSensorType').value;
-            const label = document.getElementById('newSensorLabel').value;
-            const chipSelectPin = document.getElementById('newSensorCsPin').value;
-
-            const data = {
-                sensor_type: sensorType,
-                label: label,
-                chip_select_pin: chipSelectPin
-            };
-
-            fetchWithCsrf(addSensorUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()  // Include CSRF token
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.text())  // Capture raw response text
-            .then(text => {
-                try {
-                    const result = JSON.parse(text);  // Parse the JSON response
-                    if (result.message) {
-                        M.toast({html: result.message});
-                        refreshSensorList();  // Refresh the sensor list after adding
-                    } else {
-                        M.toast({html: `Error: ${result.error}`});
-                    }
-                } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                    console.error('Raw response text:', text);  // Log the raw response text
-                    M.toast({html: 'Error adding sensor: Invalid JSON response'});
-                }
-            })
-            .catch(error => {
-                console.error('Error adding sensor:', error);
-                M.toast({html: `Error: ${error.message}`});
-            });
-        });
-    }
-
-    // Function to handle removing a sensor
-    function handleRemoveSensor(event) {
-        event.preventDefault();
-        const sensorIndex = this.getAttribute('data-index');
-        
-        if (confirm('Are you sure you want to remove this sensor?')) {
-            fetchWithCsrf(removeSensorUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ index: sensorIndex })
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.message) {
-                    M.toast({html: result.message});
-                    refreshSensorList();  // Refresh the sensor list after removing
-                } else {
-                    M.toast({html: `Error: ${result.error}`});
-                }
-            })
-            .catch(error => {
-                console.error('Error removing sensor:', error);
-                M.toast({html: `Error: ${error.message}`});
-            });
-        }
-    }
-
-    // Function to handle editing a sensor
-    function handleEditSensor(event) {
-        event.preventDefault();
-        const sensorIndex = this.getAttribute('data-index');
-        const sensorLabel = this.getAttribute('data-label');
-        const sensorCsPin = this.getAttribute('data-cs-pin');
-
-        // Populate the edit form with the current sensor data
-        document.getElementById('editSensorLabel').value = sensorLabel;
-        document.getElementById('editSensorCsPin').value = sensorCsPin;
-        document.getElementById('editSensorIndex').value = sensorIndex;
-
-        // Open the edit sensor modal
-        const editSensorModal = document.getElementById('editSensorModal');
-        const instance = M.Modal.getInstance(editSensorModal);
-        instance.open();
-    }
 
     // Function to refresh sensor list
     function refreshSensorList() {
