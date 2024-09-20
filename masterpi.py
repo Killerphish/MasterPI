@@ -300,6 +300,8 @@ async def add_sensor():
         config['sensors'].append(new_sensor)
         save_config_sync(config)
 
+        # Reload the configuration to verify the changes
+        config = load_config_sync()
         app.logger.info(f"Sensor added successfully. New configuration: {config}")
         return jsonify({'message': f'Sensor {label} added successfully'})
     except Exception as e:
@@ -569,9 +571,12 @@ async def remove_sensor():
         if 0 <= sensor_index < len(config['sensors']):
             removed_sensor = config['sensors'].pop(sensor_index)
             save_config_sync(config)
-
             app.logger.info(f"Removed sensor: {removed_sensor}")
             app.logger.info(f"Configuration after removal: {config}")
+
+            # Reload the configuration to verify the changes
+            config = load_config_sync()
+            app.logger.info(f"Configuration after reloading: {config}")
 
             return jsonify({'message': f'Sensor {removed_sensor["label"]} removed successfully'})
         else:
