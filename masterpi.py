@@ -238,15 +238,25 @@ def read_sensor_temperature(sensor, sensor_id):
         elif isinstance(sensor, adafruit_dht.DHT22):
             temperature = sensor.temperature
         else:
-            raise ValueError("Unsupported sensor type")
+            raise ValueError(f"Unsupported sensor type for {sensor_id}")
         
         # Insert the temperature data into the database with the sensor_id
         insert_temperature_data(temperature, sensor_id)
         
         return temperature
     except Exception as e:
-        app.logger.error(f"Error reading temperature: {e}")
+        app.logger.error(f"Error reading temperature for {sensor_id}: {e}")
         return None
+
+def read_temperatures():
+    temperatures = []
+    for sensor, label in active_sensors:
+        try:
+            temperature = read_sensor_temperature(sensor, label)
+            temperatures.append({"label": label, "temperature": temperature})
+        except Exception as e:
+            app.logger.error(f"Error reading temperature for {label}: {e}")
+    return temperatures
 
 @app.route('/')
 async def index():
@@ -428,14 +438,13 @@ logging.basicConfig(level=logging.INFO)
 async def read_temperature_data():
     while True:
         try:
-            for sensor, offset, enabled in sensors:
-                if not enabled:
-                    continue  # Skip disabled sensors
-                temperature = read_sensor_temperature(sensor)
+            temperatures = read_temperatures()
+            for temp_data in temperatures:
+                label = temp_data['label']
+                temperature = temp_data['temperature']
                 if temperature is not None:
-                    temperature += offset  # Apply temperature offset
                     logging.info(f"Read temperature: {temperature}")
-                    insert_temperature_data(temperature)
+                    insert_temperature_data(temperature, label)
                     logging.info(f"Inserted temperature data: {temperature}")
                 else:
                     logging.error("Failed to read temperature: received None")
@@ -611,6 +620,11 @@ async def get_sensors():
     except Exception as e:
         app.logger.error(f"Error fetching sensors: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
+
+@app.route('/get_temperatures')
+async def get_temperatures():
+    temperatures = read_temperatures()
+    return jsonify(temperatures)
 
 async def main():
     global config
