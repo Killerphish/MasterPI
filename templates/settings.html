@@ -126,8 +126,13 @@
             if (addSensorForm) {
                 addSensorForm.addEventListener('submit', function(event) {
                     event.preventDefault();
+                    
+                    // Disable the submit button to prevent multiple submissions
+                    const submitButton = addSensorForm.querySelector('button[type="submit"]');
+                    submitButton.disabled = true;
+
                     const sensorType = document.querySelector('#newSensorType').value;
-                    const chipSelectPin = document.querySelector('#newSensorCsPin').value;
+                    const chipSelectPin = sensorType === 'ADS1115' ? null : document.querySelector('#newSensorCsPin').value;
                     const sensorLabel = document.querySelector('#newSensorLabel').value;
 
                     const sensorData = {
@@ -136,6 +141,7 @@
                         label: sensorLabel
                     };
 
+                    console.log('Attempting to add sensor:', sensorData);
                     window.fetchWithCsrf('/add_sensor', {
                         method: 'POST',
                         headers: {
@@ -145,13 +151,16 @@
                     })
                     .then(response => response.json())
                     .then(data => {
+                        console.log('Server response:', data);
                         if (data.message) {
                             M.toast({html: data.message});
-                            // Refresh the sensor list
-                            refreshSensorList();
+                            refreshSensorList();  // Refresh the sensor list after adding
+                            updateAvailablePins();  // Update available pins after adding a sensor
                             // Close the modal
                             const instance = M.Modal.getInstance(addSensorModal);
                             instance.close();
+                            // Reset the form
+                            addSensorForm.reset();
                         } else {
                             M.toast({html: `Error adding sensor: ${data.error}`});
                         }
@@ -159,11 +168,28 @@
                     .catch(error => {
                         console.error('Error adding sensor:', error);
                         M.toast({html: 'Error adding sensor'});
+                    })
+                    .finally(() => {
+                        // Re-enable the submit button
+                        submitButton.disabled = false;
                     });
                 });
             } else {
                 console.error('Add Sensor Form not found');
             }
+
+            // Update the event listener for sensor type change
+            document.getElementById('newSensorType').addEventListener('change', function() {
+                const chipSelectPinField = document.getElementById('newSensorCsPinField');
+                const chipSelectPinSelect = document.getElementById('newSensorCsPin');
+                if (this.value === 'ADS1115') {
+                    chipSelectPinField.style.display = 'none';
+                    chipSelectPinSelect.removeAttribute('required');
+                } else {
+                    chipSelectPinField.style.display = 'block';
+                    chipSelectPinSelect.setAttribute('required', '');
+                }
+            });
 
             // Function to refresh sensor list
             function refreshSensorList() {
@@ -251,16 +277,6 @@
                 .catch(error => {
                     console.error('Error fetching available pins:', error);
                 });
-
-            // Add event listener for sensor type change
-            document.getElementById('newSensorType').addEventListener('change', function() {
-                const chipSelectPinField = document.getElementById('newSensorCsPinField');
-                if (this.value === 'ADS1115') {
-                    chipSelectPinField.style.display = 'none';
-                } else {
-                    chipSelectPinField.style.display = 'block';
-                }
-            });
         });
     </script>
 </head>
@@ -359,7 +375,7 @@
                     <label>Sensor Type</label>
                 </div>
                 <div class="input-field" id="newSensorCsPinField">
-                    <select id="newSensorCsPin" required>
+                    <select id="newSensorCsPin">
                         <option value="" disabled selected>Choose CS pin</option>
                         <!-- Options will be populated by JavaScript -->
                     </select>

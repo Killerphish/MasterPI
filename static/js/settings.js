@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
 
             const sensorType = document.querySelector('#newSensorType').value;
-            const chipSelectPin = document.querySelector('#newSensorCsPin').value;
+            const chipSelectPin = sensorType === 'ADS1115' ? null : document.querySelector('#newSensorCsPin').value;
             const sensorLabel = document.querySelector('#newSensorLabel').value;
 
             const sensorData = {
@@ -139,6 +139,19 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error('Add Sensor Form not found');
     }
+
+    // Update the event listener for sensor type change
+    document.getElementById('newSensorType').addEventListener('change', function() {
+        const chipSelectPinField = document.getElementById('newSensorCsPinField');
+        const chipSelectPinSelect = document.getElementById('newSensorCsPin');
+        if (this.value === 'ADS1115') {
+            chipSelectPinField.style.display = 'none';
+            chipSelectPinSelect.removeAttribute('required');
+        } else {
+            chipSelectPinField.style.display = 'block';
+            chipSelectPinSelect.setAttribute('required', '');
+        }
+    });
 
     // Function to refresh sensor list
     function refreshSensorList() {
@@ -282,16 +295,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error fetching available pins:', error);
         });
-
-    // Add event listener for sensor type change
-    document.getElementById('newSensorType').addEventListener('change', function() {
-        const chipSelectPinField = document.getElementById('newSensorCsPinField');
-        if (this.value === 'ADS1115') {
-            chipSelectPinField.style.display = 'none';
-        } else {
-            chipSelectPinField.style.display = 'block';
-        }
-    });
 
     // Add other event listeners and initialization code here
 });
