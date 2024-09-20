@@ -132,13 +132,20 @@
                     submitButton.disabled = true;
 
                     const sensorType = document.querySelector('#newSensorType').value;
-                    const chipSelectPin = sensorType === 'ADS1115' ? null : document.querySelector('#newSensorCsPin').value;
+                    const chipSelectPin = sensorType === 'ADS1115' ? 'N/A' : document.querySelector('#newSensorCsPin').value;
                     const sensorLabel = document.querySelector('#newSensorLabel').value;
 
                     const sensorData = {
                         sensor_type: sensorType,
                         chip_select_pin: chipSelectPin,
-                        label: sensorLabel
+                        label: sensorLabel,
+                        i2c_address: sensorType === 'ADS1115' ? document.querySelector('#newSensorI2CAddress').value : null,
+                        bus_number: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorBusNumber').value) : null,
+                        channel: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorChannel').value) : null,
+                        gain: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorGain').value) : null,
+                        data_rate: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorDataRate').value) : null,
+                        reference_resistor: sensorType === 'MAX31865' ? parseInt(document.querySelector('#newSensorReferenceResistor').value) : null,
+                        wires: sensorType === 'MAX31865' ? parseInt(document.querySelector('#newSensorWires').value) : null,
                     };
 
                     console.log('Attempting to add sensor:', sensorData);
@@ -181,14 +188,12 @@
             // Update the event listener for sensor type change
             document.getElementById('newSensorType').addEventListener('change', function() {
                 const chipSelectPinField = document.getElementById('newSensorCsPinField');
-                const chipSelectPinSelect = document.getElementById('newSensorCsPin');
-                if (this.value === 'ADS1115') {
-                    chipSelectPinField.style.display = 'none';
-                    chipSelectPinSelect.removeAttribute('required');
-                } else {
-                    chipSelectPinField.style.display = 'block';
-                    chipSelectPinSelect.setAttribute('required', '');
-                }
+                const ads1115Fields = document.getElementById('ads1115Fields');
+                const max31865Fields = document.getElementById('max31865Fields');
+                
+                chipSelectPinField.style.display = this.value === 'ADS1115' ? 'none' : 'block';
+                ads1115Fields.style.display = this.value === 'ADS1115' ? 'block' : 'none';
+                max31865Fields.style.display = this.value === 'MAX31865' ? 'block' : 'none';
             });
 
             // Function to refresh sensor list
@@ -385,6 +390,53 @@
                     <input id="newSensorLabel" type="text" required>
                     <label for="newSensorLabel">Sensor Label</label>
                 </div>
+                
+                <!-- New fields for ADS1115 -->
+                <div id="ads1115Fields" style="display: none;">
+                    <div class="input-field">
+                        <input id="newSensorI2CAddress" type="text" value="0x48">
+                        <label for="newSensorI2CAddress">I2C Address</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="newSensorBusNumber" type="number" value="1">
+                        <label for="newSensorBusNumber">Bus Number</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="newSensorChannel" type="number" value="0" min="0" max="3">
+                        <label for="newSensorChannel">Channel (0-3)</label>
+                    </div>
+                    <div class="input-field">
+                        <select id="newSensorGain">
+                            <option value="1" selected>1 (±4.096V)</option>
+                            <option value="2">2 (±2.048V)</option>
+                            <option value="4">4 (±1.024V)</option>
+                            <option value="8">8 (±0.512V)</option>
+                            <option value="16">16 (±0.256V)</option>
+                        </select>
+                        <label>Gain</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="newSensorDataRate" type="number" value="128">
+                        <label for="newSensorDataRate">Data Rate (SPS)</label>
+                    </div>
+                </div>
+                
+                <!-- New fields for MAX31865 -->
+                <div id="max31865Fields" style="display: none;">
+                    <div class="input-field">
+                        <input id="newSensorReferenceResistor" type="number" value="430">
+                        <label for="newSensorReferenceResistor">Reference Resistor (Ω)</label>
+                    </div>
+                    <div class="input-field">
+                        <select id="newSensorWires">
+                            <option value="2">2-wire</option>
+                            <option value="3">3-wire</option>
+                            <option value="4" selected>4-wire</option>
+                        </select>
+                        <label>Wires</label>
+                    </div>
+                </div>
+                
                 <button class="btn waves-effect waves-light" type="submit">Add Sensor</button>
             </form>
         </div>

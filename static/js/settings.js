@@ -101,9 +101,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 sensor_type: sensorType,
                 chip_select_pin: chipSelectPin,
                 label: sensorLabel,
-                // Add any additional fields that might be required by the server
-                i2c_address: sensorType === 'ADS1115' ? '0x48' : null, // Default I2C address for ADS1115
-                bus_number: sensorType === 'ADS1115' ? 1 : null, // Default bus number, adjust if needed
+                i2c_address: sensorType === 'ADS1115' ? document.querySelector('#newSensorI2CAddress').value : null,
+                bus_number: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorBusNumber').value) : null,
+                channel: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorChannel').value) : null,
+                gain: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorGain').value) : null,
+                data_rate: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorDataRate').value) : null,
+                reference_resistor: sensorType === 'MAX31865' ? parseInt(document.querySelector('#newSensorReferenceResistor').value) : null,
+                wires: sensorType === 'MAX31865' ? parseInt(document.querySelector('#newSensorWires').value) : null,
             };
 
             console.log('Attempting to add sensor:', sensorData);
@@ -147,13 +151,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('newSensorType').addEventListener('change', function() {
         const chipSelectPinField = document.getElementById('newSensorCsPinField');
         const chipSelectPinSelect = document.getElementById('newSensorCsPin');
-        if (this.value === 'ADS1115') {
-            chipSelectPinField.style.display = 'none';
-            chipSelectPinSelect.removeAttribute('required');
-        } else {
-            chipSelectPinField.style.display = 'block';
-            chipSelectPinSelect.setAttribute('required', '');
-        }
+        const ads1115Fields = document.getElementById('ads1115Fields');
+        const max31865Fields = document.getElementById('max31865Fields');
+        
+        chipSelectPinField.style.display = this.value === 'ADS1115' ? 'none' : 'block';
+        ads1115Fields.style.display = this.value === 'ADS1115' ? 'block' : 'none';
+        max31865Fields.style.display = this.value === 'MAX31865' ? 'block' : 'none';
     });
 
     // Function to refresh sensor list
