@@ -114,8 +114,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.message) {
                     M.toast({html: data.message});
-                    // Refresh the sensor list
-                    refreshSensorList();
+                    refreshSensorList();  // Refresh the sensor list after adding
+                    updateAvailablePins();  // Update available pins after adding a sensor
                     // Close the modal
                     const instance = M.Modal.getInstance(addSensorModal);
                     instance.close();
@@ -146,10 +146,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 const newSensorList = doc.querySelector('.collection');
-                document.querySelector('.collection').innerHTML = newSensorList.innerHTML;
-                
-                // Reinitialize event listeners for edit and remove buttons
-                initializeSensorButtons();
+                const currentSensorList = document.querySelector('.collection');
+                if (currentSensorList && newSensorList) {
+                    currentSensorList.innerHTML = newSensorList.innerHTML;
+                    initializeSensorButtons();  // Re-initialize buttons for the new list
+                }
             })
             .catch(error => {
                 console.error('Error refreshing sensor list:', error);

@@ -551,34 +551,22 @@ async def get_settings():
 
 @app.route('/remove_sensor', methods=['POST'])
 async def remove_sensor():
+    data = await request.get_json()
+    sensor_index = data.get('index')
+    if sensor_index is None:
+        return jsonify({'error': 'Sensor index not provided'}), 400
+
     try:
-        data = await request.get_json()
-        sensor_index = data.get('index')
-
-        if sensor_index is None:
-            raise ValueError("Missing sensor index")
-
-        # Convert sensor_index to an integer
-        sensor_index = int(sensor_index)
-
-        # Load the configuration
-        config = await load_config()
-
-        # Remove the sensor from the configuration
+        config = load_config_sync()
         if 0 <= sensor_index < len(config['sensors']):
             removed_sensor = config['sensors'].pop(sensor_index)
-            save_config(config)
-            app.logger.info(f"Removed sensor: {removed_sensor}")
-            return jsonify({"message": "Sensor removed successfully"}), 200
+            save_config_sync(config)
+            return jsonify({'message': f'Sensor {removed_sensor["label"]} removed successfully'})
         else:
-            raise ValueError("Invalid sensor index")
-
-    except ValueError as ve:
-        app.logger.error(f"ValueError: {ve}", exc_info=True)
-        return jsonify({"error": str(ve)}), 400
+            return jsonify({'error': 'Invalid sensor index'}), 400
     except Exception as e:
-        app.logger.error(f"Error removing sensor: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
+        app.logger.error(f"Error removing sensor: {e}")
+        return jsonify({'error': 'Failed to remove sensor'}), 500
 
 @app.route('/save_sensor_settings', methods=['POST'])
 async def save_sensor_settings():
