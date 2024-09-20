@@ -290,6 +290,10 @@ async def add_sensor():
         # Load the current configuration
         config = load_config_sync()
 
+        # Check if a sensor with the same label already exists
+        if any(sensor['label'] == label for sensor in config['sensors']):
+            return jsonify({'error': 'A sensor with this label already exists'}), 400
+
         # Add the new sensor to the configuration
         new_sensor = {
             'type': sensor_type,

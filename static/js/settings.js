@@ -86,6 +86,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addSensorForm) {
         addSensorForm.addEventListener('submit', function(event) {
             event.preventDefault();
+            
+            // Disable the submit button to prevent multiple submissions
+            const submitButton = addSensorForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
             const sensorType = document.querySelector('#newSensorType').value;
             const chipSelectPin = document.querySelector('#newSensorCsPin').value;
             const sensorLabel = document.querySelector('#newSensorLabel').value;
@@ -112,6 +117,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Close the modal
                     const instance = M.Modal.getInstance(addSensorModal);
                     instance.close();
+                    // Reset the form
+                    addSensorForm.reset();
                 } else {
                     M.toast({html: `Error adding sensor: ${data.error}`});
                 }
@@ -119,8 +126,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error adding sensor:', error);
                 M.toast({html: 'Error adding sensor'});
+            })
+            .finally(() => {
+                // Re-enable the submit button
+                submitButton.disabled = false;
             });
         });
+    } else {
+        console.error('Add Sensor Form not found');
     }
 
     // Function to refresh sensor list
