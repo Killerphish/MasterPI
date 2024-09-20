@@ -44,14 +44,18 @@ active_sensors = []
 app = Quart(__name__)
 
 class CustomCSRFProtect(CSRFProtect):
+    def __init__(self, app=None):
+        super().__init__(app)
+        self.exempt_methods = {'GET', 'HEAD', 'OPTIONS', 'TRACE'}
+
     async def protect(self):
-        token = await self._get_csrf_token()
-        if token is None:
-            raise BadRequest("CSRF token missing")
         if request.method not in self.exempt_methods:
+            token = await self._get_csrf_token()
+            if token is None:
+                raise BadRequest("CSRF token missing")
             if token != request.headers.get(self.header_name):
                 raise BadRequest("CSRF token mismatch")
-        return token
+        return None
 
     async def generate_csrf(self):
         """Generate a new CSRF token."""
