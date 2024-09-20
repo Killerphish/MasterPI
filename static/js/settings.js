@@ -6,6 +6,27 @@ let tempUnit = 'F'; // Default unit changed to Fahrenheit
 
 console.log('settings.js loaded');
 
+// Function to get CSRF token from meta tag
+function getCsrfToken() {
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfTokenMeta) {
+        return csrfTokenMeta.getAttribute('content');
+    } else {
+        console.error('CSRF token not found');
+        return '';
+    }
+}
+
+// Use this function for all fetch requests
+function fetchWithCsrf(url, options = {}) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+        ...options.headers,
+        'X-CSRF-TOKEN': csrfToken,
+    };
+    return fetch(url, { ...options, headers });
+}
+
 // Make saveSettings globally accessible
 window.saveSettings = function(element) {
     console.log('saveSettings called for:', element.name, 'with value:', element.value);
@@ -13,11 +34,10 @@ window.saveSettings = function(element) {
         [element.name]: element.value
     };
 
-    fetch('/save_settings', {
+    fetchWithCsrf('/save_settings', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': getCsrfToken()
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(setting)
     })
@@ -56,27 +76,6 @@ function applyColorChange(settingName, value) {
             document.documentElement.style.setProperty('--background-color', value);
             break;
     }
-}
-
-// Function to get CSRF token from meta tag
-function getCsrfToken() {
-    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-    if (csrfTokenMeta) {
-        return csrfTokenMeta.getAttribute('content');
-    } else {
-        console.error('CSRF token not found');
-        return '';
-    }
-}
-
-// Use this function for all fetch requests
-function fetchWithCsrf(url, options = {}) {
-    const csrfToken = getCsrfToken();
-    const headers = {
-        ...options.headers,
-        'X-CSRF-TOKEN': csrfToken,
-    };
-    return fetch(url, { ...options, headers });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
