@@ -298,4 +298,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
     // Add other event listeners and initialization code here
+
+    function removeSensor(sensorLabel) {
+        if (confirm(`Are you sure you want to remove the sensor "${sensorLabel}"?`)) {
+            window.fetchWithCsrf(removeSensorUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ label: sensorLabel })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    M.toast({html: data.message});
+                    refreshSensorList();
+                    updateAvailablePins();
+                } else {
+                    M.toast({html: `Error removing sensor: ${data.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error removing sensor:', error);
+                M.toast({html: 'Error removing sensor'});
+            });
+        }
+    }
 });
