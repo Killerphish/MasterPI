@@ -47,6 +47,7 @@ class CustomCSRFProtect(CSRFProtect):
     def __init__(self, app=None):
         super().__init__(app)
         self.exempt_methods = {'GET', 'HEAD', 'OPTIONS', 'TRACE'}
+        self.header_name = 'X-CSRF-TOKEN'  # Set the header name for CSRF token
 
     async def protect(self):
         if request.method not in self.exempt_methods:

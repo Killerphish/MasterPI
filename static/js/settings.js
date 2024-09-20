@@ -17,7 +17,7 @@ window.saveSettings = function(element) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            'X-CSRF-TOKEN': getCsrfToken()
         },
         body: JSON.stringify(setting)
     })
@@ -60,7 +60,13 @@ function applyColorChange(settingName, value) {
 
 // Function to get CSRF token from meta tag
 function getCsrfToken() {
-    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfTokenMeta) {
+        return csrfTokenMeta.getAttribute('content');
+    } else {
+        console.error('CSRF token not found');
+        return '';
+    }
 }
 
 // Use this function for all fetch requests
@@ -92,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRF-TOKEN': getCsrfToken()
                 },
                 body: JSON.stringify(settings)
             })
