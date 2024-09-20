@@ -79,7 +79,7 @@ function fetchWithCsrf(url, options = {}) {
     return fetch(url, { ...options, headers });
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded');
 
     // Initialize Materialize components
@@ -140,8 +140,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 M.toast({html: 'Error adding sensor'});
             });
         });
-    } else {
-        console.error('Add Sensor Form not found');
     }
 
     // Function to refresh sensor list
@@ -165,11 +163,35 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Function to initialize sensor buttons
     function initializeSensorButtons() {
-        document.querySelectorAll('.edit-sensor').forEach(button => {
-            button.addEventListener('click', handleEditSensor);
-        });
         document.querySelectorAll('.remove-sensor').forEach(button => {
             button.addEventListener('click', handleRemoveSensor);
+        });
+    }
+
+    // Function to handle sensor removal
+    function handleRemoveSensor(event) {
+        event.preventDefault();
+        const sensorIndex = this.getAttribute('data-index');
+
+        fetchWithCsrf(removeSensorUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ index: sensorIndex })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.message) {
+                M.toast({html: result.message});
+                refreshSensorList();  // Refresh the sensor list after removing
+            } else {
+                M.toast({html: `Error: ${result.error}`});
+            }
+        })
+        .catch(error => {
+            console.error('Error removing sensor:', error);
+            M.toast({html: `Error: ${error.message}`});
         });
     }
 
