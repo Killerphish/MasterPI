@@ -298,34 +298,39 @@ async def add_sensor():
     chip_select_pin = data.get('chip_select_pin')
     label = data.get('label')
 
-    if not sensor_type or not chip_select_pin or not label:
+    if not sensor_type or not label:
         return jsonify({'error': 'Missing required fields'}), 400
 
     try:
-        config = load_config_sync()
-        app.logger.info(f"Current configuration: {config}")
-        app.logger.info(f"Attempting to add sensor: {data}")
+        config = await load_config()
         
         # Check if a sensor with the same label already exists
         if any(sensor['label'] == label for sensor in config['sensors']):
-            app.logger.warning(f"Sensor with label '{label}' already exists")
             return jsonify({'error': 'A sensor with this label already exists'}), 400
 
         new_sensor = {
             'type': sensor_type,
-            'chip_select_pin': chip_select_pin,
             'label': label
         }
-        config['sensors'].append(new_sensor)
-        save_config_sync(config)
 
-        # Reload the configuration to verify the changes
-        config = load_config_sync()
-        app.logger.info(f"Sensor added successfully. New configuration: {config}")
+        if sensor_type != 'ADS1115':
+            if not chip_select_pin:
+                return jsonify({'error': 'Chip select pin is required for this sensor type'}), 400
+            new_sensor['chip_select_pin'] = chip_select_pin
+        else:
+            new_sensor['i2c_address'] = data.get('i2c_address')
+            new_sensor['bus_number'] = data.get('bus_number')
+            new_sensor['channel'] = data.get('channel')
+            new_sensor['gain'] = data.get('gain')
+            new_sensor['data_rate'] = data.get('data_rate')
+
+        config['sensors'].append(new_sensor)
+        await save_config(config)
+
         return jsonify({'message': f'Sensor {label} added successfully'})
     except Exception as e:
         app.logger.error(f"Error adding sensor: {e}")
-        return jsonify({'error': 'Failed to add sensor'}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/get_available_pins', methods=['GET'])
 def get_available_pins():

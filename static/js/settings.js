@@ -89,28 +89,27 @@ document.addEventListener('DOMContentLoaded', function() {
         addSensorForm.addEventListener('submit', function(event) {
             event.preventDefault();
             
-            // Disable the submit button to prevent multiple submissions
             const submitButton = addSensorForm.querySelector('button[type="submit"]');
             submitButton.disabled = true;
 
             const sensorType = document.querySelector('#newSensorType').value;
-            const chipSelectPin = sensorType === 'ADS1115' ? 'N/A' : document.querySelector('#newSensorCsPin').value;
             const sensorLabel = document.querySelector('#newSensorLabel').value;
 
             const sensorData = {
                 sensor_type: sensorType,
-                chip_select_pin: chipSelectPin,
-                label: sensorLabel,
-                i2c_address: sensorType === 'ADS1115' ? document.querySelector('#newSensorI2CAddress').value : null,
-                bus_number: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorBusNumber').value) : null,
-                channel: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorChannel').value) : null,
-                gain: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorGain').value) : null,
-                data_rate: sensorType === 'ADS1115' ? parseInt(document.querySelector('#newSensorDataRate').value) : null,
-                reference_resistor: sensorType === 'MAX31865' ? parseInt(document.querySelector('#newSensorReferenceResistor').value) : null,
-                wires: sensorType === 'MAX31865' ? parseInt(document.querySelector('#newSensorWires').value) : null,
+                label: sensorLabel
             };
 
-            console.log('Attempting to add sensor:', sensorData);
+            if (sensorType === 'ADS1115') {
+                sensorData.i2c_address = document.querySelector('#newSensorI2CAddress').value;
+                sensorData.bus_number = parseInt(document.querySelector('#newSensorBusNumber').value);
+                sensorData.channel = parseInt(document.querySelector('#newSensorChannel').value);
+                sensorData.gain = parseInt(document.querySelector('#newSensorGain').value);
+                sensorData.data_rate = parseInt(document.querySelector('#newSensorDataRate').value);
+            } else {
+                sensorData.chip_select_pin = document.querySelector('#newSensorCsPin').value;
+            }
+
             window.fetchWithCsrf('/add_sensor', {
                 method: 'POST',
                 headers: {
@@ -120,15 +119,12 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Server response:', data);
                 if (data.message) {
                     M.toast({html: data.message});
-                    refreshSensorList();  // Refresh the sensor list after adding
-                    updateAvailablePins();  // Update available pins after adding a sensor
-                    // Close the modal
+                    refreshSensorList();
+                    updateAvailablePins();
                     const instance = M.Modal.getInstance(addSensorModal);
                     instance.close();
-                    // Reset the form
                     addSensorForm.reset();
                 } else {
                     M.toast({html: `Error adding sensor: ${data.error}`});
@@ -139,7 +135,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 M.toast({html: 'Error adding sensor'});
             })
             .finally(() => {
-                // Re-enable the submit button
                 submitButton.disabled = false;
             });
         });
@@ -225,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to fetch and update available pins
     function updateAvailablePins() {
-        return fetch(getAvailablePinsUrl)
+        return fetch('/get_available_pins')
             .then(response => response.json())
             .then(data => {
                 const newSensorCsPin = document.getElementById('newSensorCsPin');
@@ -245,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             })
             .catch(error => {
-                console.error('Error fetching available pins:', error);
+                console.error('Error updating available pins:', error);
             });
     }
 
