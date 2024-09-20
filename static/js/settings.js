@@ -94,13 +94,16 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
 
             const sensorType = document.querySelector('#newSensorType').value;
-            const chipSelectPin = sensorType === 'ADS1115' ? null : document.querySelector('#newSensorCsPin').value;
+            const chipSelectPin = sensorType === 'ADS1115' ? 'N/A' : document.querySelector('#newSensorCsPin').value;
             const sensorLabel = document.querySelector('#newSensorLabel').value;
 
             const sensorData = {
                 sensor_type: sensorType,
                 chip_select_pin: chipSelectPin,
-                label: sensorLabel
+                label: sensorLabel,
+                // Add any additional fields that might be required by the server
+                i2c_address: sensorType === 'ADS1115' ? '0x48' : null, // Default I2C address for ADS1115
+                bus_number: sensorType === 'ADS1115' ? 1 : null, // Default bus number, adjust if needed
             };
 
             console.log('Attempting to add sensor:', sensorData);
