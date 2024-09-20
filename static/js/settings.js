@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to handle sensor removal
     function handleRemoveSensor(event) {
         event.preventDefault();
-        const sensorIndex = this.getAttribute('data-index');
+        const sensorIndex = parseInt(this.getAttribute('data-index'), 10);
         console.log(`Attempting to remove sensor at index: ${sensorIndex}`);
 
         // Open the confirmation modal
