@@ -6,27 +6,6 @@ let tempUnit = 'F'; // Default unit changed to Fahrenheit
 
 console.log('settings.js loaded');
 
-// Function to get CSRF token from meta tag
-function getCsrfToken() {
-    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-    if (csrfTokenMeta) {
-        return csrfTokenMeta.getAttribute('content');
-    } else {
-        console.error('CSRF token not found');
-        return '';
-    }
-}
-
-// Use this function for all fetch requests
-function fetchWithCsrf(url, options = {}) {
-    const csrfToken = getCsrfToken();
-    const headers = {
-        ...options.headers,
-        'X-CSRF-TOKEN': csrfToken,
-    };
-    return fetch(url, { ...options, headers });
-}
-
 // Make saveSettings globally accessible
 window.saveSettings = function(element) {
     console.log('saveSettings called for:', element.name, 'with value:', element.value);
@@ -34,7 +13,7 @@ window.saveSettings = function(element) {
         [element.name]: element.value
     };
 
-    fetchWithCsrf('/save_settings', {
+    window.fetchWithCsrf('/save_settings', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -117,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 label: sensorLabel
             };
 
-            fetchWithCsrf('/add_sensor', {
+            window.fetchWithCsrf('/add_sensor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -182,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set up the confirmation button
         const confirmDeleteButton = document.querySelector('#confirmDeleteSensor');
         confirmDeleteButton.onclick = function() {
-            fetchWithCsrf(removeSensorUrl, {
+            window.fetchWithCsrf(removeSensorUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

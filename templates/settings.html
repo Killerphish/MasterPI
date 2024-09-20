@@ -16,6 +16,26 @@
         }
     </style>
     <script>
+        // Define fetchWithCsrf globally
+        function getCsrfToken() {
+            const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfTokenMeta) {
+                return csrfTokenMeta.getAttribute('content');
+            } else {
+                console.error('CSRF token not found');
+                return '';
+            }
+        }
+
+        window.fetchWithCsrf = function(url, options = {}) {
+            const csrfToken = getCsrfToken();
+            const headers = {
+                ...options.headers,
+                'X-CSRF-TOKEN': csrfToken,
+            };
+            return fetch(url, { ...options, headers });
+        };
+
         // Pass the URL to the JavaScript code
         const savePersonalizationSettingsUrl = "{{ url_for('save_personalization_settings') }}";
         const getAvailablePinsUrl = "{{ url_for('get_available_pins') }}";
@@ -33,11 +53,10 @@
                 [element.name]: element.value
             };
 
-            fetch('/save_settings', {
+            window.fetchWithCsrf('/save_settings', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(setting)
             })
@@ -116,7 +135,7 @@
                         label: sensorLabel
                     };
 
-                    fetchWithCsrf('/add_sensor', {
+                    window.fetchWithCsrf('/add_sensor', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -183,7 +202,7 @@
                 // Set up the confirmation button
                 const confirmDeleteButton = document.querySelector('#confirmDeleteSensor');
                 confirmDeleteButton.onclick = function() {
-                    fetchWithCsrf(removeSensorUrl, {
+                    window.fetchWithCsrf(removeSensorUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
