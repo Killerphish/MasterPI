@@ -34,8 +34,10 @@ import traceback
 import json
 from datetime import datetime
 import pytz
-import hmac
 from config import load_config  # Import load_config from config.py
+
+# Ensure MAX31856 is imported
+from adafruit_max31856 import MAX31856
 
 # Initialize the global active_sensors list
 active_sensors = []
@@ -171,7 +173,7 @@ def initialize_sensor(sensor_config):
             spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
             cs_pin = getattr(board, chip_select_pin) if chip_select_pin else None
             cs = digitalio.DigitalInOut(cs_pin) if cs_pin else None
-            sensor = adafruit_max31856.MAX31856(spi, cs)
+            sensor = MAX31856(spi, cs)
         elif sensor_type == 'ADS1115':
             i2c = busio.I2C(board.SCL, board.SDA)
             ads = ADS.ADS1115(i2c)
