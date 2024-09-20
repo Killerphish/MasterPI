@@ -273,8 +273,8 @@ async def index():
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
 
 @app.route('/add_sensor', methods=['POST'])
-def add_sensor():
-    data = request.get_json()
+async def add_sensor():
+    data = await request.get_json()
     sensor_type = data.get('sensor_type')
     chip_select_pin = data.get('chip_select_pin')
     label = data.get('label')
@@ -550,8 +550,8 @@ async def get_settings():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/remove_sensor', methods=['POST'])
-def remove_sensor():
-    data = request.get_json()
+async def remove_sensor():
+    data = await request.get_json()
     sensor_index = data.get('index')
     app.logger.info(f"Received sensor index: {sensor_index}")
 
