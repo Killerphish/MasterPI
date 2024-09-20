@@ -35,6 +35,7 @@ import json
 from datetime import datetime
 import pytz
 from config import load_config  # Import load_config from config.py
+import time
 
 # Ensure MAX31856 is imported
 from adafruit_max31856 import MAX31856
@@ -85,16 +86,34 @@ async def inject_csrf_token():
 
 def load_config_sync():
     config_path = os.path.join(app.root_path, 'config.yaml')
-    with open(config_path, 'r') as config_file:
-        config = yaml.safe_load(config_file)
-    app.logger.info(f"Loaded configuration: {config}")
-    return config
+    try:
+        with open(config_path, 'r') as config_file:
+            config = yaml.safe_load(config_file)
+        app.logger.info(f"Loaded configuration: {config}")
+        return config
+    except Exception as e:
+        app.logger.error(f"Error loading configuration: {e}")
+        return None
 
 def save_config_sync(config):
     config_path = os.path.join(app.root_path, 'config.yaml')
-    with open(config_path, 'w') as config_file:
-        yaml.safe_dump(config, config_file)
-    app.logger.info(f"Saved configuration: {config}")
+    try:
+        with open(config_path, 'w') as config_file:
+            yaml.safe_dump(config, config_file)
+        app.logger.info(f"Saved configuration: {config}")
+        
+        # Add a small delay to ensure file is written
+        time.sleep(0.1)
+        
+        # Verify the saved configuration
+        with open(config_path, 'r') as config_file:
+            saved_config = yaml.safe_load(config_file)
+        app.logger.info(f"Verified saved configuration: {saved_config}")
+        
+        if saved_config != config:
+            app.logger.error("Saved configuration does not match the intended configuration!")
+    except Exception as e:
+        app.logger.error(f"Error saving configuration: {e}")
 
 async def load_config():
     try:
@@ -561,22 +580,30 @@ async def remove_sensor():
         return jsonify({'error': 'Sensor index not provided'}), 400
 
     try:
-        # Convert sensor_index to an integer
         sensor_index = int(sensor_index)
         app.logger.info(f"Converted sensor index to int: {sensor_index}")
 
         config = load_config_sync()
+        if config is None:
+            return jsonify({'error': 'Failed to load configuration'}), 500
+
         app.logger.info(f"Configuration before removal: {config}")
 
         if 0 <= sensor_index < len(config['sensors']):
             removed_sensor = config['sensors'].pop(sensor_index)
             save_config_sync(config)
             app.logger.info(f"Removed sensor: {removed_sensor}")
-            app.logger.info(f"Configuration after removal: {config}")
 
             # Reload the configuration to verify the changes
-            config = load_config_sync()
-            app.logger.info(f"Configuration after reloading: {config}")
+            updated_config = load_config_sync()
+            if updated_config is None:
+                return jsonify({'error': 'Failed to reload configuration'}), 500
+
+            app.logger.info(f"Configuration after reloading: {updated_config}")
+
+            if removed_sensor['label'] in [s['label'] for s in updated_config['sensors']]:
+                app.logger.error(f"Sensor {removed_sensor['label']} still exists in configuration after removal!")
+                return jsonify({'error': 'Failed to remove sensor from configuration'}), 500
 
             return jsonify({'message': f'Sensor {removed_sensor["label"]} removed successfully'})
         else:
