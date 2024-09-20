@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 label: sensorLabel
             };
 
+            console.log('Attempting to add sensor:', sensorData);
             window.fetchWithCsrf('/add_sensor', {
                 method: 'POST',
                 headers: {
@@ -112,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
+                console.log('Server response:', data);
                 if (data.message) {
                     M.toast({html: data.message});
                     refreshSensorList();  // Refresh the sensor list after adding
@@ -169,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleRemoveSensor(event) {
         event.preventDefault();
         const sensorIndex = this.getAttribute('data-index');
+        console.log(`Attempting to remove sensor at index: ${sensorIndex}`);
 
         // Open the confirmation modal
         const instance = M.Modal.getInstance(deleteSensorModal);

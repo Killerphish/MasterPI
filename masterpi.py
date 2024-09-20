@@ -84,21 +84,17 @@ async def inject_csrf_token():
     return {'csrf_token': await csrf.generate_csrf()}
 
 def load_config_sync():
-    try:
-        with open('config.yaml', 'r') as config_file:
-            print("Config file opened successfully")
-            config = yaml.safe_load(config_file)
-            print("Config file loaded successfully")
-            return config
-    except FileNotFoundError:
-        print("Config file not found. Please ensure 'config.yaml' exists.")
-        return None
-    except yaml.YAMLError as e:
-        print(f"Error parsing config file: {e}")
-        return None
-    except Exception as e:
-        print(f"Unexpected error loading config file: {e}")
-        return None
+    config_path = os.path.join(app.root_path, 'config.yaml')
+    with open(config_path, 'r') as config_file:
+        config = yaml.safe_load(config_file)
+    app.logger.info(f"Loaded configuration: {config}")
+    return config
+
+def save_config_sync(config):
+    config_path = os.path.join(app.root_path, 'config.yaml')
+    with open(config_path, 'w') as config_file:
+        yaml.safe_dump(config, config_file)
+    app.logger.info(f"Saved configuration: {config}")
 
 async def load_config():
     try:
@@ -277,8 +273,8 @@ async def index():
     return await render_template('index.html', device_name=device_name, sensors=sensors, config=config)
 
 @app.route('/add_sensor', methods=['POST'])
-async def add_sensor():
-    data = await request.get_json()
+def add_sensor():
+    data = request.get_json()
     sensor_type = data.get('sensor_type')
     chip_select_pin = data.get('chip_select_pin')
     label = data.get('label')
@@ -287,25 +283,24 @@ async def add_sensor():
         return jsonify({'error': 'Missing required fields'}), 400
 
     try:
-        # Load the current configuration
         config = load_config_sync()
-
+        app.logger.info(f"Current configuration: {config}")
+        app.logger.info(f"Attempting to add sensor: {data}")
+        
         # Check if a sensor with the same label already exists
         if any(sensor['label'] == label for sensor in config['sensors']):
+            app.logger.warning(f"Sensor with label '{label}' already exists")
             return jsonify({'error': 'A sensor with this label already exists'}), 400
 
-        # Add the new sensor to the configuration
         new_sensor = {
             'type': sensor_type,
             'chip_select_pin': chip_select_pin,
             'label': label
         }
         config['sensors'].append(new_sensor)
+        save_config_sync(config)
 
-        # Save the updated configuration
-        with open('config.yaml', 'w') as config_file:
-            yaml.safe_dump(config, config_file)
-
+        app.logger.info(f"Sensor added successfully. New configuration: {config}")
         return jsonify({'message': f'Sensor {label} added successfully'})
     except Exception as e:
         app.logger.error(f"Error adding sensor: {e}")
@@ -563,9 +558,15 @@ async def remove_sensor():
 
     try:
         config = load_config_sync()
+        app.logger.info(f"Configuration before removal: {config}")
+        
         if 0 <= sensor_index < len(config['sensors']):
             removed_sensor = config['sensors'].pop(sensor_index)
             save_config_sync(config)
+            
+            app.logger.info(f"Removed sensor: {removed_sensor}")
+            app.logger.info(f"Configuration after removal: {config}")
+            
             return jsonify({'message': f'Sensor {removed_sensor["label"]} removed successfully'})
         else:
             return jsonify({'error': 'Invalid sensor index'}), 400
