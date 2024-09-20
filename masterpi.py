@@ -278,38 +278,34 @@ async def index():
 
 @app.route('/add_sensor', methods=['POST'])
 async def add_sensor():
+    data = await request.get_json()
+    sensor_type = data.get('sensor_type')
+    chip_select_pin = data.get('chip_select_pin')
+    label = data.get('label')
+
+    if not sensor_type or not chip_select_pin or not label:
+        return jsonify({'error': 'Missing required fields'}), 400
+
     try:
-        data = await request.get_json()
-        sensor_config = {
-            'type': data['sensor_type'],
-            'label': data['label'],
-            'chip_select_pin': data.get('chip_select_pin')
-        }
-
-        # Initialize the sensor
-        sensor, label = initialize_sensor(sensor_config)
-
-        # Add the initialized sensor to the active_sensors list
-        active_sensors.append((sensor, label))
-
-        # Load the configuration
-        config = await load_config()
+        # Load the current configuration
+        config = load_config_sync()
 
         # Add the new sensor to the configuration
-        config['sensors'].append(sensor_config)
+        new_sensor = {
+            'type': sensor_type,
+            'chip_select_pin': chip_select_pin,
+            'label': label
+        }
+        config['sensors'].append(new_sensor)
 
         # Save the updated configuration
-        await save_config(config)
+        with open('config.yaml', 'w') as config_file:
+            yaml.safe_dump(config, config_file)
 
-        app.logger.info(f"Added new sensor: {label} ({sensor_config['type']})")
-        return jsonify({"message": "Sensor added successfully"}), 200
-
-    except ValueError as ve:
-        app.logger.error(f"ValueError: {ve}", exc_info=True)
-        return jsonify({"error": str(ve)}), 400
+        return jsonify({'message': f'Sensor {label} added successfully'})
     except Exception as e:
-        app.logger.error(f"Error adding sensor: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
+        app.logger.error(f"Error adding sensor: {e}")
+        return jsonify({'error': 'Failed to add sensor'}), 500
 
 @app.route('/get_available_pins', methods=['GET'])
 async def get_available_pins():
