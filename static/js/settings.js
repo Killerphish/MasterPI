@@ -89,6 +89,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const addSensorModal = document.querySelector('#addSensorModal');
     M.Modal.init(addSensorModal);
 
+    const deleteSensorModal = document.querySelector('#deleteSensorModal');
+    const deleteSensorInstance = M.Modal.init(deleteSensorModal);
+
     // Add event listener for the "Add Sensor" button
     const openAddSensorModalButton = document.querySelector('#openAddSensorModal');
     if (openAddSensorModalButton) {
@@ -173,26 +176,34 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         const sensorIndex = this.getAttribute('data-index');
 
-        fetchWithCsrf(removeSensorUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ index: sensorIndex })
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.message) {
-                M.toast({html: result.message});
-                refreshSensorList();  // Refresh the sensor list after removing
-            } else {
-                M.toast({html: `Error: ${result.error}`});
-            }
-        })
-        .catch(error => {
-            console.error('Error removing sensor:', error);
-            M.toast({html: `Error: ${error.message}`});
-        });
+        // Open the confirmation modal
+        const instance = M.Modal.getInstance(deleteSensorModal);
+        instance.open();
+
+        // Set up the confirmation button
+        const confirmDeleteButton = document.querySelector('#confirmDeleteSensor');
+        confirmDeleteButton.onclick = function() {
+            fetchWithCsrf(removeSensorUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ index: sensorIndex })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    M.toast({html: result.message});
+                    refreshSensorList();  // Refresh the sensor list after removing
+                } else {
+                    M.toast({html: `Error: ${result.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error removing sensor:', error);
+                M.toast({html: `Error: ${error.message}`});
+            });
+        };
     }
 
     // Call this function when the page loads
