@@ -102,43 +102,47 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Add event listener for the "Add Sensor" form submission
     const addSensorForm = document.querySelector('#addSensorForm');
-    addSensorForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const sensorType = document.querySelector('#newSensorType').value;
-        const chipSelectPin = document.querySelector('#newSensorCsPin').value;
-        const sensorLabel = document.querySelector('#newSensorLabel').value;
+    if (addSensorForm) {
+        addSensorForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const sensorType = document.querySelector('#newSensorType').value;
+            const chipSelectPin = document.querySelector('#newSensorCsPin').value;
+            const sensorLabel = document.querySelector('#newSensorLabel').value;
 
-        const sensorData = {
-            sensor_type: sensorType,
-            chip_select_pin: chipSelectPin,
-            label: sensorLabel
-        };
+            const sensorData = {
+                sensor_type: sensorType,
+                chip_select_pin: chipSelectPin,
+                label: sensorLabel
+            };
 
-        fetchWithCsrf('/add_sensor', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(sensorData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                M.toast({html: data.message});
-                // Refresh the sensor list
-                refreshSensorList();
-                // Close the modal
-                const instance = M.Modal.getInstance(addSensorModal);
-                instance.close();
-            } else {
-                M.toast({html: `Error adding sensor: ${data.error}`});
-            }
-        })
-        .catch(error => {
-            console.error('Error adding sensor:', error);
-            M.toast({html: 'Error adding sensor'});
+            fetchWithCsrf('/add_sensor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sensorData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    M.toast({html: data.message});
+                    // Refresh the sensor list
+                    refreshSensorList();
+                    // Close the modal
+                    const instance = M.Modal.getInstance(addSensorModal);
+                    instance.close();
+                } else {
+                    M.toast({html: `Error adding sensor: ${data.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error adding sensor:', error);
+                M.toast({html: 'Error adding sensor'});
+            });
         });
-    });
+    } else {
+        console.error('Add Sensor Form not found');
+    }
 
     // Function to refresh sensor list
     function refreshSensorList() {
