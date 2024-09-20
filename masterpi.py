@@ -312,16 +312,16 @@ async def add_sensor():
         return jsonify({'error': 'Failed to add sensor'}), 500
 
 @app.route('/get_available_pins', methods=['GET'])
-async def get_available_pins():
+def get_available_pins():
     try:
-        config = await load_config()  # Ensure this is awaited
-        used_pins = {sensor['chip_select_pin'] for sensor in config['sensors']}
-        all_pins = {'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12', 'D13', 'D17'}  # Add other available pins as needed
-        available_pins = list(all_pins - used_pins)
-        return jsonify(available_pins=available_pins), 200
+        config = load_config_sync()
+        all_pins = ['D5', 'D6', 'D13', 'D19', 'D26']  # List all possible pins
+        used_pins = [sensor['chip_select_pin'] for sensor in config['sensors'] if 'chip_select_pin' in sensor]
+        available_pins = [pin for pin in all_pins if pin not in used_pins]
+        return jsonify({'available_pins': available_pins})
     except Exception as e:
-        app.logger.error(f"Error fetching available pins: {e}", exc_info=True)
-        return jsonify({"error": str(e)}), 500
+        app.logger.error(f"Error getting available pins: {e}")
+        return jsonify({'error': 'Failed to get available pins'}), 500
 
 @app.route('/initialize_sensors', methods=['POST'])
 async def initialize_sensors_route():

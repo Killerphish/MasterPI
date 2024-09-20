@@ -74,8 +74,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const openAddSensorModalButton = document.querySelector('#openAddSensorModal');
     if (openAddSensorModalButton) {
         openAddSensorModalButton.addEventListener('click', () => {
-            const instance = M.Modal.getInstance(addSensorModal);
-            instance.open();
+            updateAvailablePins().then(() => {
+                const instance = M.Modal.getInstance(addSensorModal);
+                instance.open();
+            });
         });
     } else {
         console.error('Open Add Sensor Modal button not found');
@@ -186,6 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (result.message) {
                     M.toast({html: result.message});
                     refreshSensorList();  // Refresh the sensor list after removing
+                    updateAvailablePins();  // Update available pins after removing a sensor
                 } else {
                     M.toast({html: `Error: ${result.error}`});
                 }
@@ -197,8 +200,34 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Call this function when the page loads
-    initializeSensorButtons();
+    // Function to fetch and update available pins
+    function updateAvailablePins() {
+        return fetch(getAvailablePinsUrl)
+            .then(response => response.json())
+            .then(data => {
+                const newSensorCsPin = document.getElementById('newSensorCsPin');
+                const editSensorCsPin = document.getElementById('editSensorCsPin');
+                
+                [newSensorCsPin, editSensorCsPin].forEach(select => {
+                    if (select) {
+                        select.innerHTML = '<option value="" disabled selected>Choose CS pin</option>';
+                        data.available_pins.forEach(pin => {
+                            const option = document.createElement('option');
+                            option.value = pin;
+                            option.textContent = pin;
+                            select.appendChild(option);
+                        });
+                        M.FormSelect.init(select);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching available pins:', error);
+            });
+    }
+
+    // Initial fetch of available pins
+    updateAvailablePins();
 
     // Log any errors that occur when the script runs
     window.onerror = function(message, source, lineno, colno, error) {
