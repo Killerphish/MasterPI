@@ -387,11 +387,11 @@ async def power_options():
 async def settings():
     try:
         # Load configuration or any necessary data
-        config = await load_config()
+        config = await load_config()  # Ensure this is awaited
         timezones = pytz.all_timezones  # Example of loading timezones
 
         # Render the settings template with necessary context
-        return await render_template('settings.html', config=config, timezones=timezones)
+        return await render_template('settings.html', config=config, timezones=timezones)  # Ensure this is awaited
     except Exception as e:
         app.logger.error(f"Error loading settings page: {e}", exc_info=True)
         return "Internal Server Error", 500
