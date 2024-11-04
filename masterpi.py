@@ -1,23 +1,21 @@
-import logging
-from logging.handlers import RotatingFileHandler
-from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages, send_file
-from quart_csrf import CSRFProtect
-from werkzeug.exceptions import BadRequest
+import os
 import hmac
 import secrets
-from temperature_sensor import TemperatureSensor
+import sqlite3
+import asyncio
+import logging
+from logging.handlers import RotatingFileHandler
+from quart_csrf import CSRFProtect
+from werkzeug.exceptions import BadRequest
 from pid_controller import PIDController
 from fan_control import FanController
 from database import init_db, insert_temperature_data, get_last_24_hours_temperature_data, get_temperature_data_by_range
 import digitalio
 import adafruit_blinka
 import board
-import os
 import aiohttp
-import sqlite3
 from meater import MeaterApi
 import nest_asyncio
-import asyncio
 import adafruit_dht
 from hypercorn.asyncio import serve
 from hypercorn.config import Config as HypercornConfig
@@ -36,10 +34,9 @@ from datetime import datetime
 import pytz
 from config import load_config, save_config  # Import load_config and save_config from config.py
 import time
-
-# Ensure MAX31856 is imported
 from adafruit_max31856 import MAX31856
-
+from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages, send_file
+from temperature_sensor import TemperatureSensor
 # Initialize the global active_sensors list
 active_sensors = []
 
@@ -72,7 +69,7 @@ def validate_csrf(data):
         expected_data = current_app.extensions['csrf'].generate_csrf()
         return hmac.compare_digest(data, expected_data)
     except Exception as e:
-        current_app.logger.error(f"Error in validate_csrf: {e}")
+        current_app.logger.error("Error in validate_csrf: %s", e)
         return False
 
 # Set up CSRF protection
@@ -89,10 +86,10 @@ def load_config_sync():
     try:
         with open(config_path, 'r') as config_file:
             config = yaml.safe_load(config_file)
-        app.logger.info(f"Loaded configuration: {config}")
+        app.logger.info("Loaded configuration: %s", config)
         return config
     except Exception as e:
-        app.logger.error(f"Error loading configuration: {e}")
+        app.logger.error("Error loading configuration: %s", e)
         return None
 
 def save_config_sync(config):
@@ -100,7 +97,7 @@ def save_config_sync(config):
     try:
         with open(config_path, 'w') as config_file:
             yaml.safe_dump(config, config_file)
-        app.logger.info(f"Saved configuration: {config}")
+        app.logger.info("Saved configuration: %s", config)
         
         # Add a small delay to ensure file is written
         time.sleep(0.1)
@@ -108,12 +105,12 @@ def save_config_sync(config):
         # Verify the saved configuration
         with open(config_path, 'r') as config_file:
             saved_config = yaml.safe_load(config_file)
-        app.logger.info(f"Verified saved configuration: {saved_config}")
+        app.logger.info("Verified saved configuration: %s", saved_config)
         
         if saved_config != config:
             app.logger.error("Saved configuration does not match the intended configuration!")
     except Exception as e:
-        app.logger.error(f"Error saving configuration: {e}")
+        app.logger.error("Error saving configuration: %s", e)
 
 async def load_config():
     try:
@@ -201,7 +198,7 @@ def initialize_sensor(sensor_config):
         
         return sensor, sensor_config['label']
     except Exception as e:
-        app.logger.error(f"Error initializing {sensor_type} sensor: {e}")
+        app.logger.error("Error initializing %s sensor: %s", sensor_type, e)
         raise
 
 def initialize_sensors(config):
@@ -212,7 +209,7 @@ def initialize_sensors(config):
             sensor, label = initialize_sensor(sensor_config)
             active_sensors.append((sensor, label))
         except Exception as e:
-            app.logger.error(f"Failed to initialize sensor {sensor_config['label']}: {e}")
+            app.logger.error("Failed to initialize sensor %s: %s", sensor_config['label'], e)
     return active_sensors
 
 # In your main code:
@@ -263,7 +260,7 @@ def read_sensor_temperature(sensor, sensor_id):
         
         return temperature
     except Exception as e:
-        app.logger.error(f"Error reading temperature for {sensor_id}: {e}")
+        app.logger.error("Error reading temperature for %s: %s", sensor_id, e)
         return None
 
 def read_temperatures():
@@ -273,7 +270,7 @@ def read_temperatures():
             temperature = read_sensor_temperature(sensor, label)
             temperatures.append({"label": label, "temperature": temperature})
         except Exception as e:
-            app.logger.error(f"Error reading temperature for {label}: {e}")
+            app.logger.error("Error reading temperature for %s: %s", label, e)
     return temperatures
 
 @app.route('/')
@@ -329,10 +326,10 @@ async def add_sensor():
 
         # Reload the configuration to verify the changes
         config = await load_config()
-        app.logger.info(f"Sensor added successfully. New configuration: {config}")
+        app.logger.info("Sensor added successfully. New configuration: %s", config)
         return jsonify({'message': f'Sensor {label} added successfully'})
     except Exception as e:
-        app.logger.error(f"Error adding sensor: {e}", exc_info=True)
+        app.logger.error("Error adding sensor: %s", e, exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/get_available_pins', methods=['GET'])
@@ -344,7 +341,7 @@ def get_available_pins():
         available_pins = [pin for pin in all_pins if pin not in used_pins]
         return jsonify({'available_pins': available_pins})
     except Exception as e:
-        app.logger.error(f"Error getting available pins: {e}")
+        app.logger.error("Error getting available pins: %s", e)
         return jsonify({'error': 'Failed to get available pins'}), 500
     
 @app.route('/favicon.ico')
@@ -359,7 +356,7 @@ async def initialize_sensors_route():
         app.logger.info('Sensors initialized successfully.')
         return jsonify({"message": "Sensors initialized successfully"}), 200
     except Exception as e:
-        app.logger.error(f"Error initializing sensors: {e}", exc_info=True)
+        app.logger.error("Error initializing sensors: %s", e, exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/power_options', methods=['POST'])
@@ -380,18 +377,18 @@ async def power_options():
         else:
             return jsonify({"error": "Invalid action"}), 400
     except Exception as e:
-        app.logger.error(f"Error handling power options: {e}", exc_info=True)
+        app.logger.error("Error handling power options: %s", e, exc_info=True)
         return jsonify({"error": str(e)}), 500
     
 @app.route('/settings')
 async def settings():
     try:
-        app.logger.info("Settings route called")  # Add logging
+        app.logger.info("Settings route called")
         
         # Load config with explicit logging
         app.logger.info("Loading config...")
         config = await load_config()
-        app.logger.info(f"Config loaded: {config}")
+        app.logger.info("Config loaded: %s", config)
         
         # Generate CSRF token with logging
         app.logger.info("Generating CSRF token...")
@@ -401,7 +398,7 @@ async def settings():
         # Get available pins
         app.logger.info("Getting available pins...")
         available_pins = config.get('available_pins', [])
-        app.logger.info(f"Available pins: {available_pins}")
+        app.logger.info("Available pins: %s", available_pins)
         
         # Render template with logging
         app.logger.info("Rendering template...")
@@ -416,15 +413,15 @@ async def settings():
         return response
         
     except Exception as e:
-        app.logger.error(f"Error in settings route: {str(e)}", exc_info=True)
-        traceback.print_exc()  # This will print the full traceback
+        app.logger.error("Error in settings route: %s", e, exc_info=True)
+        traceback.print_exc()
         return "Internal Server Error", 500
 
 @app.route('/save_settings', methods=['POST'])
 async def save_settings():
     try:
         data = await request.get_json()
-        app.logger.info(f"Received settings data: {data}")
+        app.logger.info("Received settings data: %s", data)
         config = await load_config()
         
         if 'device_name' in data:
@@ -440,15 +437,15 @@ async def save_settings():
                 if key in data:
                     config['personalization'][key] = data[key]
         else:
-            app.logger.warning(f"Unknown setting received: {data}")
+            app.logger.warning("Unknown setting received: %s", data)
             return jsonify({'success': False, 'error': 'Invalid setting'}), 400
         
-        app.logger.info(f"Updated config: {config}")
+        app.logger.info("Updated config: %s", config)
         await save_config(config)
         
         return jsonify({'success': True, 'message': 'Setting updated successfully'})
     except Exception as e:
-        app.logger.error(f"Error saving setting: {e}", exc_info=True)
+        app.logger.error("Error saving setting: %s", e, exc_info=True)
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/save_personalization_settings', methods=['POST'])
@@ -459,7 +456,7 @@ async def save_personalization_settings():
         # For example, update the config file or database
         return jsonify({'success': True})
     except Exception as e:
-        app.logger.error(f"Error saving personalization settings: {e}", exc_info=True)
+        app.logger.error("Error saving personalization settings: %s", e, exc_info=True)
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/emergency_shutdown', methods=['POST'])
@@ -472,12 +469,12 @@ async def emergency_shutdown():
 
         # Ensure the fan is turned off
         fan_controller.turn_off_fan()
-        app.logger.info(f"Fan controller updated. Fan value: {fan_controller.fan.value}")
+        app.logger.info("Fan controller updated. Fan value: %s", fan_controller.fan.value)
 
         app.logger.info("Emergency shutdown initiated: Fan turned off and target temperature set to 0 degrees.")
         return jsonify({'status': 'success', 'message': 'Emergency shutdown initiated.'})
     except Exception as e:
-        app.logger.error(f"Error during emergency shutdown: {e}", exc_info=True)
+        app.logger.error("Error during emergency shutdown: %s", e, exc_info=True)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/static/<path:filename>')
@@ -507,13 +504,13 @@ async def read_temperature_data():
                 label = temp_data['label']
                 temperature = temp_data['temperature']
                 if temperature is not None:
-                    logging.info(f"Read temperature: {temperature}")
+                    logging.info("Read temperature: %s", temperature)
                     insert_temperature_data(temperature, label)
-                    logging.info(f"Inserted temperature data: {temperature}")
+                    logging.info("Inserted temperature data: %s", temperature)
                 else:
                     logging.error("Failed to read temperature: received None")
         except Exception as e:
-            logging.error(f"Error reading temperature: {e}")
+            logging.error("Error reading temperature: %s", e)
         await asyncio.sleep(60)  # Read temperature data every 60 seconds
 
 async def main():
@@ -539,7 +536,7 @@ async def temp_data():
         # Return the temperatures as a JSON response
         return jsonify({'temperatures': temperatures})
     except Exception as e:
-        app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
+        app.logger.error("Error fetching temperature data: %s", e, exc_info=True)
         return jsonify({'error': 'Failed to fetch temperature data'}), 500
 
 @app.route('/remove_sensor', methods=['POST'])
@@ -556,7 +553,7 @@ async def remove_sensor():
         
         return jsonify({'message': f'Sensor {sensor_label} removed successfully'})
     except Exception as e:
-        app.logger.error(f"Error removing sensor: {e}", exc_info=True)
+        app.logger.error("Error removing sensor: %s", e, exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/test_remove_sensor_url')
@@ -580,7 +577,7 @@ async def save_sensor_settings():
         
         return jsonify({'message': 'Sensor settings saved successfully'})
     except Exception as e:
-        app.logger.error(f"Error saving sensor settings: {e}", exc_info=True)
+        app.logger.error("Error saving sensor settings: %s", e, exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
