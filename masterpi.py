@@ -383,19 +383,22 @@ async def power_options():
         app.logger.error(f"Error handling power options: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
     
-@app.route('/settings', methods=['GET'])
+@app.route('/settings')
 async def settings():
     try:
-        # Load configuration or any necessary data
-        config = await load_config()  # Ensure this is awaited
-        timezones = pytz.all_timezones  # Example of loading timezones
-
-        # Render the settings template with necessary context
-        response = await render_template('settings.html', config=config, timezones=timezones)  # Ensure this is awaited
-        app.logger.info(f"Response type: {type(response)}")  # Log the response type
-        return response
+        # Load necessary data
+        config = await load_config()  # Make sure this is awaited
+        timezones = pytz.all_timezones
+        
+        # Return the rendered template
+        return await render_template(
+            'settings.html',
+            config=config,
+            timezones=timezones,
+            csrf_token=await csrf.generate_csrf()  # Make sure to await this
+        )
     except Exception as e:
-        app.logger.error(f"Error loading settings page: {e}", exc_info=True)
+        app.logger.error(f"Error in settings route: {str(e)}", exc_info=True)
         return "Internal Server Error", 500
 
 @app.route('/save_settings', methods=['POST'])
