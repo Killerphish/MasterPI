@@ -498,6 +498,18 @@ async def main():
     finally:
         await aiohttp_session.close()  # Ensure the aiohttp session is closed properly
 
+@app.route('/temp_data', methods=['GET'])
+async def temp_data():
+    try:
+        # Read the current temperatures from the sensors
+        temperatures = read_temperatures()
+        
+        # Return the temperatures as a JSON response
+        return jsonify({'temperatures': temperatures})
+    except Exception as e:
+        app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
+        return jsonify({'error': 'Failed to fetch temperature data'}), 500
+
 if __name__ == '__main__':
     nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
     asyncio.run(main())
