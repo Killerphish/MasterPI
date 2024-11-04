@@ -386,19 +386,38 @@ async def power_options():
 @app.route('/settings')
 async def settings():
     try:
-        # Load necessary data
-        config = await load_config()  # Make sure this is awaited
-        timezones = pytz.all_timezones
+        app.logger.info("Settings route called")  # Add logging
         
-        # Return the rendered template
-        return await render_template(
+        # Load config with explicit logging
+        app.logger.info("Loading config...")
+        config = await load_config()
+        app.logger.info(f"Config loaded: {config}")
+        
+        # Generate CSRF token with logging
+        app.logger.info("Generating CSRF token...")
+        csrf_token = await csrf.generate_csrf()
+        app.logger.info("CSRF token generated")
+        
+        # Get available pins
+        app.logger.info("Getting available pins...")
+        available_pins = config.get('available_pins', [])
+        app.logger.info(f"Available pins: {available_pins}")
+        
+        # Render template with logging
+        app.logger.info("Rendering template...")
+        response = await render_template(
             'settings.html',
             config=config,
-            timezones=timezones,
-            csrf_token=await csrf.generate_csrf()  # Make sure to await this
+            available_pins=available_pins,
+            csrf_token=csrf_token
         )
+        app.logger.info("Template rendered successfully")
+        
+        return response
+        
     except Exception as e:
         app.logger.error(f"Error in settings route: {str(e)}", exc_info=True)
+        traceback.print_exc()  # This will print the full traceback
         return "Internal Server Error", 500
 
 @app.route('/save_settings', methods=['POST'])
