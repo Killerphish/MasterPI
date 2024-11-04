@@ -19,6 +19,58 @@ document.addEventListener("DOMContentLoaded", function() {
     console.log('DOM fully loaded');
     M.AutoInit();
 
+    // Initialize Materialize components
+    M.AutoInit();
+
+    // Initialize dropdown
+    const dropdownElems = document.querySelectorAll('.dropdown-trigger');
+    M.Dropdown.init(dropdownElems, { constrainWidth: false });
+
+    // Event listener for Power Options
+    document.getElementById('power-options').addEventListener('click', () => {
+        // Open a modal for power options
+        showModal('Power Options', `
+            <button id="restart-app" class="btn">Restart App</button>
+            <button id="restart-device" class="btn">Restart Device</button>
+            <button id="shutdown" class="btn red">Shut Down</button>
+        `);
+
+        // Add event listeners for power options
+        document.getElementById('restart-app').addEventListener('click', () => {
+            fetchWithCsrf('/power_options', { method: 'POST', body: JSON.stringify({ action: 'restart_app' }) });
+        });
+
+        document.getElementById('restart-device').addEventListener('click', () => {
+            fetchWithCsrf('/power_options', { method: 'POST', body: JSON.stringify({ action: 'restart_rpi' }) });
+        });
+
+        document.getElementById('shutdown').addEventListener('click', () => {
+            fetchWithCsrf('/power_options', { method: 'POST', body: JSON.stringify({ action: 'shutdown' }) });
+        });
+    });
+
+    // Event listener for Emergency Stop
+    document.getElementById('emergency-shutdown').addEventListener('click', () => {
+        fetch('/emergency_shutdown', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                M.toast({html: 'Emergency shutdown successful.'});
+            } else {
+                M.toast({html: `Error: ${data.message}`});
+            }
+        })
+        .catch(error => {
+            console.error('Error during emergency shutdown:', error);
+        });
+    });
+
     // Fetch and display status data
     fetchStatus()
         .then(status => {
@@ -75,42 +127,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 M.toast({html: 'Error updating target temperature'});
             });
     });
-
-    // Add event listener for the emergency shutdown button
-    const emergencyShutdownButton = document.getElementById('emergency-shutdown-button');
-    if (emergencyShutdownButton) {
-        emergencyShutdownButton.addEventListener('click', () => {
-            console.log('Emergency shutdown button clicked'); // Log button click
-            fetch('/emergency_shutdown', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()  // Include CSRF token
-                }
-            })
-            .then(response => {
-                console.log('Received response from /emergency_shutdown'); // Log response reception
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Emergency shutdown response:', data);
-                if (data.status === 'success') {
-                    console.log('Emergency shutdown successful.');
-                    updateStatus(); // Update the status immediately after emergency shutdown
-                } else {
-                    console.error('Emergency shutdown failed:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error during emergency shutdown:', error);
-            });
-        });
-    } else {
-        console.error('Element with id "emergency-shutdown-button" not found.');
-    }
 
     // Fetch and apply settings on page load
     fetch('/get_settings')

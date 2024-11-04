@@ -298,3 +298,17 @@ canvas {
     width: 100% !important;
     height: 100% !important;
 }
+
+.dropdown-content {
+    background-color: var(--button-color);
+    color: var(--button-text-color);
+    min-width: 200px; /* Adjust as needed */
+}
+
+.dropdown-content li > a {
+    color: var(--button-text-color) !important;
+}
+
+.dropdown-content li > a:hover {
+    background-color: darken(var(--button-color), 10%);
+}
