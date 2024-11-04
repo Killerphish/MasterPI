@@ -567,6 +567,22 @@ async def test_remove_sensor_url():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/save_sensor_settings', methods=['POST'])
+async def save_sensor_settings():
+    try:
+        data = await request.get_json()
+        # Process the sensor settings data
+        # For example, update the configuration or database
+        config = await load_config()
+        # Assume data contains sensor settings to be updated
+        # Update the config with new sensor settings
+        await save_config(config)
+        
+        return jsonify({'message': 'Sensor settings saved successfully'})
+    except Exception as e:
+        app.logger.error(f"Error saving sensor settings: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
     asyncio.run(main())
