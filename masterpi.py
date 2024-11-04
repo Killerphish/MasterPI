@@ -542,6 +542,31 @@ async def temp_data():
         app.logger.error(f"Error fetching temperature data: {e}", exc_info=True)
         return jsonify({'error': 'Failed to fetch temperature data'}), 500
 
+@app.route('/remove_sensor', methods=['POST'])
+async def remove_sensor():
+    try:
+        data = await request.get_json()
+        sensor_label = data.get('label')
+        
+        # Logic to remove the sensor from your configuration or database
+        # For example:
+        config = await load_config()
+        config['sensors'] = [sensor for sensor in config['sensors'] if sensor['label'] != sensor_label]
+        await save_config(config)
+        
+        return jsonify({'message': f'Sensor {sensor_label} removed successfully'})
+    except Exception as e:
+        app.logger.error(f"Error removing sensor: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/test_remove_sensor_url')
+async def test_remove_sensor_url():
+    try:
+        url = url_for('remove_sensor')
+        return jsonify({'remove_sensor_url': url})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
     asyncio.run(main())
