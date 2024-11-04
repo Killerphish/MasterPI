@@ -391,7 +391,9 @@ async def settings():
         timezones = pytz.all_timezones  # Example of loading timezones
 
         # Render the settings template with necessary context
-        return await render_template('settings.html', config=config, timezones=timezones)  # Ensure this is awaited
+        response = await render_template('settings.html', config=config, timezones=timezones)  # Ensure this is awaited
+        app.logger.info(f"Response type: {type(response)}")  # Log the response type
+        return response
     except Exception as e:
         app.logger.error(f"Error loading settings page: {e}", exc_info=True)
         return "Internal Server Error", 500
