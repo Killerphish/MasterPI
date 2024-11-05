@@ -28,5 +28,4 @@ class PIDController:
         output = self.kp * error + self.ki * self.integral + self.kd * derivative
         self.previous_error = error
         return output
-
-# Add a newline at the end of the file
+    

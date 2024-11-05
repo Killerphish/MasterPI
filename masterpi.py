@@ -598,3 +598,4 @@ async def save_sensor_settings():
 if __name__ == '__main__':
     nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
     asyncio.run(main())
+    

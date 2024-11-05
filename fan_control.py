@@ -68,5 +68,4 @@ class FanController:
         :param temperature: The new target temperature.
         """
         self.target_temperature = temperature
-
-# Ensure the file ends with a newline
+        
