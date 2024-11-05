@@ -27,6 +27,7 @@ import aiofiles
 import time
 from quart import Quart, jsonify, request, render_template, send_from_directory, url_for
 from config import load_config, save_config
+from adafruit_max31856 import MAX31856
 
 # Initialize the global active_sensors list
 active_sensors = []
