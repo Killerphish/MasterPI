@@ -145,13 +145,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update the event listener for sensor type change
     document.getElementById('newSensorType').addEventListener('change', function() {
         const chipSelectPinField = document.getElementById('newSensorCsPinField');
-        const chipSelectPinSelect = document.getElementById('newSensorCsPin');
         const ads1115Fields = document.getElementById('ads1115Fields');
         const max31865Fields = document.getElementById('max31865Fields');
         
+        // Show/hide fields based on the selected sensor type
         chipSelectPinField.style.display = this.value === 'ADS1115' ? 'none' : 'block';
         ads1115Fields.style.display = this.value === 'ADS1115' ? 'block' : 'none';
         max31865Fields.style.display = this.value === 'MAX31865' ? 'block' : 'none';
+
+        // Add logic for new sensor types
+        if (this.value === 'NEW_SENSOR_TYPE_1') {
+            // Show/hide fields specific to NEW_SENSOR_TYPE_1
+        } else if (this.value === 'NEW_SENSOR_TYPE_2') {
+            // Show/hide fields specific to NEW_SENSOR_TYPE_2
+        }
     });
 
     // Function to refresh sensor list

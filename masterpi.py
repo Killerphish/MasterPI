@@ -247,7 +247,11 @@ def read_sensor_temperature(sensor, sensor_id):
         elif isinstance(sensor, MAX31855):
             temperature = sensor.temperature
         elif isinstance(sensor, AnalogIn):
-            temperature = sensor.voltage  # Example for ADS1115, you may need to convert this to temperature
+            # Convert voltage to temperature for ADS1115
+            voltage = sensor.voltage
+            # Example conversion: assuming a linear relationship
+            # Replace with actual conversion logic for your sensor
+            temperature = (voltage - 0.5) * 100  # Example for TMP36 sensor
         elif isinstance(sensor, adafruit_dht.DHT22):
             temperature = sensor.temperature
         else:
