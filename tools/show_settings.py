@@ -1,3 +1,5 @@
+"""This module connects to the settings database and displays its contents."""
+
 import sqlite3
 
 # Connect to the SQLite database
@@ -14,3 +16,5 @@ for row in rows:
 
 # Close the connection
 conn.close()
+
+# Add a final newline here

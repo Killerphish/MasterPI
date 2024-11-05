@@ -1,10 +1,18 @@
+"""
+This module provides functionality to read temperature from a MAX31856 sensor.
+"""
+
+import time
 import board
 import busio
 import digitalio
 import adafruit_max31856
-import time
 
 def read_max31856_temperature():
+    """
+    Reads the temperature from the MAX31856 sensor and prints it in Celsius and Fahrenheit.
+    Also checks for faults and prints diagnostic information if an error occurs.
+    """
     try:
         # Initialize SPI bus
         spi = busio.SPI(clock=board.SCLK, MISO=board.MISO, MOSI=board.MOSI)
@@ -22,14 +30,14 @@ def read_max31856_temperature():
             
             temperature_f = (temperature_c * 9/5) + 32
             print(f"Temperature: {temperature_f:.2f} °F")
-        except Exception as temp_error:
+        except (RuntimeError, ValueError) as temp_error:
             print(f"Error reading thermocouple temperature: {temp_error}")
         
         # Try to read cold-junction temperature
         try:
             cj_temp = sensor.reference_temperature
             print(f"Cold-junction Temperature: {cj_temp:.2f} °C")
-        except Exception as cj_error:
+        except (RuntimeError, ValueError) as cj_error:
             print(f"Error reading cold-junction temperature: {cj_error}")
         
         # Check for faults after attempting to read temperatures
@@ -43,7 +51,7 @@ def read_max31856_temperature():
         # Additional diagnostics
         print("\nAdditional Diagnostics:")
         
-    except Exception as e:
+    except (RuntimeError, ValueError) as e:
         print(f"Error initializing or communicating with MAX31856: {e}")
         print("\nDiagnostic information:")
         print(f"SPI configuration: CLK={board.SCLK}, MISO={board.MISO}, MOSI={board.MOSI}")

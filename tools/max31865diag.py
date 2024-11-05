@@ -1,3 +1,7 @@
+"""
+This module initializes and reads data from the MAX31865 sensor using SPI.
+"""
+
 import board
 import digitalio
 import adafruit_max31865
@@ -26,17 +30,17 @@ try:
     fault = sensor.fault
     if fault:
         print(f"Fault detected: {fault}")
-        if fault & adafruit_max31865.FAULT_HIGHTHRESH:
+        if hasattr(adafruit_max31865, 'FAULT_HIGHTHRESH') and fault & adafruit_max31865.FAULT_HIGHTHRESH:
             print("RTD High Threshold")
-        if fault & adafruit_max31865.FAULT_LOWTHRESH:
+        if hasattr(adafruit_max31865, 'FAULT_LOWTHRESH') and fault & adafruit_max31865.FAULT_LOWTHRESH:
             print("RTD Low Threshold")
-        if fault & adafruit_max31865.FAULT_REFINLOW:
+        if hasattr(adafruit_max31865, 'FAULT_REFINLOW') and fault & adafruit_max31865.FAULT_REFINLOW:
             print("REFIN- > 0.85 x Bias")
-        if fault & adafruit_max31865.FAULT_REFINHIGH:
+        if hasattr(adafruit_max31865, 'FAULT_REFINHIGH') and fault & adafruit_max31865.FAULT_REFINHIGH:
             print("REFIN- < 0.85 x Bias - FORCE- open")
-        if fault & adafruit_max31865.FAULT_RTDINLOW:
+        if hasattr(adafruit_max31865, 'FAULT_RTDINLOW') and fault & adafruit_max31865.FAULT_RTDINLOW:
             print("RTDIN- < 0.85 x Bias - FORCE- open")
-        if fault & adafruit_max31865.FAULT_OVUV:
+        if hasattr(adafruit_max31865, 'FAULT_OVUV') and fault & adafruit_max31865.FAULT_OVUV:
             print("Under/Over voltage")
 
     # Clear the fault
@@ -44,5 +48,7 @@ try:
     sensor.clear_faults()
     print("Faults cleared.")
 
-except Exception as e:
+except (ImportError, AttributeError, RuntimeError) as e:
     print(f"An error occurred: {e}")
+
+# Add a final newline

@@ -1,3 +1,7 @@
+"""
+This module initializes and reads data from the MAX31865 sensor using SPI.
+"""
+
 import board
 import digitalio
 import adafruit_max31865
@@ -44,5 +48,5 @@ try:
     sensor.clear_faults()
     print("Faults cleared.")
 
-except Exception as e:
+except (ValueError, IOError) as e:  # Replace with more specific exceptions if known
     print(f"An error occurred: {e}")

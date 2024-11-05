@@ -1,3 +1,7 @@
+"""
+This module reads temperature and resistance from a MAX31865 sensor using SPI.
+"""
+
 import time
 import board
 import digitalio
@@ -17,3 +21,5 @@ while True:
     print(f"Temperature: {temperature:.2f} °C")
     print(f"Resistance: {resistance:.2f} ohms")
     time.sleep(1.0)
+
+# Add a newline at the end of the file

@@ -1,7 +1,6 @@
 import os
 import hmac
 import secrets
-import sqlite3
 import asyncio
 import logging
 from logging.handlers import RotatingFileHandler
@@ -9,9 +8,8 @@ from quart_csrf import CSRFProtect
 from werkzeug.exceptions import BadRequest
 from pid_controller import PIDController
 from fan_control import FanController
-from database import init_db, insert_temperature_data, get_last_24_hours_temperature_data, get_temperature_data_by_range
+from database import init_db, insert_temperature_data
 import digitalio
-import adafruit_blinka
 import board
 import aiohttp
 from meater import MeaterApi
@@ -19,24 +17,17 @@ import nest_asyncio
 import adafruit_dht
 from hypercorn.asyncio import serve
 from hypercorn.config import Config as HypercornConfig
-import ssl
 import yaml
 import busio
-import adafruit_max31856
 from adafruit_max31865 import MAX31865
 from adafruit_max31855 import MAX31855
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 import aiofiles
-import traceback
-import json
-from datetime import datetime
-import pytz
-from config import load_config, save_config  # Import load_config and save_config from config.py
 import time
-from adafruit_max31856 import MAX31856
-from quart import Quart, jsonify, request, render_template, send_from_directory, session, redirect, url_for, flash, get_flashed_messages, send_file
-from temperature_sensor import TemperatureSensor
+from quart import Quart, jsonify, request, render_template, send_from_directory, url_for
+from config import load_config, save_config
+
 # Initialize the global active_sensors list
 active_sensors = []
 
@@ -63,6 +54,7 @@ class CustomCSRFProtect(CSRFProtect):
         return secrets.token_hex(16)
 
 def validate_csrf(data):
+    """Validate CSRF token."""
     if not data:
         return False
     try:
@@ -82,9 +74,10 @@ async def inject_csrf_token():
     return {'csrf_token': await csrf.generate_csrf()}
 
 def load_config_sync():
+    """Load configuration synchronously."""
     config_path = os.path.join(app.root_path, 'config.yaml')
     try:
-        with open(config_path, 'r') as config_file:
+        with open(config_path, 'r', encoding='utf-8') as config_file:
             config = yaml.safe_load(config_file)
         app.logger.info("Loaded configuration: %s", config)
         return config
@@ -93,9 +86,10 @@ def load_config_sync():
         return None
 
 def save_config_sync(config):
+    """Save configuration synchronously."""
     config_path = os.path.join(app.root_path, 'config.yaml')
     try:
-        with open(config_path, 'w') as config_file:
+        with open(config_path, 'w', encoding='utf-8') as config_file:
             yaml.safe_dump(config, config_file)
         app.logger.info("Saved configuration: %s", config)
         
@@ -103,7 +97,7 @@ def save_config_sync(config):
         time.sleep(0.1)
         
         # Verify the saved configuration
-        with open(config_path, 'r') as config_file:
+        with open(config_path, 'r', encoding='utf-8') as config_file:
             saved_config = yaml.safe_load(config_file)
         app.logger.info("Verified saved configuration: %s", saved_config)
         
@@ -113,6 +107,7 @@ def save_config_sync(config):
         app.logger.error("Error saving configuration: %s", e)
 
 async def load_config():
+    """Load configuration asynchronously."""
     try:
         async with aiofiles.open('config.yaml', 'r') as config_file:
             print("Config file opened successfully")
@@ -145,7 +140,7 @@ if not app.secret_key:
     raise ValueError("No SECRET_KEY set for Quart application")
 
 # Log the secret key for debugging (remove this in production)
-app.logger.info(f"Using SECRET_KEY: {app.secret_key}")
+app.logger.info("Using SECRET_KEY: %s", app.secret_key)
 
 # Ensure config is not None before accessing its values
 app.config['DEBUG'] = config['app']['debug']
@@ -167,6 +162,7 @@ async def inject_csrf_token():
     return {'csrf_token': await csrf.generate_csrf()}
 
 def initialize_sensor(sensor_config):
+    """Initialize a sensor based on its configuration."""
     try:
         sensor_type = sensor_config['type']
         chip_select_pin = sensor_config.get('chip_select_pin')
@@ -202,6 +198,7 @@ def initialize_sensor(sensor_config):
         raise
 
 def initialize_sensors(config):
+    """Initialize all sensors based on the configuration."""
     global active_sensors
     active_sensors = []
     for sensor_config in config['sensors']:
@@ -231,6 +228,7 @@ aiohttp_session = None
 meater_api = None
 
 async def create_aiohttp_session():
+    """Create an aiohttp session."""
     global aiohttp_session, meater_api
     aiohttp_session = aiohttp.ClientSession()
     meater_api = MeaterApi(aiohttp_session)
@@ -238,9 +236,8 @@ async def create_aiohttp_session():
 # Initialize the DHT sensor
 dht_device = adafruit_dht.DHT22(board.D4)
 
-from database import insert_temperature_data
-
 def read_sensor_temperature(sensor, sensor_id):
+    """Read temperature from a sensor."""
     try:
         if isinstance(sensor, MAX31856):
             temperature = sensor.temperature
@@ -264,6 +261,7 @@ def read_sensor_temperature(sensor, sensor_id):
         return None
 
 def read_temperatures():
+    """Read temperatures from all active sensors."""
     temperatures = []
     for sensor, label in active_sensors:
         try:
@@ -275,6 +273,7 @@ def read_temperatures():
 
 @app.route('/')
 async def index():
+    """Render the index page."""
     device_name = config['device']['name']  # Get device name from config
     sensors = config.get('sensors', [])  # Example sensors
 
@@ -290,6 +289,7 @@ async def index():
 
 @app.route('/add_sensor', methods=['POST'])
 async def add_sensor():
+    """Add a new sensor."""
     data = await request.get_json()
     sensor_type = data.get('sensor_type')
     chip_select_pin = data.get('chip_select_pin')
@@ -334,6 +334,7 @@ async def add_sensor():
 
 @app.route('/get_available_pins', methods=['GET'])
 def get_available_pins():
+    """Get available GPIO pins."""
     try:
         config = load_config_sync()
         all_pins = ['D5', 'D6', 'D13', 'D19', 'D26']  # List all possible pins
@@ -346,11 +347,13 @@ def get_available_pins():
     
 @app.route('/favicon.ico')
 def favicon():
+    """Serve the favicon."""
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/initialize_sensors', methods=['POST'])
 async def initialize_sensors_route():
+    """Initialize sensors via HTTP request."""
     try:
         load_active_sensors()
         app.logger.info('Sensors initialized successfully.')
@@ -361,6 +364,7 @@ async def initialize_sensors_route():
 
 @app.route('/power_options', methods=['POST'])
 async def power_options():
+    """Handle power options for the Raspberry Pi."""
     try:
         data = await request.get_json()
         action = data.get('action')
@@ -382,6 +386,7 @@ async def power_options():
     
 @app.route('/settings')
 async def settings():
+    """Render the settings page."""
     try:
         app.logger.info("Settings route called")
         
@@ -419,6 +424,7 @@ async def settings():
 
 @app.route('/save_settings', methods=['POST'])
 async def save_settings():
+    """Save application settings."""
     try:
         data = await request.get_json()
         app.logger.info("Received settings data: %s", data)
@@ -450,6 +456,7 @@ async def save_settings():
 
 @app.route('/save_personalization_settings', methods=['POST'])
 async def save_personalization_settings():
+    """Save personalization settings."""
     try:
         data = await request.get_json()
         # Process the data and save the settings
@@ -461,6 +468,7 @@ async def save_personalization_settings():
 
 @app.route('/emergency_shutdown', methods=['POST'])
 async def emergency_shutdown():
+    """Initiate an emergency shutdown."""
     try:
         # Set the target temperature to 0 degrees
         pid.setpoint = 0.0
@@ -479,7 +487,8 @@ async def emergency_shutdown():
 
 @app.route('/static/<path:filename>')
 def serve_static(filename):
-    app.logger.debug(f"Attempting to serve static file: {filename}")
+    """Serve static files."""
+    app.logger.debug("Attempting to serve static file: %s", filename)
     return send_from_directory(app.static_folder, filename)
 
 # Configure logging
@@ -497,6 +506,7 @@ init_db()
 logging.basicConfig(level=logging.INFO)
 
 async def read_temperature_data():
+    """Read temperature data periodically."""
     while True:
         try:
             temperatures = read_temperatures()
@@ -514,6 +524,7 @@ async def read_temperature_data():
         await asyncio.sleep(60)  # Read temperature data every 60 seconds
 
 async def main():
+    """Main entry point for the application."""
     global config
     config = await load_config()  # Load the configuration asynchronously
     await create_aiohttp_session()
@@ -529,6 +540,7 @@ async def main():
 
 @app.route('/temp_data', methods=['GET'])
 async def temp_data():
+    """Fetch temperature data."""
     try:
         # Read the current temperatures from the sensors
         temperatures = read_temperatures()
@@ -541,6 +553,7 @@ async def temp_data():
 
 @app.route('/remove_sensor', methods=['POST'])
 async def remove_sensor():
+    """Remove a sensor."""
     try:
         data = await request.get_json()
         sensor_label = data.get('label')
@@ -558,6 +571,7 @@ async def remove_sensor():
 
 @app.route('/test_remove_sensor_url')
 async def test_remove_sensor_url():
+    """Test the remove sensor URL."""
     try:
         url = url_for('remove_sensor')
         return jsonify({'remove_sensor_url': url})
@@ -566,6 +580,7 @@ async def test_remove_sensor_url():
 
 @app.route('/save_sensor_settings', methods=['POST'])
 async def save_sensor_settings():
+    """Save sensor settings."""
     try:
         data = await request.get_json()
         # Process the sensor settings data
