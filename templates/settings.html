@@ -290,8 +290,14 @@
         <div class="nav-wrapper" style="background-color: var(--nav-color);">
             <a href="{{ url_for('index') }}" class="brand-logo">{{ config['device']['name'] }}</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
-                <li><button id="emergency-shutdown-button" class="btn red" style="margin-right: 10px;">STOP</button></li>
-                <li><a href="{{ url_for('settings') }}" class="btn" style="margin-right: 10px;">Settings</a></li>
+                <li>
+                    <a class="dropdown-trigger btn" href="#" data-target="preferences-dropdown">Preferences</a>
+                    <ul id="preferences-dropdown" class="dropdown-content">
+                        <li><a href="{{ url_for('settings') }}">All Settings</a></li>
+                        <li><a href="#!" id="power-options">Power Options</a></li>
+                        <li><a href="#!" id="emergency-shutdown">Emergency Stop</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </nav>
