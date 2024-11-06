@@ -600,6 +600,27 @@ async def save_sensor_settings():
         app.logger.error("Error saving sensor settings: %s", e, exc_info=True)
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/status', methods=['GET'])
+async def api_status():
+    """Fetch the current status of the system."""
+    try:
+        # Read the current temperatures from the sensors
+        temperatures = read_temperatures()
+        
+        # Fetch the fan status and target temperature
+        fan_on = fan_controller.is_fan_on()
+        target_temperature = pid.setpoint
+        
+        # Return the status as a JSON response
+        return jsonify({
+            'fan_on': fan_on,
+            'target_temperature': target_temperature,
+            'temperatures': [temp['temperature'] for temp in temperatures]
+        })
+    except Exception as e:
+        app.logger.error("Error fetching system status: %s", e, exc_info=True)
+        return jsonify({'error': 'Failed to fetch system status'}), 500
+
 if __name__ == '__main__':
     nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
     asyncio.run(main())
