@@ -2,6 +2,7 @@ import { fetchTemperatureData } from './api.js';
 
 let charts = [];
 let timezone = 'UTC';  // Default timezone
+let tempUnit = 'F';  // Default temperature unit
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded');
@@ -9,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCharts(); // Call this immediately after initialization
     setInterval(updateCharts, 5000); // Update charts every 5 seconds
 
-    // Fetch settings to get the timezone
+    // Fetch settings to get the timezone and temperature unit
     fetch('/get_settings')
         .then(response => {
             console.log('Response status:', response.status);
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(settings => {
             timezone = settings.units.timezone;
+            tempUnit = settings.units.temperature;  // Update the temperature unit
         })
         .catch(error => {
             console.error('Error fetching settings:', error);
@@ -105,7 +107,7 @@ function updateCharts() {
                     console.log(`Updating chart ${index} with data:`, probeData);
                     chart.data.datasets[0].data = probeData.timestamps.map((timestamp, i) => ({
                         x: new Date(timestamp).toLocaleString('en-US', { timeZone: timezone }),
-                        y: probeData.temperatures[i]
+                        y: convertTemperature(probeData.temperatures[i], tempUnit)  // Convert temperature
                     }));
                     console.log(`Chart ${index} data:`, chart.data.datasets[0].data);
                     chart.update();
@@ -117,6 +119,13 @@ function updateCharts() {
         .catch(error => {
             console.error('Error fetching temperature data:', error);
         });
+}
+
+function convertTemperature(value, unit) {
+    if (unit === 'C') {
+        return (value - 32) * 5 / 9;  // Convert Fahrenheit to Celsius
+    }
+    return value;  // Return Fahrenheit by default
 }
 
 // Export the functions to be used in other files if needed
