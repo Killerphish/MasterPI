@@ -550,7 +550,7 @@ async def temp_data():
         # Read the current temperatures from the sensors
         temperatures = read_temperatures()
         
-        # Return the temperatures as a JSON response
+        # Ensure the temperatures are returned in the expected format
         return jsonify({'temperatures': temperatures})
     except Exception as e:
         app.logger.error("Error fetching temperature data: %s", e, exc_info=True)

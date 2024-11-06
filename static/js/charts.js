@@ -100,8 +100,8 @@ function updateCharts() {
                 return;
             }
             charts.forEach((chart, index) => {
-                if (chart && chart.data && chart.data.datasets) {
-                    const probeData = data[index];
+                const probeData = data[index];
+                if (chart && chart.data && chart.data.datasets && probeData) {  // Check if probeData is defined
                     console.log(`Updating chart ${index} with data:`, probeData);
                     chart.data.datasets[0].data = probeData.timestamps.map((timestamp, i) => ({
                         x: new Date(timestamp).toLocaleString('en-US', { timeZone: timezone }),
@@ -109,6 +109,8 @@ function updateCharts() {
                     }));
                     console.log(`Chart ${index} data:`, chart.data.datasets[0].data);
                     chart.update();
+                } else {
+                    console.warn(`No data available for chart ${index}`);
                 }
             });
         })
