@@ -312,3 +312,11 @@ canvas {
 .dropdown-content li > a:hover {
     background-color: darken(var(--button-color), 10%);
 }
+
+h1 {
+    font-size: 2.5em; /* Adjust the size as needed */
+}
+
+h3 {
+    font-size: 1.5em; /* Ensure this is smaller than h1 */
+}
