@@ -24,11 +24,11 @@ export function fetchTemperatureData(timeRange) {
         })
         .then(data => {
             console.log('Parsed temperature data:', data);
-            // Ensure data is in the correct format
-            if (!data.data || !Array.isArray(data.data)) {
+            // Check if the data is in the expected format
+            if (!data.temperatures || !Array.isArray(data.temperatures)) {
                 throw new Error('Invalid data format');
             }
-            return data.data;  // Return the data array
+            return data.temperatures;  // Return the temperatures array
         })
         .catch(error => {
             console.error('Error fetching temperature data:', error);
