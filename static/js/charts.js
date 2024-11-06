@@ -92,7 +92,7 @@ function updateCharts() {
     const timeRange = document.getElementById('time-range').value;
     fetchTemperatureData(timeRange)
         .then(data => {
-            console.log('Raw data received:', data);
+            console.log('Raw data received:', data);  // Log the raw data for inspection
             if (!Array.isArray(data)) {
                 console.error('Invalid data format received');
                 return;
@@ -103,7 +103,7 @@ function updateCharts() {
             }
             charts.forEach((chart, index) => {
                 const probeData = data[index];
-                if (chart && chart.data && chart.data.datasets && probeData && probeData.timestamps && probeData.temperatures) {  // Check if probeData and its properties are defined
+                if (probeData && probeData.timestamps && probeData.temperatures) {  // Check if probeData and its properties are defined
                     console.log(`Updating chart ${index} with data:`, probeData);
                     chart.data.datasets[0].data = probeData.timestamps.map((timestamp, i) => ({
                         x: new Date(timestamp).toLocaleString('en-US', { timeZone: timezone }),
