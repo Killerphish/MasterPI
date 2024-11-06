@@ -45,7 +45,7 @@
         const addSensorUrl = "{{ url_for('add_sensor') }}";
         const removeSensorUrl = "{{ url_for('remove_sensor') }}";
         const saveSensorSettingsUrl = "{{ url_for('save_sensor_settings') }}";
-        const getTimezonesUrl = "{{ url_for('get_timezones') }}";  // Add this line
+        const getTimezonesUrl = "{{ url_for('get_settings') }}";  // Corrected endpoint
 
         // Define saveSettings in the global scope
         window.saveSettings = function(element) {
