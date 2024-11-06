@@ -621,6 +621,29 @@ async def api_status():
         app.logger.error("Error fetching system status: %s", e, exc_info=True)
         return jsonify({'error': 'Failed to fetch system status'}), 500
 
+@app.route('/get_settings', methods=['GET'])
+async def get_settings():
+    """Fetch application settings."""
+    try:
+        config = await load_config()  # Load the configuration asynchronously
+        settings = {
+            'device': {
+                'name': config['device']['name']
+            },
+            'units': {
+                'temperature': config['units']['temperature']
+            },
+            'personalization': config.get('personalization', {
+                'navColor': '#827f7f',
+                'buttonColor': '#f2f2f2',
+                'backgroundColor': '#ffffff'
+            })
+        }
+        return jsonify(settings)
+    except Exception as e:
+        app.logger.error("Error fetching settings: %s", e, exc_info=True)
+        return jsonify({'error': 'Failed to fetch settings'}), 500
+
 if __name__ == '__main__':
     nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
     asyncio.run(main())
