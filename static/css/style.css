@@ -318,5 +318,5 @@ h1 {
 }
 
 h3 {
-    font-size: 1.5em; /* Ensure this is smaller than h1 */
+    font-size: 1.5em !important; /* Ensure this is smaller than h1 */
 }
