@@ -109,6 +109,7 @@
             fetch('/temp_data')
                 .then(response => response.json())
                 .then(responseData => {
+                    console.log('Response Data:', responseData);  // Log the entire response for debugging
                     const data = responseData.data;  // Access the data property
                     if (data && Array.isArray(data)) {  // Check if data is defined and is an array
                         data.forEach((sensorData, index) => {
