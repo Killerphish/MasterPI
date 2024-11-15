@@ -642,7 +642,7 @@ async def api_status():
 async def get_settings():
     """Fetch application settings."""
     try:
-        config = await load_config()  # Load the configuration asynchronously
+        config = await load_config()
         settings = {
             'device': {
                 'name': config['device']['name']
@@ -654,12 +654,26 @@ async def get_settings():
                 'navColor': '#827f7f',
                 'buttonColor': '#f2f2f2',
                 'backgroundColor': '#ffffff'
-            })
+            }),
+            'sensors': config.get('sensors', [])  # Add sensors to the response
         }
         return jsonify(settings)
     except Exception as e:
         app.logger.error("Error fetching settings: %s", e, exc_info=True)
         return jsonify({'error': 'Failed to fetch settings'}), 500
+
+# Add this new route to reinitialize sensors
+@app.route('/reinitialize_sensors', methods=['POST'])
+async def reinitialize_sensors():
+    """Reinitialize sensors after configuration changes."""
+    try:
+        global active_sensors
+        config = await load_config()
+        active_sensors = initialize_sensors(config)
+        return jsonify({'message': 'Sensors reinitialized successfully'})
+    except Exception as e:
+        app.logger.error("Error reinitializing sensors: %s", e, exc_info=True)
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops

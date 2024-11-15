@@ -94,11 +94,21 @@ function refreshSensorList() {
             
             // Reinitialize event listeners for edit and remove buttons
             initializeSensorButtons();
+
+            // Broadcast sensor configuration change
+            broadcastSensorUpdate();
         })
         .catch(error => {
             console.error('Error refreshing sensor list:', error);
             M.toast({html: 'Error refreshing sensor list'});
         });
+}
+
+// Add this new function to broadcast sensor updates
+function broadcastSensorUpdate() {
+    // Use BroadcastChannel to communicate between tabs/windows
+    const bc = new BroadcastChannel('sensor_updates');
+    bc.postMessage({ type: 'sensor_config_changed' });
 }
 
 document.addEventListener('DOMContentLoaded', function() {

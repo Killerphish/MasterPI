@@ -2,6 +2,8 @@ import { fetchStatus, updateTargetTemp, fetchTemperatureData } from './api.js';
 import { showModal, hideModal } from './modal.js';
 import { initializeCharts, updateCharts } from './charts.js';
 
+const sensorUpdateChannel = new BroadcastChannel('sensor_updates');
+
 function getCsrfToken() {
     const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
     if (csrfTokenMeta) {
@@ -155,4 +157,47 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('time-range').addEventListener('change', () => {
         updateCharts();
     });
+
+    // Add listener for sensor configuration changes
+    sensorUpdateChannel.onmessage = async (event) => {
+        if (event.data.type === 'sensor_config_changed') {
+            console.log('Sensor configuration changed, updating display...');
+            await updateSensorDisplay();
+        }
+    };
 });
+
+// Add this new function to update the sensor display
+async function updateSensorDisplay() {
+    try {
+        // Fetch updated sensor configuration
+        const response = await fetch('/get_settings');
+        const settings = await response.json();
+        
+        // Update probe charts container
+        const probeChartsContainer = document.getElementById('probe-charts');
+        if (probeChartsContainer) {
+            const response = await fetch('/');  // Fetch the main page
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newProbeCharts = doc.getElementById('probe-charts');
+            
+            if (newProbeCharts) {
+                probeChartsContainer.innerHTML = newProbeCharts.innerHTML;
+                // Reinitialize charts
+                initializeCharts();
+                // Update with latest data
+                updateCharts();
+            }
+        }
+
+        // Refresh status display
+        await fetchStatus();
+        
+        M.toast({html: 'Sensor display updated'});
+    } catch (error) {
+        console.error('Error updating sensor display:', error);
+        M.toast({html: 'Error updating sensor display'});
+    }
+}
