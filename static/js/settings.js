@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const instance = M.Modal.getInstance(addSensorModal);
                 instance.open();
             });
-        }, { passive: true });
+        });
     } else {
         console.error('Open Add Sensor Modal button not found');
     }
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .finally(() => {
                 submitButton.disabled = false;
             });
-        }, { passive: true });
+        });
     } else {
         console.error('Add Sensor Form not found');
     }
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (this.value === 'NEW_SENSOR_TYPE_2') {
             // Show/hide fields specific to NEW_SENSOR_TYPE_2
         }
-    }, { passive: true });
+    });
 
     // Function to refresh sensor list
     function refreshSensorList() {
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to fetch and update available pins
     function updateAvailablePins() {
-        return fetch('/get_available_pins')
+        return fetch(getAvailablePinsUrl)
             .then(response => response.json())
             .then(data => {
                 const newSensorCsPin = document.getElementById('newSensorCsPin');
@@ -272,47 +272,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Materialize select
     var elems = document.querySelectorAll('select');
     M.FormSelect.init(elems);
-
-    function fetchAvailablePins() {
-        fetch(getAvailablePinsUrl)
-            .then(response => response.json())
-            .then(pins => {
-                const newSensorCsPin = document.getElementById('newSensorCsPin');
-                const editSensorCsPin = document.getElementById('editSensorCsPin');
-                
-                [newSensorCsPin, editSensorCsPin].forEach(select => {
-                    select.innerHTML = '';
-                    pins.forEach(pin => {
-                        const option = document.createElement('option');
-                        option.value = pin;
-                        option.textContent = pin;
-                        select.appendChild(option);
-                    });
-                    M.FormSelect.init(select);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching available pins:', error);
-            });
-    }
-
-    // Fetch available pins and populate the dropdown
-    fetch(getAvailablePinsUrl)
-        .then(response => response.json())
-        .then(data => {
-            const csPinSelect = document.getElementById('newSensorCsPin');
-            csPinSelect.innerHTML = '<option value="" disabled selected>Choose CS pin</option>';
-            data.available_pins.forEach(pin => {
-                const option = document.createElement('option');
-                option.value = pin;
-                option.textContent = pin;
-                csPinSelect.appendChild(option);
-            });
-            M.FormSelect.init(csPinSelect); // Reinitialize the select element
-        })
-        .catch(error => {
-            console.error('Error fetching available pins:', error);
-        });
-
-    // Add other event listeners and initialization code here
 });
