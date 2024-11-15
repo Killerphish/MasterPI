@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const instance = M.Modal.getInstance(addSensorModal);
                 instance.open();
             });
-        });
+        }, { passive: true });
     } else {
         console.error('Open Add Sensor Modal button not found');
     }
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .finally(() => {
                 submitButton.disabled = false;
             });
-        });
+        }, { passive: true });
     } else {
         console.error('Add Sensor Form not found');
     }
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (this.value === 'NEW_SENSOR_TYPE_2') {
             // Show/hide fields specific to NEW_SENSOR_TYPE_2
         }
-    });
+    }, { passive: true });
 
     // Function to refresh sensor list
     function refreshSensorList() {
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(result => {
                 if (result.message) {
                     M.toast({html: result.message});
-                    refreshSensorList();  // Refresh the sensor list after removing
+                    refreshSensorList();  // Ensure this function updates the DOM correctly
                     updateAvailablePins();  // Update available pins after removing a sensor
                 } else {
                     M.toast({html: `Error: ${result.error}`});
@@ -331,4 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+
+    // Call this function when the page loads
+    initializeSensorButtons();
 });
