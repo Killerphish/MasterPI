@@ -225,7 +225,8 @@
             // Function to handle sensor removal
             function handleRemoveSensor(event) {
                 event.preventDefault();
-                const sensorIndex = this.getAttribute('data-index');
+                const sensorIndex = parseInt(this.getAttribute('data-index'), 10);
+                console.log('Attempting to remove sensor at index:', sensorIndex);
 
                 // Open the confirmation modal
                 const instance = M.Modal.getInstance(deleteSensorModal);
@@ -234,25 +235,31 @@
                 // Set up the confirmation button
                 const confirmDeleteButton = document.querySelector('#confirmDeleteSensor');
                 confirmDeleteButton.onclick = function() {
-                    window.fetchWithCsrf(removeSensorUrl, {
+                    window.fetchWithCsrf('/remove_sensor', {  // Make sure this matches your route
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({ index: sensorIndex })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(result => {
-                        if (result.message) {
-                            M.toast({html: result.message});
-                            refreshSensorList();  // Refresh the sensor list after removing
+                        if (result.success) {  // Check for success property
+                            M.toast({html: result.message || 'Sensor removed successfully'});
+                            // Force a complete page reload to ensure everything is in sync
+                            window.location.reload();
                         } else {
-                            M.toast({html: `Error: ${result.error}`});
+                            M.toast({html: result.error || 'Error removing sensor'});
                         }
                     })
                     .catch(error => {
                         console.error('Error removing sensor:', error);
-                        M.toast({html: `Error: ${error.message}`});
+                        M.toast({html: 'Error removing sensor'});
                     });
                 };
             }
@@ -361,7 +368,12 @@
                     <li class="collection-item">
                         <div>
                             {{ sensor.label }} ({{ sensor.type }})
-                            <a href="#!" class="secondary-content remove-sensor" data-index="{{ loop.index0 }}"><i class="material-icons">delete</i></a>
+                            <a href="#!" 
+                               class="secondary-content remove-sensor" 
+                               data-index="{{ loop.index0 }}"
+                               title="Remove sensor">
+                                <i class="material-icons">delete</i>
+                            </a>
                         </div>
                     </li>
                     {% endfor %}
