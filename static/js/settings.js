@@ -280,4 +280,66 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Materialize select
     var elems = document.querySelectorAll('select');
     M.FormSelect.init(elems);
+
+    // Initialize the edit sensor modal
+    const editSensorModal = document.querySelector('#editSensorModal');
+    M.Modal.init(editSensorModal);
+
+    // Add event listener for the "Edit Sensor" button
+    document.querySelectorAll('.edit-sensor').forEach(button => {
+        button.addEventListener('click', function() {
+            const sensorIndex = this.getAttribute('data-index');
+            const sensorLabel = this.getAttribute('data-label');
+
+            // Populate the form with the current sensor data
+            document.getElementById('editSensorIndex').value = sensorIndex;
+            document.getElementById('editSensorLabel').value = sensorLabel;
+            // Populate other fields as necessary
+
+            // Open the modal
+            const instance = M.Modal.getInstance(editSensorModal);
+            instance.open();
+        });
+    });
+
+    // Handle the edit sensor form submission
+    const editSensorForm = document.querySelector('#editSensorForm');
+    if (editSensorForm) {
+        editSensorForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const sensorIndex = document.getElementById('editSensorIndex').value;
+            const sensorLabel = document.getElementById('editSensorLabel').value;
+            // Get other updated properties
+
+            const updatedSensorData = {
+                index: sensorIndex,
+                label: sensorLabel,
+                // Include other properties
+            };
+
+            window.fetchWithCsrf('/edit_sensor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedSensorData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    M.toast({html: 'Sensor updated successfully'});
+                    refreshSensorList();
+                    const instance = M.Modal.getInstance(editSensorModal);
+                    instance.close();
+                } else {
+                    M.toast({html: `Error updating sensor: ${data.error}`});
+                }
+            })
+            .catch(error => {
+                console.error('Error updating sensor:', error);
+                M.toast({html: 'Error updating sensor'});
+            });
+        });
+    }
 });

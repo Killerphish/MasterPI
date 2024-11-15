@@ -675,6 +675,33 @@ async def reinitialize_sensors():
         app.logger.error("Error reinitializing sensors: %s", e, exc_info=True)
         return jsonify({'error': str(e)}), 500
 
+@app.route('/edit_sensor', methods=['POST'])
+async def edit_sensor():
+    """Edit sensor properties."""
+    try:
+        data = await request.get_json()
+        sensor_index = data.get('index')
+        sensor_label = data.get('label')
+        # Update other properties as needed
+
+        config = await load_config()
+
+        # Verify the sensor exists at the specified index
+        if sensor_index >= len(config['sensors']):
+            return jsonify({'error': 'Invalid sensor index'}), 400
+
+        # Update the sensor properties
+        config['sensors'][sensor_index]['label'] = sensor_label
+        # Update other properties
+
+        # Save the updated configuration
+        await save_config(config)
+
+        return jsonify({'success': True, 'message': f'Sensor {sensor_label} updated successfully'})
+    except Exception as e:
+        app.logger.error("Error updating sensor: %s", e, exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
     asyncio.run(main())
