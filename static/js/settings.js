@@ -38,6 +38,13 @@ window.saveSettings = function(element) {
 };
 
 function applyColorChange(settingName, value) {
+    // Validate the color value format
+    const isValidColor = /^#[0-9A-F]{6}$/i.test(value);
+    if (!isValidColor) {
+        console.error(`Invalid color value for ${settingName}: ${value}`);
+        return;
+    }
+
     switch(settingName) {
         case 'navColor':
             document.documentElement.style.setProperty('--nav-color', value);
@@ -342,4 +349,21 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Set default color values if they are not already set
+    const defaultColors = {
+        navColor: '#000000',
+        navTextColor: '#FFFFFF',
+        buttonColor: '#000000',
+        buttonTextColor: '#FFFFFF',
+        backgroundColor: '#FFFFFF'
+    };
+
+    Object.keys(defaultColors).forEach(settingName => {
+        const inputElement = document.querySelector(`input[name="${settingName}"]`);
+        if (inputElement && !/^#[0-9A-F]{6}$/i.test(inputElement.value)) {
+            inputElement.value = defaultColors[settingName];
+            applyColorChange(settingName, defaultColors[settingName]);
+        }
+    });
 });
