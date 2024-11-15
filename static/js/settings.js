@@ -57,6 +57,50 @@ function applyColorChange(settingName, value) {
     }
 }
 
+// Move function definitions to the top level, outside of DOMContentLoaded
+function updateAvailablePins() {
+    return fetch(getAvailablePinsUrl)
+        .then(response => response.json())
+        .then(data => {
+            const newSensorCsPin = document.getElementById('newSensorCsPin');
+            const editSensorCsPin = document.getElementById('editSensorCsPin');
+            
+            [newSensorCsPin, editSensorCsPin].forEach(select => {
+                if (select) {
+                    select.innerHTML = '<option value="" disabled selected>Choose CS pin</option>';
+                    data.available_pins.forEach(pin => {
+                        const option = document.createElement('option');
+                        option.value = pin;
+                        option.textContent = pin;
+                        select.appendChild(option);
+                    });
+                    M.FormSelect.init(select);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error updating available pins:', error);
+        });
+}
+
+function refreshSensorList() {
+    fetch('/settings')
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newSensorList = doc.querySelector('.collection');
+            document.querySelector('.collection').innerHTML = newSensorList.innerHTML;
+            
+            // Reinitialize event listeners for edit and remove buttons
+            initializeSensorButtons();
+        })
+        .catch(error => {
+            console.error('Error refreshing sensor list:', error);
+            M.toast({html: 'Error refreshing sensor list'});
+        });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded');
 
@@ -110,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 sensorData.chip_select_pin = document.querySelector('#newSensorCsPin').value;
             }
 
-            window.fetchWithCsrf('/add_sensor', {
+            window.fetchWithCsrf(addSensorUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -160,26 +204,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show/hide fields specific to NEW_SENSOR_TYPE_2
         }
     });
-
-    // Function to refresh sensor list
-    function refreshSensorList() {
-        fetch('/settings')
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const newSensorList = doc.querySelector('.collection');
-                const currentSensorList = document.querySelector('.collection');
-                if (currentSensorList && newSensorList) {
-                    currentSensorList.innerHTML = newSensorList.innerHTML;
-                    initializeSensorButtons();  // Re-initialize buttons for the new list
-                }
-            })
-            .catch(error => {
-                console.error('Error refreshing sensor list:', error);
-                M.toast({html: 'Error refreshing sensor list'});
-            });
-    }
 
     // Function to initialize sensor buttons
     function initializeSensorButtons() {
@@ -233,32 +257,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 M.toast({html: `Error: ${error.message}`});
             });
         };
-    }
-
-    // Function to fetch and update available pins
-    function updateAvailablePins() {
-        return fetch(getAvailablePinsUrl)
-            .then(response => response.json())
-            .then(data => {
-                const newSensorCsPin = document.getElementById('newSensorCsPin');
-                const editSensorCsPin = document.getElementById('editSensorCsPin');
-                
-                [newSensorCsPin, editSensorCsPin].forEach(select => {
-                    if (select) {
-                        select.innerHTML = '<option value="" disabled selected>Choose CS pin</option>';
-                        data.available_pins.forEach(pin => {
-                            const option = document.createElement('option');
-                            option.value = pin;
-                            option.textContent = pin;
-                            select.appendChild(option);
-                        });
-                        M.FormSelect.init(select);
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error updating available pins:', error);
-            });
     }
 
     // Initial fetch of available pins
