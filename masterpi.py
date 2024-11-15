@@ -561,15 +561,32 @@ async def remove_sensor():
     """Remove a sensor."""
     try:
         data = await request.get_json()
+        sensor_index = data.get('index')
         sensor_label = data.get('label')
         
-        # Logic to remove the sensor from your configuration or database
-        # For example:
+        app.logger.info(f"Attempting to remove sensor - Index: {sensor_index}, Label: {sensor_label}")
+        
+        if sensor_index is None:
+            return jsonify({'error': 'Sensor index is required'}), 400
+            
         config = await load_config()
-        config['sensors'] = [sensor for sensor in config['sensors'] if sensor['label'] != sensor_label]
+        
+        # Verify the sensor exists at the specified index
+        if sensor_index >= len(config['sensors']):
+            return jsonify({'error': 'Invalid sensor index'}), 400
+            
+        # Remove the sensor at the specified index
+        removed_sensor = config['sensors'].pop(sensor_index)
+        app.logger.info(f"Removed sensor: {removed_sensor}")
+        
+        # Save the updated configuration
         await save_config(config)
         
-        return jsonify({'message': f'Sensor {sensor_label} removed successfully'})
+        return jsonify({
+            'success': True,
+            'message': f'Sensor {removed_sensor["label"]} removed successfully'
+        })
+        
     except Exception as e:
         app.logger.error("Error removing sensor: %s", e, exc_info=True)
         return jsonify({'error': str(e)}), 500

@@ -184,6 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to initialize sensor buttons
     function initializeSensorButtons() {
         document.querySelectorAll('.remove-sensor').forEach(button => {
+            button.removeEventListener('click', handleRemoveSensor);
             button.addEventListener('click', handleRemoveSensor);
         });
     }
@@ -192,7 +193,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleRemoveSensor(event) {
         event.preventDefault();
         const sensorIndex = parseInt(this.getAttribute('data-index'), 10);
-        console.log(`Attempting to remove sensor at index: ${sensorIndex}`);
+        const sensorLabel = this.closest('.collection-item').querySelector('div').textContent.trim().split(' (')[0];
+        console.log(`Attempting to remove sensor: ${sensorLabel} at index: ${sensorIndex}`);
 
         // Open the confirmation modal
         const instance = M.Modal.getInstance(deleteSensorModal);
@@ -206,16 +208,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ index: sensorIndex })
+                body: JSON.stringify({ 
+                    index: sensorIndex,
+                    label: sensorLabel  // Add the label for better identification
+                })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(result => {
-                if (result.message) {
-                    M.toast({html: result.message});
-                    refreshSensorList();  // Ensure this function updates the DOM correctly
-                    updateAvailablePins();  // Update available pins after removing a sensor
+                if (result.success || result.message) {
+                    M.toast({html: result.message || 'Sensor removed successfully'});
+                    // Force a complete page reload to ensure everything is in sync
+                    window.location.reload();
                 } else {
-                    M.toast({html: `Error: ${result.error}`});
+                    M.toast({html: result.error || 'Error removing sensor'});
                 }
             })
             .catch(error => {
@@ -305,33 +315,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
     // Add other event listeners and initialization code here
-
-    function removeSensor(sensorLabel) {
-        if (confirm(`Are you sure you want to remove the sensor "${sensorLabel}"?`)) {
-            window.fetchWithCsrf(removeSensorUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ label: sensorLabel })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    M.toast({html: data.message});
-                    refreshSensorList();
-                    updateAvailablePins();
-                } else {
-                    M.toast({html: `Error removing sensor: ${data.error}`});
-                }
-            })
-            .catch(error => {
-                console.error('Error removing sensor:', error);
-                M.toast({html: 'Error removing sensor'});
-            });
-        }
-    }
-
-    // Call this function when the page loads
-    initializeSensorButtons();
 });
