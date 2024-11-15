@@ -370,12 +370,16 @@
                             {{ sensor.label }} ({{ sensor.type }})
                             <a href="#!" 
                                class="secondary-content remove-sensor" 
-                               data-index="{{ loop.index0 }}"
-                               data-label="{{ sensor.label }}"
+                               data-index="{{ loop.index0 }}" 
+                               data-label="{{ sensor.label }}" 
                                title="Remove sensor">
                                 <i class="material-icons">delete</i>
                             </a>
-                            <a href="#editSensorModal" class="secondary-content edit-sensor modal-trigger" data-index="{{ loop.index0 }}" data-label="{{ sensor.label }}" title="Edit sensor">
+                            <a href="#editSensorModal" 
+                               class="secondary-content edit-sensor modal-trigger" 
+                               data-index="{{ loop.index0 }}" 
+                               data-label="{{ sensor.label }}" 
+                               title="Edit sensor">
                                 <i class="material-icons">edit</i>
                             </a>
                         </div>

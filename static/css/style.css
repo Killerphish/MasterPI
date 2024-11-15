@@ -320,3 +320,7 @@ h1 {
 h3 {
     font-size: 1.5em !important; /* Ensure this is smaller than h1 */
 }
+
+.collection .collection-item .secondary-content a {
+    margin-left: 10px; /* Add space between buttons */
+}
